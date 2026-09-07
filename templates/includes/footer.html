@@ -1,0 +1,56 @@
+<footer class="site-footer" id="footer">
+  <div class="container">
+    <div class="grid grid--foot">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <span class="brand__mark" aria-hidden="true" style="width:26px;height:26px"></span>
+          <span class="footer-brand__name">{{ site_name }}</span>
+        </div>
+        <p style="font-size:13px;line-height:1.6">Насіння, добрива, засоби захисту рослин та все для саду й городу. Власне виробництво з сертифікатами якості.</p>
+        <div class="footer-payments">
+          <span>LiqPay</span>
+          <span>Нова Пошта</span>
+          <span>Укрпошта</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col__title">Категорії</div>
+        <ul>
+          {% for cat in nav_categories|slice:":6" %}
+            <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col__title">Інформація</div>
+        <ul>
+          <li><a href="{% url 'about' %}">Про нас</a></li>
+          <li><a href="{% url 'delivery' %}">Доставка і оплата</a></li>
+          <li><a href="{% url 'certificates' %}">Сертифікати</a></li>
+          <li><a href="{% url 'contacts' %}">Контакти</a></li>
+          <li><a href="{% url 'offer' %}">Договір оферти</a></li>
+          <li><a href="{% url 'privacy' %}">Політика конфіденційності</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col__title">Контакти</div>
+        <ul>
+          <li><a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a></li>
+          <li>{{ site_working_hours }}</li>
+          <li><a href="{% url 'contacts' %}">Написати нам</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© {% now "Y" %} {{ site_name }}. Усі права захищено.</span>
+      <nav>
+        <a href="{% url 'offer' %}">Оферта</a>
+        <a href="{% url 'privacy' %}">Конфіденційність</a>
+      </nav>
+    </div>
+  </div>
+</footer>

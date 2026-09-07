@@ -1,0 +1,102 @@
+/* ============================================================
+   LAYOUT — сітки, плейсхолдер медіа, службові утиліти (mobile-first)
+   ============================================================ */
+
+/* --- Плейсхолдер зображення (поки немає реальних фото) --- */
+.ph {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--c-oat), var(--c-sageband));
+}
+.ph::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--c-gold) 35%, transparent) 0, transparent 45%),
+    radial-gradient(circle at 75% 70%, color-mix(in srgb, var(--c-rose) 22%, transparent) 0, transparent 50%);
+}
+.ph__icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--c-ink) 35%, transparent);
+}
+.ph--1x1 { aspect-ratio: 1 / 1; }
+.ph--4x3 { aspect-ratio: 4 / 3; }
+.ph--16x9 { aspect-ratio: 16 / 9; }
+.ph--3x4 { aspect-ratio: 3 / 4; }
+
+/* --- Сітки (mobile-first, розширюються медіазапитами) --- */
+.grid { display: grid; gap: clamp(14px, 2vw, 24px); }
+.grid--2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid--cats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid--trust { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid--foot { grid-template-columns: 1fr; }
+.grid--products { grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+@media (min-width: 600px) {
+  .grid--cats { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .grid--products { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .grid--foot { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (min-width: 900px) {
+  [data-desktop] { display: flex; }
+  [data-mobile] { display: none; }
+  .grid--cats { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .grid--trust { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .grid--products { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .grid--foot { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .grid--2col { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+[data-desktop] { display: none; }
+[data-mobile] { display: flex; }
+
+/* --- Горизонтальна гортальна стрічка (мобільні плитки/хіти) --- */
+.hscroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 4px;
+}
+.hscroll > * { scroll-snap-align: start; flex: 0 0 auto; }
+
+@media (min-width: 900px) {
+  .hscroll { overflow-x: visible; }
+}
+
+/* --- Секції --- */
+.section { padding-block: clamp(40px, 7vw, 80px); }
+.section--tight { padding-block: clamp(28px, 5vw, 48px); }
+.section--surface { background: var(--c-surface); }
+.section--oat { background: var(--c-oat); }
+.section--sageband { background: var(--c-sageband); }
+.section--limeband { background: var(--c-limeband); }
+.section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: clamp(20px, 3vw, 32px);
+  flex-wrap: wrap;
+}
+
+/* --- Хлібні крихти --- */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--c-muted);
+  padding-block: 14px;
+}
+.breadcrumbs a { color: var(--c-muted); }
+.breadcrumbs a:hover { color: var(--c-sage); }
+.breadcrumbs span[aria-hidden] { color: var(--c-border); }
+.breadcrumbs .is-current { color: var(--c-ink); font-weight: 600; }

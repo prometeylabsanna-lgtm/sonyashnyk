@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Про нас — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/pages.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Про нас</span></div>
+
+<div class="container section--tight">
+  <div class="about-hero">
+    <div>{% include "includes/media_placeholder.html" with ratio="4x3" %}</div>
+    <div>
+      <span class="eyebrow">Наша історія</span>
+      <h1 class="h1" style="margin-top:10px">Соняшник — сад, город і насіння з турботою</h1>
+      <p style="margin-top:16px;color:var(--c-body)">Ми постачаємо насіння, добрива, засоби захисту рослин та інструмент для саду й городу. Частину продукції виробляємо самостійно й підтверджуємо якість сертифікатами.</p>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <h2>Чому обирають нас</h2>
+    <ul>
+      <li>Понад 1000 товарів для саду, городу та дому в одному каталозі.</li>
+      <li>Власне виробництво насіння, добрив і ґрунтів із сертифікатами якості.</li>
+      <li>Швидка доставка Новою Поштою та Укрпоштою по всій Україні.</li>
+      <li>Консультація агронома для підбору потрібних препаратів і насіння.</li>
+    </ul>
+
+    <h2>Власне виробництво</h2>
+    <p>Ми контролюємо якість на кожному етапі — від вибору сировини до фасування. Усі документи щодо власної продукції доступні на сторінці сертифікатів.</p>
+  </div>
+
+  <div style="margin-top:24px">
+    <a href="{% url 'catalog:sale' %}" class="btn btn--primary">Перейти в каталог</a>
+    <a href="{% url 'certificates' %}" class="btn btn--outline" style="margin-left:12px">Сертифікати</a>
+  </div>
+</div>
+{% endblock %}

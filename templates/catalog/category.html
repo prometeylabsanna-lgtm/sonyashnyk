@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if category %}{{ category.name }}{% else %}Акції та знижки{% endif %} — {{ site_name }}{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+
+{% block content %}
+
+{% if category %}
+  {% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs %}
+{% else %}
+  <div class="container" style="padding-block:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Акції / знижки</span></div>
+{% endif %}
+
+<div class="container section--tight">
+  <h1 class="h1">{% if category %}{{ category.name }}{% else %}Акції та знижки{% endif %}</h1>
+
+  {% if subcategories %}
+    <div class="subcats hscroll" style="margin-top:24px">
+      {% for sub in subcategories %}
+        <a href="{{ sub.get_absolute_url }}" class="subcat-tile">
+          <div class="subcat-tile__media">{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+          <span class="subcat-tile__name">{{ sub.name }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="catalog-toolbar">
+    <span class="catalog-toolbar__count">Знайдено: {{ total_count }} товар(ів)</span>
+    <div class="catalog-toolbar__right">
+      <button type="button" class="filters-btn" data-filters-toggle>
+        Фільтри
+        {% if active_filters_count %}<span class="filters-btn__count">{{ active_filters_count }}</span>{% endif %}
+      </button>
+      <select class="sort-select" data-sort-select aria-label="Сортування">
+        <option value="popularity" {% if current_sort == "popularity" %}selected{% endif %}>За популярністю</option>
+        <option value="price_asc" {% if current_sort == "price_asc" %}selected{% endif %}>Спочатку дешевші</option>
+        <option value="price_desc" {% if current_sort == "price_desc" %}selected{% endif %}>Спочатку дорожчі</option>
+        <option value="new" {% if current_sort == "new" %}selected{% endif %}>Новинки</option>
+        <option value="name" {% if current_sort == "name" %}selected{% endif %}>За назвою (А–Я)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="catalog-layout">
+    {% include "catalog/_filters_panel.html" %}
+
+    <div class="catalog-layout__main">
+      {% if products %}
+        <div class="grid grid--products">
+          {% for product in products %}{% include "includes/product_card.html" %}{% endfor %}
+        </div>
+        {% include "includes/pagination.html" with page_obj=products %}
+      {% else %}
+        <div class="empty-state">
+          <h2>Товарів не знайдено</h2>
+          <p>Спробуйте змінити фільтри або перегляньте інші категорії.</p>
+          <a href="{% url 'home' %}" class="btn btn--primary" style="margin-top:16px">На головну</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/filters-drawer.js' %}" defer></script>{% endblock %}

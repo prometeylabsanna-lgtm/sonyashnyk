@@ -1,0 +1,103 @@
+from decimal import Decimal
+
+from django.db import models
+
+
+class Order(models.Model):
+    """Оформлене замовлення (не заявка з форми) — окремий об'єкт обліку."""
+
+    class DeliveryMethod(models.TextChoices):
+        NP_BRANCH = "np_branch", "Нова Пошта — відділення"
+        NP_LOCKER = "np_locker", "Нова Пошта — поштомат"
+        NP_COURIER = "np_courier", "Нова Пошта — курʼєр"
+        UKRPOSHTA = "ukrposhta", "Укрпошта"
+        PICKUP = "pickup", "Самовивіз"
+
+    class PaymentMethod(models.TextChoices):
+        LIQPAY = "liqpay", "Оплата карткою (LiqPay)"
+        COD = "cod", "Оплата при отриманні (накладений платіж)"
+        CASH_PICKUP = "cash_pickup", "Оплата при самовивозі"
+
+    class PaymentStatus(models.TextChoices):
+        PENDING = "pending", "Очікує оплати"
+        PAID = "paid", "Оплачено"
+        FAILED = "failed", "Помилка оплати"
+
+    class Status(models.TextChoices):
+        NEW = "new", "Нове"
+        PROCESSING = "processing", "В обробці"
+        SHIPPED = "shipped", "Відправлено"
+        DONE = "done", "Виконано"
+
+    order_number = models.CharField("Номер замовлення", max_length=20, unique=True, editable=False)
+
+    full_name = models.CharField("ПІБ", max_length=180)
+    phone = models.CharField("Телефон", max_length=32)
+    email = models.EmailField("Email", blank=True)
+
+    delivery_method = models.CharField("Спосіб доставки", max_length=16, choices=DeliveryMethod.choices)
+    city = models.CharField("Місто", max_length=120, blank=True)
+    warehouse = models.CharField("Відділення / адреса", max_length=200, blank=True)
+
+    payment_method = models.CharField("Спосіб оплати", max_length=16, choices=PaymentMethod.choices)
+    payment_status = models.CharField(
+        "Статус оплати", max_length=16, choices=PaymentStatus.choices, default=PaymentStatus.PENDING,
+    )
+    status = models.CharField("Статус замовлення", max_length=16, choices=Status.choices, default=Status.NEW)
+
+    comment = models.TextField("Коментар до замовлення", blank=True)
+    promo_code = models.CharField("Промокод", max_length=40, blank=True)
+    discount_total = models.DecimalField("Сума знижки", max_digits=10, decimal_places=2, default=Decimal("0"))
+    subtotal = models.DecimalField("Сума товарів", max_digits=10, decimal_places=2, default=Decimal("0"))
+    total = models.DecimalField("До сплати", max_digits=10, decimal_places=2, default=Decimal("0"))
+
+    agreed_to_data_processing = models.BooleanField("Згода на обробку даних", default=False)
+    created_at = models.DateTimeField("Створено", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Замовлення"
+        verbose_name_plural = "Замовлення"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Замовлення {self.order_number}"
+
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            self.order_number = self._generate_order_number()
+        super().save(*args, **kwargs)
+
+    def _generate_order_number(self):
+        from django.utils import timezone
+
+        prefix = timezone.now().strftime("%y%m%d")
+        last = Order.objects.filter(order_number__startswith=prefix).count() + 1
+        return f"{prefix}-{last:04d}"
+
+
+class OrderItem(models.Model):
+    """Позиція замовлення. Ціна й назва фіксуються на момент купівлі (снапшот)."""
+
+    order = models.ForeignKey(Order, verbose_name="Замовлення", on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(
+        "catalog.Product", verbose_name="Товар", null=True, on_delete=models.SET_NULL, related_name="order_items",
+    )
+    variant = models.ForeignKey(
+        "catalog.ProductVariant", verbose_name="Варіант", null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="order_items",
+    )
+    product_name = models.CharField("Назва товару (на момент купівлі)", max_length=255)
+    variant_label = models.CharField("Варіант (на момент купівлі)", max_length=80, blank=True)
+    price = models.DecimalField("Ціна за од.", max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField("Кількість", default=1)
+
+    class Meta:
+        verbose_name = "Позиція замовлення"
+        verbose_name_plural = "Позиції замовлення"
+
+    def __str__(self):
+        return f"{self.product_name} × {self.quantity}"
+
+    @property
+    def line_total(self):
+        return self.price * self.quantity

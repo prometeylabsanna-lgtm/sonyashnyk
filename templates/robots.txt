@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /koshyk/
+Disallow: /oformlennya/
+Allow: /
+
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml

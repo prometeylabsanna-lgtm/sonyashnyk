@@ -1,0 +1,13 @@
+/* ============================================================
+   MOTION — підключається ОСТАННІМ у base.html.
+   Завдяки порядку каскаду (та однаковій специфічності) перекриває
+   тривалості анімацій/переходів з усіх попередніх файлів без !important.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms;
+    animation-iteration-count: 1;
+    transition-duration: .001ms;
+    scroll-behavior: auto;
+  }
+}

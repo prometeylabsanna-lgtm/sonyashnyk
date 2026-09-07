@@ -1,0 +1,42 @@
+<div class="modal" id="lead-modal" data-lead-modal aria-hidden="true">
+  <div class="modal__overlay" data-modal-close></div>
+  <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
+    <button type="button" class="modal__close" aria-label="Закрити" data-modal-close>
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l12 12M16 4 4 16"/></svg>
+    </button>
+
+    <form class="modal__form" data-lead-form action="{% url 'leads:create' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="lead_type" value="phone_modal" data-lead-type-input>
+      <input type="hidden" name="product" value="" data-lead-product-input>
+      <input type="hidden" name="source_page" value="{{ request.path }}">
+      <input type="text" name="honeypot" class="visually-hidden" tabindex="-1" autocomplete="off">
+
+      <span class="eyebrow modal__eyebrow" data-lead-eyebrow>Спеціально для вас</span>
+      <h2 id="lead-modal-title" class="h2 modal__title" data-lead-title>Не йдіть без подарунка!</h2>
+      <p class="modal__lead" data-lead-lead>Залиште номер телефону — передзвонимо і підкажемо знижку та найкращі товари під ваш запит.</p>
+
+      <div class="field">
+        <label for="lead-modal-name">Ім'я</label>
+        <input type="text" id="lead-modal-name" name="name" placeholder="Ваше ім'я" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="lead-modal-phone">Телефон</label>
+        <input type="tel" id="lead-modal-phone" name="phone" placeholder="+380" required data-phone-mask autocomplete="tel">
+      </div>
+      <div class="field field--checkbox">
+        <input type="checkbox" id="lead-modal-agree" required>
+        <label for="lead-modal-agree" style="font-size:12.5px;font-weight:400">Погоджуюсь на обробку персональних даних</label>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--block">Отримати знижку</button>
+    </form>
+
+    <div class="modal__success" data-lead-success>
+      <h3 class="h3">Дякуємо!</h3>
+      <p style="margin-top:8px;color:var(--c-muted)">Ми зв'яжемось з вами найближчим часом.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" data-toast role="status" aria-live="polite"></div>

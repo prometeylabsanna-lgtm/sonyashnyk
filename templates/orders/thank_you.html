@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Дякуємо за замовлення — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="thank-you">
+    <div class="thank-you__icon" aria-hidden="true">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+    </div>
+    <h1 class="h1">Дякуємо за замовлення!</h1>
+    <p class="thank-you__order">Номер замовлення: №{{ order.order_number }}</p>
+
+    {% if order.payment_method == "liqpay" and order.payment_status == "pending" %}
+      <p style="color:var(--c-muted)">Очікуємо підтвердження оплати LiqPay. Якщо оплата не пройшла — зв'яжіться з нами.</p>
+    {% else %}
+      <p style="color:var(--c-muted)">Найближчим часом наш менеджер зв'яжеться з вами для підтвердження.</p>
+    {% endif %}
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap">
+      <a href="{% url 'catalog:sale' %}" class="btn btn--primary">Продовжити покупки</a>
+      <a href="{% url 'home' %}" class="btn btn--outline">На головну</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

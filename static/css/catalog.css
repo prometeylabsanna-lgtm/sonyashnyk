@@ -1,0 +1,107 @@
+/* ============================================================
+   КАТАЛОГ / КАТЕГОРІЯ / ПОШУК
+   ============================================================ */
+.subcats { margin-bottom: clamp(20px, 3vw, 32px); }
+.subcat-tile {
+  width: 130px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center;
+}
+.subcat-tile__media { width: 84px; height: 84px; border-radius: 50%; }
+.subcat-tile__name { font-size: 12.5px; font-weight: 600; color: var(--c-ink); }
+
+.catalog-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-block: 12px; border-bottom: 1px solid var(--c-border); margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.catalog-toolbar__count { font-size: 13px; color: var(--c-muted); }
+.catalog-toolbar__right { display: flex; align-items: center; gap: 10px; }
+.sort-select {
+  min-height: 42px; padding: 0 12px; border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm); background: var(--c-surface); font-size: 13px;
+}
+.filters-btn {
+  min-height: 42px; padding: 0 16px; border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm); background: var(--c-surface);
+  font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+}
+.filters-btn__count {
+  min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px;
+  background: var(--c-sage); color: var(--c-surface); font-size: 11px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.catalog-layout { display: flex; gap: 32px; align-items: flex-start; }
+.catalog-layout__main { flex: 1; min-width: 0; }
+
+/* --- Фільтри: шторка (мобільно/планшет) → бічна панель (десктоп) --- */
+.filters {
+  position: fixed; inset: 0; z-index: var(--z-drawer);
+  visibility: hidden;
+}
+.filters.is-open { visibility: visible; }
+.filters__overlay {
+  position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--c-ink) 45%, transparent);
+  opacity: 0; transition: opacity var(--t-med) var(--ease);
+}
+.filters.is-open .filters__overlay { opacity: 1; }
+.filters__panel {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: min(90vw, 380px);
+  background: var(--c-surface);
+  padding: max(16px, env(safe-area-inset-top)) 18px 16px;
+  transform: translateX(100%);
+  transition: transform var(--t-med) var(--ease);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.filters.is-open .filters__panel { transform: translateX(0); }
+.filters__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 14px; border-bottom: 1px solid var(--c-border); margin-bottom: 16px;
+}
+.filter-group { margin-bottom: 22px; }
+.filter-group__title { font-size: 14px; font-weight: 700; color: var(--c-ink); margin-bottom: 10px; }
+.filter-check { display: flex; align-items: center; gap: 10px; min-height: 38px; font-size: 14px; }
+.filter-check input { width: 18px; height: 18px; }
+.filter-range { display: flex; align-items: center; gap: 10px; }
+.filter-range input {
+  width: 100%; min-height: 42px; padding: 0 10px; border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm); font-size: 13.5px;
+}
+.filters__foot { margin-top: auto; padding-top: 16px; display: flex; gap: 10px; }
+
+@media (min-width: 1100px) {
+  .filters-btn { display: none; }
+  .filters {
+    position: static; visibility: visible; inset: auto; z-index: auto;
+    flex: 0 0 260px;
+  }
+  .filters__overlay { display: none; }
+  .filters__panel {
+    position: static; width: auto; transform: none; padding: 0;
+    border: 1px solid var(--c-border); border-radius: var(--radius-md);
+    padding: 20px; overflow: visible;
+  }
+  .filters__head { display: none; }
+  .filters__foot { position: static; }
+}
+
+/* --- Пагінація --- */
+.pagination {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: clamp(28px, 4vw, 40px); flex-wrap: wrap;
+}
+.pagination a, .pagination span {
+  min-width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--c-border); border-radius: var(--radius-sm); font-size: 13.5px;
+}
+.pagination .is-current { background: var(--c-sage); color: var(--c-surface); border-color: var(--c-sage); }
+.pagination a:hover { border-color: var(--c-sage); text-decoration: none; }
+
+.load-more { display: flex; justify-content: center; margin-top: clamp(24px, 4vw, 36px); }
+
+.empty-state { text-align: center; padding: clamp(40px, 8vw, 80px) 16px; color: var(--c-muted); }
+.empty-state h2 { margin-bottom: 10px; }

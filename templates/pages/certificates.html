@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Сертифікати — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/pages.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Сертифікати</span></div>
+
+<div class="container section--tight">
+  <h1 class="h1">Сертифікати власного виробництва</h1>
+  <p style="margin-top:10px;color:var(--c-muted)">Документи, що підтверджують якість продукції власного виробництва «{{ site_name }}».</p>
+
+  {% if series_list %}
+    <div class="cert-filter">
+      <button type="button" class="is-active" data-cert-filter="all">Усі</button>
+      {% for series in series_list %}
+        <button type="button" data-cert-filter="{{ series }}">{{ series }}</button>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if certificates %}
+    <div class="grid grid--products">
+      {% for cert in certificates %}
+        <div class="cert-card" data-cert-card data-series="{{ cert.series }}">
+          {% include "includes/media_placeholder.html" with ratio="3x4" %}
+          <div class="cert-card__body">
+            <div class="cert-card__title">{{ cert.title }}</div>
+            {% if cert.file %}<a href="{{ cert.file.url }}" target="_blank" rel="noopener" class="link-accent">Завантажити PDF</a>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h2>Сертифікати додаються</h2>
+      <p>Наразі документи в процесі завантаження в адмінку. Зверніться до нас за деталями.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/pages.js' %}" defer></script>{% endblock %}

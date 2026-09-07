@@ -1,0 +1,79 @@
+/* ============================================================
+   КАРТКА ТОВАРУ (PDP)
+   ============================================================ */
+.pdp { display: grid; gap: clamp(24px, 4vw, 40px); }
+@media (min-width: 900px) {
+  .pdp { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; }
+}
+
+/* --- Галерея --- */
+.gallery__main {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+.gallery__main[data-hide-scroll] { scrollbar-width: none; }
+.gallery__main::-webkit-scrollbar { display: none; }
+.gallery__slide { flex: 0 0 100%; scroll-snap-align: start; }
+.gallery__thumbs { display: flex; gap: 10px; margin-top: 10px; overflow-x: auto; }
+.gallery__thumb {
+  width: 64px; height: 64px; border-radius: var(--radius-sm); overflow: hidden;
+  border: 2px solid transparent; flex: 0 0 auto; padding: 0;
+}
+.gallery__thumb.is-active { border-color: var(--c-sage); }
+
+/* --- Інфо-блок --- */
+.pdp-info__badges { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.pdp-info__title { margin-bottom: 8px; }
+.pdp-info__meta { font-size: 13px; color: var(--c-muted); margin-bottom: 16px; }
+.pdp-info__prices { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+.pdp-info__price { font-size: 30px; color: var(--c-ink); }
+.pdp-info__stock { font-size: 13.5px; font-weight: 600; color: var(--c-success); margin-bottom: 18px; }
+.pdp-info__stock.is-out { color: var(--c-danger); }
+
+.variant-group { margin-bottom: 20px; }
+.variant-group__title { font-size: 13px; font-weight: 700; color: var(--c-ink); margin-bottom: 10px; }
+.variant-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.variant-chip {
+  min-height: 42px; padding: 0 16px; border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm); background: var(--c-surface); font-size: 13.5px;
+  transition: border-color var(--t-fast) ease, background-color var(--t-fast) ease;
+}
+.variant-chip.is-active { border-color: var(--c-sage); background: var(--c-sageband); font-weight: 700; }
+.variant-chip:disabled { opacity: .4; text-decoration: line-through; }
+
+.qty-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+.qty-stepper { display: flex; align-items: center; border: 1px solid var(--c-border); border-radius: var(--radius-sm); }
+.qty-stepper button { width: 42px; height: 44px; background: transparent; border: 0; font-size: 18px; }
+.qty-stepper input {
+  width: 44px; height: 44px; border: 0; border-left: 1px solid var(--c-border);
+  border-right: 1px solid var(--c-border); text-align: center; font-size: 15px; background: transparent;
+}
+.pdp-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.pdp-actions .btn { flex: 1; min-width: 180px; }
+
+.pdp-tabs { border-top: 1px solid var(--c-border); }
+.pdp-tabs__nav { display: flex; gap: clamp(16px, 3vw, 28px); overflow-x: auto; border-bottom: 1px solid var(--c-border); }
+.pdp-tabs__btn {
+  padding: 14px 2px; border: 0; background: transparent; white-space: nowrap;
+  font-size: 13.5px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--c-muted); border-bottom: 2px solid transparent;
+}
+.pdp-tabs__btn.is-active { color: var(--c-ink); border-color: var(--c-sage); }
+.pdp-tabs__panel { padding-block: 20px; display: none; }
+.pdp-tabs__panel.is-active { display: block; }
+
+.spec-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.spec-table tr { border-bottom: 1px solid var(--c-border); }
+.spec-table th, .spec-table td { text-align: left; padding: 10px 0; }
+.spec-table th { color: var(--c-muted); font-weight: 500; width: 45%; }
+
+.doc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.doc-list a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 600;
+}
+.doc-list a:hover { border-color: var(--c-sage); background: var(--c-sageband); text-decoration: none; }

@@ -1,0 +1,57 @@
+/* ============================================================
+   СОНЯШНИК — дизайн-токени (за референсом Sonyashnyk Cottage)
+   ============================================================ */
+:root {
+  /* --- Кольори --- */
+  --c-bg: #faf7f2;
+  --c-oat: #efe9e0;
+  --c-sageband: #ddebef;
+  --c-limeband: #faffd4;
+  --c-roseblock: #f2e4e8;
+  --c-ink: #2f3a2c;
+  --c-body: #4a4640;
+  --c-muted: #5c574f;
+  --c-sage: #56673f;
+  --c-sagehover: #455333;
+  --c-rose: #97516d;
+  --c-border: #e3ddd2;
+  --c-announce: #2f5b32;
+  --c-announcetext: #f4f7de;
+  --c-gold: #dcc98a;
+  --c-surface: #ffffff;
+  --c-danger: #a13b3b;
+  --c-success: #3d6b3f;
+
+  /* --- Типографіка --- */
+  --f-display: 'Antic Didone', Georgia, serif;
+  --f-accent: 'Lora', Georgia, serif;
+  --f-body: 'Open Sans', 'Segoe UI', sans-serif;
+  --f-ui: 'Fira Sans', 'Segoe UI', sans-serif;
+
+  /* --- Розміри контейнера --- */
+  --container-max: 1400px;
+  --gap-page: clamp(16px, 4vw, 40px);
+
+  /* --- Радіуси / тіні --- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --shadow-card: 0 10px 24px color-mix(in srgb, var(--c-ink) 10%, transparent);
+  --shadow-pop: 0 18px 40px color-mix(in srgb, var(--c-ink) 16%, transparent);
+
+  /* --- Швидкість анімацій --- */
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --t-fast: .16s;
+  --t-med: .3s;
+  --t-slow: .6s;
+
+  /* --- Хедер / z-індекси --- */
+  --z-header: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Сайт свідомо тримає світлу "cottage garden" палітру завжди,
+     але залишаємо контрольну точку для майбутньої темної теми. */
+}

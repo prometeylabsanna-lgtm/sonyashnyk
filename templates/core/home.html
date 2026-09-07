@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+
+{% block content %}
+
+<section class="hero" aria-label="Головне" data-hero>
+  {% for slide in slides %}
+    <article class="hero__slide{% if forloop.first %} is-active{% endif %}" data-hero-slide>
+      <div class="hero__media">
+        {% if slide.image %}
+          <img src="{{ slide.image.url }}" alt="" width="1600" height="900" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+        {% elif forloop.counter == 1 %}
+          <img src="{% static 'img/home/hero-sunflowers.jpg' %}" alt="" width="1600" height="1067" fetchpriority="high">
+        {% elif forloop.counter == 2 %}
+          <img src="{% static 'img/home/hero-seeds.jpg' %}" alt="" width="1600" height="1067" loading="lazy">
+        {% else %}
+          <img src="{% static 'img/home/hero-garden.jpg' %}" alt="" width="1600" height="1067" loading="lazy">
+        {% endif %}
+      </div>
+      <div class="hero__veil" aria-hidden="true"></div>
+      <div class="hero__content">
+        <div class="hero__inner">
+          <div class="hero__text">
+            {% if slide.eyebrow %}<span class="eyebrow">{{ slide.eyebrow }}</span>{% endif %}
+            <h1 class="hero__title">{{ slide.title }}</h1>
+            {% if slide.lead %}<p class="hero__lead">{{ slide.lead }}</p>{% endif %}
+            <div class="hero__cta">
+              <a href="{{ slide.cta1_url }}" class="btn btn--primary">{{ slide.cta1_text }}</a>
+              {% if slide.cta2_text %}<a href="{{ slide.cta2_url }}" class="link-accent">{{ slide.cta2_text }}</a>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  {% empty %}
+    <article class="hero__slide is-active" data-hero-slide>
+      <div class="hero__media">
+        <img src="{% static 'img/home/hero-sunflowers.jpg' %}" alt="" width="1600" height="1067" fetchpriority="high">
+      </div>
+      <div class="hero__veil" aria-hidden="true"></div>
+      <div class="hero__content">
+        <div class="hero__inner">
+          <div class="hero__text">
+            <span class="eyebrow">Сезон почався</span>
+            <h1 class="hero__title">Насіння, добрива та все для саду й городу</h1>
+            <p class="hero__lead">Понад 1000 товарів: власне виробництво, сертифікована якість, швидка доставка по всій Україні.</p>
+            <div class="hero__cta">
+              <a href="{% url 'catalog:sale' %}" class="btn btn--primary">Дивитись каталог</a>
+              <a href="{% url 'catalog:sale' %}" class="link-accent">До акцій</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+  <div class="hero__dots" role="group" aria-label="Слайди">
+    {% for slide in slides %}
+      <button type="button" class="hero__dot{% if forloop.first %} is-active{% endif %}" data-hero-dot aria-label="Слайд {{ forloop.counter }}"></button>
+    {% empty %}
+      <button type="button" class="hero__dot is-active" data-hero-dot aria-label="Слайд 1"></button>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section section--tight section--surface" aria-label="Чому нам довіряють">
+  <div class="container">
+    <div class="grid grid--trust">
+      {% for point in trust_points %}
+        <div class="trust-item" data-reveal>
+          <span class="trust-item__icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>
+          </span>
+          <span>
+            <span class="trust-item__title">{{ point.title }}</span>
+            <span class="trust-item__text">{{ point.text }}</span>
+          </span>
+        </div>
+      {% empty %}
+        <div class="trust-item"><span><span class="trust-item__title">Швидка доставка</span><span class="trust-item__text">Нова Пошта / Укрпошта</span></span></div>
+        <div class="trust-item"><span><span class="trust-item__title">Оплата онлайн</span><span class="trust-item__text">LiqPay, післяплата</span></span></div>
+        <div class="trust-item"><span><span class="trust-item__title">Власне виробництво</span><span class="trust-item__text">Сертифікована якість</span></span></div>
+        <div class="trust-item"><span><span class="trust-item__title">Консультація агронома</span><span class="trust-item__text">Допоможемо з вибором</span></span></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section--surface" aria-label="Категорії">
+  <div class="container">
+    <div class="section__head">
+      <h2>Категорії каталогу</h2>
+      <a href="{% url 'catalog:sale' %}" class="link-accent">Усі категорії</a>
+    </div>
+    <div class="grid grid--cats">
+      {% for cat in top_categories %}
+        <a href="{{ cat.get_absolute_url }}" class="cat-tile" data-reveal>
+          <div class="cat-tile__media">
+            <img
+              src="{% static cat.icon_static %}"
+              alt=""
+              width="512"
+              height="512"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+          <span class="cat-tile__name">{{ cat.name }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if hit_products %}
+<section class="section section--limeband" aria-label="Хіти продажу">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">Обране садівниками</span>
+        <h2>Хіти продажу</h2>
+      </div>
+      <a href="{% url 'catalog:sale' %}" class="link-accent">У каталог</a>
+    </div>
+    <div class="product-rail" data-product-rail>
+      <button type="button" class="product-rail__nav product-rail__nav--prev" data-rail-prev aria-label="Попередні товари" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button type="button" class="product-rail__nav product-rail__nav--next" data-rail-next aria-label="Наступні товари">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="product-rail__track" data-rail-track>
+        {% for product in hit_products %}
+          <div class="product-rail__item">{% include "includes/product_card.html" %}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if new_products %}
+<section class="section section--surface" aria-label="Новинки">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">Щойно в асортименті</span>
+        <h2>Новинки сезону</h2>
+      </div>
+    </div>
+    <div class="product-rail" data-product-rail>
+      <button type="button" class="product-rail__nav product-rail__nav--prev" data-rail-prev aria-label="Попередні товари" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button type="button" class="product-rail__nav product-rail__nav--next" data-rail-next aria-label="Наступні товари">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="product-rail__track" data-rail-track>
+        {% for product in new_products %}
+          <div class="product-rail__item">{% include "includes/product_card.html" %}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section" aria-label="Поради та натхнення">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">Зростайте з нами</span>
+        <h2>Поради для успішного сезону</h2>
+      </div>
+    </div>
+    <div class="edu-grid">
+      <a href="{% url 'about' %}" class="edu-card" data-reveal>
+        <div class="edu-card__media">
+          <img src="{% static 'img/home/edu-sowing.jpg' %}" alt="" width="1000" height="667" loading="lazy">
+        </div>
+        <div class="edu-card__body">
+          <h3 class="edu-card__title">Гід з висіву насіння</h3>
+          <p class="edu-card__text">Коли сіяти, як підготувати ґрунт і що потрібно для дружніх сходів.</p>
+          <span class="link-accent">Читати далі</span>
+        </div>
+      </a>
+      <a href="{% url 'catalog:sale' %}" class="edu-card" data-reveal>
+        <div class="edu-card__media">
+          <img src="{% static 'img/home/edu-bouquet.jpg' %}" alt="" width="1000" height="1000" loading="lazy">
+        </div>
+        <div class="edu-card__body">
+          <h3 class="edu-card__title">Квіти для зрізання</h3>
+          <p class="edu-card__text">Сорти, що довго стоять у вазі й дарують букети весь сезон.</p>
+          <span class="link-accent">Обрати зараз</span>
+        </div>
+      </a>
+      <a href="{% url 'catalog:sale' %}" class="edu-card" data-reveal>
+        <div class="edu-card__media">
+          <img src="{% static 'img/home/edu-fragrant.jpg' %}" alt="" width="1000" height="1333" loading="lazy">
+        </div>
+        <div class="edu-card__body">
+          <h3 class="edu-card__title">Ароматний сад</h3>
+          <p class="edu-card__text">Трави й квіти з насиченим ароматом для тераси, клумби й кухні.</p>
+          <span class="link-accent">До підбірки</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--sageband" aria-label="Про «Соняшник»">
+  <div class="container">
+    <div class="story-intro" data-reveal>
+      <span class="eyebrow">Сім’я, ферма і сад</span>
+      <h2>Вирощуємо довіру разом із вашим урожаєм</h2>
+      <p>Ми допомагаємо садівникам України обирати якісне насіння, добрива та все для городу — з турботою про результат і землю.</p>
+    </div>
+    <div class="story-grid">
+      <article class="story-card" data-reveal>
+        <div class="story-card__media">
+          <img src="{% static 'img/home/story-grow.jpg' %}" alt="" width="1200" height="800" loading="lazy">
+        </div>
+        <div class="story-card__body">
+          <h3>Як ми вирощуємо якість</h3>
+          <p>Частину асортименту виробляємо самостійно. Відбираємо партії, перевіряємо схожість і пакуємо так, щоб насіння доїхало до вас у відмінному стані. Ваш успіх у городі — наш головний орієнтир.</p>
+          <a href="{% url 'about' %}" class="link-accent">Про нас</a>
+        </div>
+      </article>
+      <article class="story-card" data-reveal>
+        <div class="story-card__media">
+          <img src="{% static 'img/home/story-sustain.jpg' %}" alt="" width="1200" height="800" loading="lazy">
+        </div>
+        <div class="story-card__body">
+          <h3>Турбота про довкілля</h3>
+          <p>Обираємо екологічніші рішення там, де це можливо: раціональне пакування, підтримка органічних і біологічних препаратів, консультації, що зменшують зайве хімічне навантаження на ґрунт.</p>
+          <a href="{% url 'certificates' %}" class="link-accent">Сертифікати</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--sageband" aria-label="Власне виробництво">
+  <div class="container">
+    <div class="editorial" data-reveal>
+      <div class="editorial__media">
+        <img src="{% static 'img/home/own-prod.jpg' %}" alt="" width="1200" height="800" loading="lazy">
+      </div>
+      <div>
+        <span class="eyebrow">Власне виробництво</span>
+        <h2 class="editorial__title">Сертифікована якість від «Соняшник»</h2>
+        <p class="editorial__text">Насіння, добрива та ґрунти власного виробництва з офіційним підтвердженням якості. Дивіться документи й обирайте з упевненістю.</p>
+        <a href="{% url 'certificates' %}" class="btn btn--outline editorial__cta">Сертифікати</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--surface" aria-label="Переваги">
+  <div class="container">
+    <div class="grid grid--trust">
+      {% for point in info_points %}
+        <div class="info-card" data-reveal>
+          <span class="info-card__icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-4 8-8 9-4-1-8-4-8-9V7l8-4Z"/></svg>
+          </span>
+          <span class="trust-item__title">{{ point.title }}</span>
+          <span class="trust-item__text">{{ point.text }}</span>
+        </div>
+      {% empty %}
+        <div class="info-card"><span class="trust-item__title">Доставка НП / Укрпоштою</span><span class="trust-item__text">По всій Україні</span></div>
+        <div class="info-card"><span class="trust-item__title">Оплата онлайн</span><span class="trust-item__text">Безпечно через LiqPay</span></div>
+        <div class="info-card"><span class="trust-item__title">Консультація агронома</span><span class="trust-item__text">Підкажемо, що обрати</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if sale_products %}
+<section class="section section--limeband" aria-label="Акції">
+  <div class="container">
+    <div class="section__head">
+      <h2>Акції та знижки</h2>
+      <a href="{% url 'catalog:sale' %}" class="link-accent">Усі акції</a>
+    </div>
+    <div class="product-rail" data-product-rail>
+      <button type="button" class="product-rail__nav product-rail__nav--prev" data-rail-prev aria-label="Попередні товари" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <button type="button" class="product-rail__nav product-rail__nav--next" data-rail-next aria-label="Наступні товари">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="product-rail__track" data-rail-track>
+        {% for product in sale_products %}
+          <div class="product-rail__item">{% include "includes/product_card.html" %}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section--surface" aria-label="Відгуки">
+  <div class="container">
+    <div class="section__head">
+      <div>
+        <span class="eyebrow">Від наших клієнтів</span>
+        <h2>Відгуки покупців</h2>
+      </div>
+    </div>
+    <div class="reviews-grid">
+      {% for review in reviews %}
+        <article class="review-card" data-reveal>
+          {% if forloop.counter|divisibleby:2 %}
+            <img class="review-card__photo" src="{% static 'img/home/review-2.jpg' %}" alt="" width="72" height="72" loading="lazy">
+          {% else %}
+            <img class="review-card__photo" src="{% static 'img/home/review-1.jpg' %}" alt="" width="72" height="72" loading="lazy">
+          {% endif %}
+          <span class="review-card__stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+          <p class="review-card__text">«{{ review.text }}»</p>
+          <span class="review-card__name">{{ review.name }}</span>
+        </article>
+      {% empty %}
+        <article class="review-card" data-reveal>
+          <img class="review-card__photo" src="{% static 'img/home/review-1.jpg' %}" alt="" width="72" height="72" loading="lazy">
+          <span class="review-card__stars">★★★★★</span>
+          <p class="review-card__text">«Замовляла насіння томатів і чорнобривців — усе зійшло дружно, пакування акуратне. Дякую за консультацію агронома!»</p>
+          <span class="review-card__name">Олена, Київ</span>
+        </article>
+        <article class="review-card" data-reveal>
+          <img class="review-card__photo" src="{% static 'img/home/review-2.jpg' %}" alt="" width="72" height="72" loading="lazy">
+          <span class="review-card__stars">★★★★★</span>
+          <p class="review-card__text">«Швидка відправка Новою Поштою, ціни адекватні. Добрива власного виробництва — помітний результат уже в перший сезон.»</p>
+          <span class="review-card__name">Ігор, Львів</span>
+        </article>
+        <article class="review-card" data-reveal>
+          <img class="review-card__photo" src="{% static 'img/home/promo-flowers.jpg' %}" alt="" width="72" height="72" loading="lazy">
+          <span class="review-card__stars">★★★★★</span>
+          <p class="review-card__text">«Купую тут уже кілька років. Асортимент широкий, а сертифікати на власну продукцію додають спокою.»</p>
+          <span class="review-card__name">Марина, Одеса</span>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-label="Підписка на новини">
+  <div class="container">
+    <div class="email-band" data-reveal>
+      <h2 class="h2" style="color:inherit">Новини саду на email</h2>
+      <p style="opacity:.85">Поради з вирощування, сезонні акції та новинки асортименту — без зайвого шуму.</p>
+      <form data-lead-form-inline data-lead-type="newsletter" action="{% url 'leads:create' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="lead_type" value="newsletter">
+        <input type="hidden" name="source_page" value="{{ request.path }}">
+        <input type="text" name="honeypot" class="visually-hidden" tabindex="-1" autocomplete="off">
+        <input type="email" name="email" placeholder="Ваш email" required aria-label="Email" autocomplete="email" inputmode="email">
+        <button type="submit" class="btn btn--rose">Підписатись</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/hero-slider.js' %}" defer></script>
+<script src="{% static 'js/product-rail.js' %}" defer></script>
+<script src="{% static 'js/lead-form-inline.js' %}" defer></script>
+{% endblock %}

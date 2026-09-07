@@ -1,0 +1,37 @@
+{% comment %} Параметр: product {% endcomment %}
+{% with variant=product.default_variant %}
+<article class="product-card" data-reveal>
+  <a href="{{ product.get_absolute_url }}" class="product-card__media">
+    {% include "includes/media_placeholder.html" with ratio="4x3" %}
+    <span class="product-card__badges">
+      {% if product.is_hit %}<span class="badge badge--hit">Хіт</span>{% endif %}
+      {% if product.is_new %}<span class="badge badge--new">Новинка</span>{% endif %}
+      {% if product.is_sale %}<span class="badge badge--sale">Акція</span>{% endif %}
+      {% if product.is_own_production %}<span class="badge badge--own">Власне вир-во</span>{% endif %}
+    </span>
+  </a>
+  <div class="product-card__body">
+    <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ product.name }}</a>
+    <span class="product-card__meta">Код: {{ product.sku }}{% if variant %} · {{ variant.label }}{% endif %}</span>
+    <div class="product-card__prices">
+      <span class="price product-card__price">{{ product.display_price }} ₴</span>
+      {% if product.display_old_price %}<span class="price price--old">{{ product.display_old_price }} ₴</span>{% endif %}
+    </div>
+    {% if product.in_stock %}
+      <span class="product-card__stock">В наявності</span>
+    {% else %}
+      <span class="product-card__stock is-out">Немає в наявності</span>
+    {% endif %}
+    <button
+      type="button"
+      class="product-card__add"
+      data-add-to-cart
+      data-variant-id="{{ variant.id }}"
+      {% if not product.in_stock %}disabled{% endif %}
+    >
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h2l1.6 8.2a1.6 1.6 0 0 0 1.6 1.3h6.4a1.6 1.6 0 0 0 1.6-1.3L17.5 8H6"/><circle cx="8.5" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></svg>
+      До кошика
+    </button>
+  </div>
+</article>
+{% endwith %}

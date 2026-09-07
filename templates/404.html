@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Сторінку не знайдено — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/pages.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="error-404">
+    <div class="error-404__code">404</div>
+    <h1 class="h1">Сторінку не знайдено</h1>
+    <p style="margin-top:12px;color:var(--c-muted)">Можливо, вона переміщена або більше не існує. Скористайтесь пошуком або поверніться на головну.</p>
+
+    <form role="search" action="{% url 'search' %}" method="get" style="max-width:360px;margin:24px auto 0;display:flex;gap:8px">
+      <input type="search" name="q" placeholder="Пошук товарів" style="flex:1;min-height:46px;padding:0 14px;border:1px solid var(--c-border);border-radius:4px">
+      <button type="submit" class="btn btn--primary">Знайти</button>
+    </form>
+
+    <div class="error-404__actions">
+      <a href="{% url 'home' %}" class="btn btn--outline">На головну</a>
+      <a href="{% url 'catalog:sale' %}" class="btn btn--primary">До каталогу</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

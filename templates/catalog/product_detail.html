@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} — {{ site_name }}{% endblock %}
+{% block meta_description %}{{ product.short_description|default:product.name }}{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/product.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+
+{% block content %}
+{% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs current_label=product.name %}
+
+{% with variant=product.default_variant %}
+<div class="container section--tight">
+  <div class="pdp">
+    <div class="gallery">
+      <div class="gallery__main" data-gallery-main data-hide-scroll>
+        {% for image in product.images.all %}
+          <div class="gallery__slide" data-gallery-slide>{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+        {% empty %}
+          <div class="gallery__slide" data-gallery-slide>{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+        {% endfor %}
+      </div>
+      <div class="gallery__thumbs">
+        {% for image in product.images.all %}
+          <button type="button" class="gallery__thumb{% if forloop.first %} is-active{% endif %}" data-gallery-thumb aria-label="Фото {{ forloop.counter }}">
+            {% include "includes/media_placeholder.html" with ratio="1x1" %}
+          </button>
+        {% empty %}
+          <button type="button" class="gallery__thumb is-active" data-gallery-thumb aria-label="Фото 1">
+            {% include "includes/media_placeholder.html" with ratio="1x1" %}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="pdp-info">
+      <div class="pdp-info__badges">
+        {% if product.is_hit %}<span class="badge badge--hit">Хіт</span>{% endif %}
+        {% if product.is_new %}<span class="badge badge--new">Новинка</span>{% endif %}
+        {% if product.is_sale %}<span class="badge badge--sale">Акція</span>{% endif %}
+        {% if product.is_own_production %}<span class="badge badge--own">Власне виробництво</span>{% endif %}
+      </div>
+      <h1 class="h1 pdp-info__title">{{ product.name }}</h1>
+      <div class="pdp-info__meta">Код: {{ product.sku }}{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
+
+      <div class="pdp-info__prices">
+        <span class="price pdp-info__price" data-pdp-price>{{ product.display_price }} ₴</span>
+        {% if product.display_old_price %}
+          <span class="price price--old" data-pdp-old-price>{{ product.display_old_price }} ₴</span>
+        {% else %}
+          <span class="price price--old" data-pdp-old-price style="display:none"></span>
+        {% endif %}
+      </div>
+      <div class="pdp-info__stock {% if not product.in_stock %}is-out{% endif %}" data-pdp-stock>
+        {% if product.in_stock %}В наявності{% else %}Немає в наявності{% endif %}
+      </div>
+
+      {% if product.variants.all|length > 1 %}
+        <div class="variant-group">
+          <div class="variant-group__title">Оберіть об'єм / фасування</div>
+          <div class="variant-list">
+            {% for v in product.variants.all %}
+              <button
+                type="button"
+                class="variant-chip{% if v.id == variant.id %} is-active{% endif %}"
+                data-variant-chip
+                data-variant-id="{{ v.id }}"
+                data-price="{{ v.price }}"
+                data-old-price="{{ v.old_price|default:'' }}"
+                data-in-stock="{% if v.stock_qty > 0 %}1{% else %}0{% endif %}"
+                {% if v.stock_qty == 0 %}disabled{% endif %}
+              >{{ v.label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="qty-row" data-pdp-actions>
+        <div class="qty-stepper">
+          <button type="button" data-qty-decrement aria-label="Зменшити кількість">−</button>
+          <input type="number" value="1" min="1" max="99" data-qty-input aria-label="Кількість">
+          <button type="button" data-qty-increment aria-label="Збільшити кількість">+</button>
+        </div>
+      </div>
+
+      <div class="pdp-actions">
+        <button
+          type="button"
+          class="btn btn--primary"
+          data-add-to-cart
+          data-variant-id="{{ variant.id }}"
+          {% if not product.in_stock %}disabled{% endif %}
+        >До кошика</button>
+        <button
+          type="button"
+          class="btn btn--rose"
+          data-lead-open
+          data-lead-type="buy_one_click"
+          data-product-id="{{ product.id }}"
+          {% if not product.in_stock %}disabled{% endif %}
+        >Купити в 1 клік</button>
+      </div>
+
+      <div class="pdp-tabs">
+        <nav class="pdp-tabs__nav" data-pdp-tabs-nav>
+          <button type="button" class="pdp-tabs__btn is-active" data-pdp-tab-btn="desc">Опис</button>
+          {% if product.characteristics %}<button type="button" class="pdp-tabs__btn" data-pdp-tab-btn="specs">Характеристики</button>{% endif %}
+          {% if product.certificates.all %}<button type="button" class="pdp-tabs__btn" data-pdp-tab-btn="docs">Документи</button>{% endif %}
+        </nav>
+
+        <div class="pdp-tabs__panel is-active" data-pdp-tab-panel="desc">
+          <p>{{ product.description|default:product.short_description|linebreaksbr }}</p>
+        </div>
+
+        {% if product.characteristics %}
+        <div class="pdp-tabs__panel" data-pdp-tab-panel="specs">
+          <table class="spec-table">
+            {% for key, value in product.characteristics.items %}
+              <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+        {% endif %}
+
+        {% if product.certificates.all %}
+        <div class="pdp-tabs__panel" data-pdp-tab-panel="docs">
+          <ul class="doc-list">
+            {% for cert in product.certificates.all %}
+              <li><a href="{{ cert.file.url }}" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l3 3v13H5z"/></svg>
+                {{ cert.title }}
+              </a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endwith %}
+
+{% if related_products %}
+<section class="section section--oat" aria-label="Схожі товари">
+  <div class="container">
+    <div class="section__head"><h2>Схожі товари</h2></div>
+    <div class="grid grid--products">
+      {% for product in related_products %}{% include "includes/product_card.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/product-detail.js' %}" defer></script>{% endblock %}

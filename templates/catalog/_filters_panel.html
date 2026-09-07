@@ -1,0 +1,66 @@
+{% comment %}
+  Фільтри: шторка на мобільному/планшеті → бічна панель на десктопі (≥1100px).
+  Параметри з контексту: available_brands, available_countries, selected_brands,
+  selected_countries, request.GET (для збереження значень price_min/price_max/in_stock)
+{% endcomment %}
+<aside class="filters" data-filters aria-hidden="true">
+  <div class="filters__overlay" data-filters-close></div>
+  <form class="filters__panel" method="get">
+    <div class="filters__head">
+      <span class="h3">Фільтри</span>
+      <button type="button" class="icon-btn" aria-label="Закрити фільтри" data-filters-close>
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l12 12M16 4 4 16"/></svg>
+      </button>
+    </div>
+
+    {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+
+    <div class="filter-group">
+      <div class="filter-group__title">Ціна, ₴</div>
+      <div class="filter-range">
+        <input type="number" name="price_min" placeholder="від" value="{{ request.GET.price_min }}" min="0">
+        <input type="number" name="price_max" placeholder="до" value="{{ request.GET.price_max }}" min="0">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-check">
+        <input type="checkbox" name="in_stock" value="1" {% if request.GET.in_stock %}checked{% endif %}>
+        Тільки в наявності
+      </label>
+      <label class="filter-check">
+        <input type="checkbox" name="own_production" value="1" {% if request.GET.own_production %}checked{% endif %}>
+        Власне виробництво
+      </label>
+    </div>
+
+    {% if available_brands %}
+    <div class="filter-group">
+      <div class="filter-group__title">Бренд</div>
+      {% for brand in available_brands %}
+        <label class="filter-check">
+          <input type="checkbox" name="brand" value="{{ brand }}" {% if brand in selected_brands %}checked{% endif %}>
+          {{ brand }}
+        </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if available_countries %}
+    <div class="filter-group">
+      <div class="filter-group__title">Країна виробник</div>
+      {% for country in available_countries %}
+        <label class="filter-check">
+          <input type="checkbox" name="country" value="{{ country }}" {% if country in selected_countries %}checked{% endif %}>
+          {{ country }}
+        </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="filters__foot">
+      <a href="?" class="btn btn--outline btn--block">Скинути</a>
+      <button type="submit" class="btn btn--primary btn--block">Показати</button>
+    </div>
+  </form>
+</aside>

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Пошук{% if query %}: {{ query }}{% endif %} — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container section--tight">
+  <h1 class="h1">Результати пошуку{% if query %}: «{{ query }}»{% endif %}</h1>
+
+  {% if not query %}
+    <p style="margin-top:16px;color:var(--c-muted)">Введіть назву товару або код у поле пошуку в шапці сайту.</p>
+  {% elif products %}
+    <p style="margin-top:8px;color:var(--c-muted)">Знайдено: {{ total_count }} товар(ів)</p>
+    <div class="grid grid--products" style="margin-top:24px">
+      {% for product in products %}{% include "includes/product_card.html" %}{% endfor %}
+    </div>
+    {% include "includes/pagination.html" with page_obj=products %}
+  {% else %}
+    <div class="empty-state">
+      <h2>Нічого не знайдено</h2>
+      <p>Спробуйте інший запит або перегляньте каталог.</p>
+      <a href="{% url 'catalog:sale' %}" class="btn btn--primary" style="margin-top:16px">До каталогу</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

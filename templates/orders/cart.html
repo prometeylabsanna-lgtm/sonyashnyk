@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Кошик — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container section--tight">
+  <h1 class="h1">Кошик</h1>
+
+  {% if not cart_items %}
+    <div class="empty-state">
+      <h2>Кошик порожній</h2>
+      <p>Додайте товари з каталогу, щоб оформити замовлення.</p>
+      <a href="{% url 'catalog:sale' %}" class="btn btn--primary" style="margin-top:16px">До каталогу</a>
+    </div>
+  {% else %}
+    <div class="cart-page" style="margin-top:24px">
+      <div class="cart-page__list">
+        {% for item in cart_items %}
+          <div class="cart-line" style="align-items:center">
+            <div class="cart-line__media" style="width:88px;height:88px">{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+            <div class="cart-line__body">
+              <a href="{{ item.product.get_absolute_url }}" class="cart-line__name">{{ item.product.name }}</a>
+              <span class="cart-line__variant">{{ item.variant.label }} · {{ item.price }} ₴/шт</span>
+              <div class="cart-line__row">
+                <form method="post" action="{% url 'orders_cart:update' item.variant.id %}" style="display:flex;align-items:center;gap:10px">
+                  {% csrf_token %}
+                  <div class="qty-stepper">
+                    <button type="button" data-qty-decrement aria-label="Зменшити">−</button>
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" data-qty-input aria-label="Кількість">
+                    <button type="button" data-qty-increment aria-label="Збільшити">+</button>
+                  </div>
+                  <button type="submit" class="link-accent" style="border:0;background:transparent;padding:0">Оновити</button>
+                </form>
+                <form method="post" action="{% url 'orders_cart:remove' item.variant.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="cart-line__remove">Видалити</button>
+                </form>
+              </div>
+            </div>
+            <span class="price" style="white-space:nowrap">{{ item.line_total }} ₴</span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <aside class="cart-page__side">
+        <div class="cart-summary">
+          <div class="cart-summary__row"><span>Товари</span><span>{{ cart_subtotal }} ₴</span></div>
+          <div class="cart-summary__row">
+            <span>Доставка</span>
+            <span>{% if cart_subtotal >= free_shipping_threshold %}Безкоштовно{% else %}уточнюється{% endif %}</span>
+          </div>
+          <div class="cart-summary__row cart-summary__row--total"><span>Разом</span><span>{{ cart_subtotal }} ₴</span></div>
+        </div>
+        <a href="{% url 'orders_checkout:page' %}" class="btn btn--primary btn--block">Оформити замовлення</a>
+        <a href="{% url 'catalog:sale' %}" class="btn btn--outline btn--block" style="margin-top:10px">Продовжити покупки</a>
+      </aside>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
