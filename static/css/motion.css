@@ -3,11 +3,47 @@
    Завдяки порядку каскаду (та однаковій специфічності) перекриває
    тривалості анімацій/переходів з усіх попередніх файлів без !important.
    ============================================================ */
+
+/* Мобільний / планшетний lite-режим (клас з scroll-reveal.js) */
+html.is-motion-lite [data-reveal] {
+  transform: translate3d(0, 8px, 0);
+  transition-duration: .38s;
+  transition-delay: 0ms;
+}
+html.is-motion-lite [data-reveal].is-visible {
+  transform: translate3d(0, 0, 0);
+}
+html.is-motion-lite [data-media-zoom] img {
+  transition-duration: .01ms;
+}
+html.is-motion-lite .btn--primary:hover,
+html.is-motion-lite .btn--rose:hover {
+  transform: none;
+}
+
+@media (max-width: 767px) {
+  [data-reveal] {
+    transform: translate3d(0, 8px, 0);
+    transition-duration: .38s;
+    transition-delay: 0ms;
+  }
+  [data-reveal].is-visible {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .001ms;
     animation-iteration-count: 1;
     transition-duration: .001ms;
     scroll-behavior: auto;
+  }
+
+  [data-reveal],
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

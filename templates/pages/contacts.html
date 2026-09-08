@@ -11,36 +11,21 @@
 </nav>
 
 <section class="contacts-hero" aria-labelledby="contacts-hero-title">
-  <div class="contacts-hero__frame">
-    <div class="contacts-hero__media">
-      <img
-        src="{% static 'img/contacts/banner-peaches.jpg' %}"
-        alt=""
-        width="1024"
-        height="682"
-        fetchpriority="high"
-        decoding="async"
-      >
+  <h1 id="contacts-hero-title" class="contacts-hero__title">Контакти</h1>
+  <dl class="contacts-hero__cards">
+    <div class="contacts-hero__card">
+      <dt class="contacts-hero__label">Телефон</dt>
+      <dd><a href="tel:{{ site_phone_raw }}" class="contacts-hero__value">{{ site_phone }}</a></dd>
     </div>
-    <div class="contacts-hero__shade" aria-hidden="true"></div>
-    <div class="contacts-hero__content">
-      <h1 id="contacts-hero-title" class="contacts-hero__title">Контакти</h1>
-      <dl class="contacts-hero__meta">
-        <div>
-          <dt class="contacts-hero__label">Телефон</dt>
-          <dd><a href="tel:{{ site_phone_raw }}" class="contacts-hero__value">{{ site_phone }}</a></dd>
-        </div>
-        <div>
-          <dt class="contacts-hero__label">Графік роботи</dt>
-          <dd class="contacts-hero__value">{{ site_working_hours }}</dd>
-        </div>
-        <div>
-          <dt class="contacts-hero__label">Точка видачі</dt>
-          <dd class="contacts-hero__value">м. Київ, Хрещатик&nbsp;1</dd>
-        </div>
-      </dl>
+    <div class="contacts-hero__card">
+      <dt class="contacts-hero__label">Графік роботи</dt>
+      <dd class="contacts-hero__value">{{ site_working_hours }}</dd>
     </div>
-  </div>
+    <div class="contacts-hero__card">
+      <dt class="contacts-hero__label">Точка видачі</dt>
+      <dd class="contacts-hero__value">м. Київ, Хрещатик&nbsp;1</dd>
+    </div>
+  </dl>
 </section>
 
 <div class="contacts-body">

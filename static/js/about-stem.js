@@ -1,5 +1,5 @@
 /* ============================================================
-   ABOUT STEM — ростуче стебло + розгортання листочків при скролі
+   ABOUT STEM — ростуче стебло + листочки при скролі туди-назад
    ============================================================ */
 (function () {
   "use strict";
@@ -16,7 +16,6 @@
     var root = document.querySelector("[data-about-stem]");
     if (!root) return;
 
-    var grow = root.querySelector("[data-stem-grow]");
     var nodes = Array.prototype.slice.call(root.querySelectorAll("[data-stem-node]"));
     if (!nodes.length) return;
 
@@ -32,7 +31,6 @@
       ticking = false;
       var rect = root.getBoundingClientRect();
       var viewH = window.innerHeight || document.documentElement.clientHeight;
-      /* Стебло росте від появи секції до її низу в середній третині в’юпорту */
       var start = viewH * 0.72;
       var end = viewH * 0.28;
       var progress = (start - rect.top) / (start - end + rect.height);
@@ -60,14 +58,12 @@
     var io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-open");
-          io.unobserve(entry.target);
+          entry.target.classList.toggle("is-open", entry.isIntersecting);
         });
       },
       {
-        threshold: 0.28,
-        rootMargin: "0px 0px -12% 0px",
+        threshold: [0, 0.2, 0.35],
+        rootMargin: "-8% 0px -18% 0px",
       }
     );
 
