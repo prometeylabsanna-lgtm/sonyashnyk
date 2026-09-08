@@ -219,7 +219,7 @@
   }
 }
 
-/* --- Body: теги → назва → опис → ціна + наявність --- */
+/* --- Body: теги → назва → ціна + наявність --- */
 .product-card__body {
   padding: 14px 4px 6px;
   display: flex;
@@ -265,23 +265,6 @@
 .product-card__name:hover {
   color: var(--c-cart);
   text-decoration: none;
-}
-
-.product-card__desc {
-  margin: 0;
-  font-family: var(--f-ui);
-  font-size: 13px;
-  font-weight: 400;
-  line-height: 1.45;
-  color: var(--pc-tag);
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  /* iOS Safari: стабільне обрізання багаторядкового тексту */
-  -webkit-box-pack: start;
-  word-break: break-word;
-  overflow-wrap: anywhere;
 }
 
 .product-card__meta {
@@ -377,11 +360,6 @@
     font-size: 15px;
   }
 
-  .product-card__desc {
-    font-size: 12.5px;
-    -webkit-line-clamp: 3;
-  }
-
   .product-card__price {
     font-size: 20px;
   }
@@ -441,11 +419,6 @@
 
   .product-card__name {
     font-size: 14px;
-  }
-
-  .product-card__desc {
-    font-size: 12px;
-    -webkit-line-clamp: 3;
   }
 
   .product-card__price {

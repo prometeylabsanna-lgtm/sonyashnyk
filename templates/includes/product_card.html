@@ -52,10 +52,6 @@
 
     <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ product.name }}</a>
 
-    {% if product.description %}
-      <p class="product-card__desc">{{ product.description }}</p>
-    {% endif %}
-
     <div class="product-card__meta">
       <div class="product-card__prices">
         {% if product.display_old_price %}

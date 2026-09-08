@@ -6,7 +6,7 @@
   padding-bottom: 0;
 }
 
-/* --- Hero: 3 темні картки --- */
+/* --- Hero: 3 компактні скляні картки --- */
 .contacts-hero {
   width: 100%;
   max-width: var(--container-max);
@@ -28,9 +28,11 @@
 }
 
 .contacts-hero__cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(10px, 1.6vw, 16px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: clamp(16px, 2.8vw, 28px);
   margin: 0;
   width: 100%;
 }
@@ -42,11 +44,19 @@
   justify-content: center;
   text-align: center;
   box-sizing: border-box;
-  min-height: 88px;
-  padding: clamp(16px, 2vw, 22px) clamp(12px, 1.6vw, 20px);
-  border-radius: clamp(12px, 1.8vw, 20px);
-  background: #323232;
+  flex: 1 1 160px;
+  max-width: 240px;
+  min-height: 64px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: color-mix(in srgb, #1c1c1c 52%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 16%, transparent);
   color: #ffffff;
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 20%, transparent),
+    0 6px 20px color-mix(in srgb, #000000 10%, transparent);
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
 }
@@ -57,21 +67,21 @@
 
 .contacts-hero__label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-family: var(--f-body);
-  font-size: clamp(11px, 1.05vw, 12px);
+  font-size: 11px;
   font-weight: 500;
   line-height: 1.3;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: color-mix(in srgb, #ffffff 58%, transparent);
+  color: color-mix(in srgb, #ffffff 62%, transparent);
 }
 
 .contacts-hero__value {
   font-family: var(--f-ui);
-  font-size: clamp(14px, 1.45vw, 17px);
+  font-size: clamp(13px, 1.3vw, 15px);
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.3;
   color: #ffffff;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
@@ -159,9 +169,15 @@ a.contacts-hero__value:focus-visible {
     font-size: clamp(20px, 4.5vw, 26px);
   }
 
+  .contacts-hero__cards {
+    gap: 18px;
+  }
+
   .contacts-hero__card {
-    min-height: 80px;
-    padding: 14px 12px;
+    flex: 1 1 140px;
+    max-width: 220px;
+    min-height: 58px;
+    padding: 10px 14px;
   }
 
   .contacts-grid {
@@ -177,13 +193,17 @@ a.contacts-hero__value:focus-visible {
 
 @media (max-width: 639px) {
   .contacts-hero__cards {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
   }
 
   .contacts-hero__card {
-    min-height: 72px;
-    padding: 14px 16px;
+    flex: 0 1 auto;
+    width: min(100%, 280px);
+    max-width: 280px;
+    min-height: 56px;
+    padding: 10px 14px;
   }
 }
 
@@ -216,14 +236,19 @@ a.contacts-hero__value:focus-visible {
     letter-spacing: 0.05em;
   }
 
+  .contacts-hero__cards {
+    gap: 12px;
+  }
+
   .contacts-hero__card {
-    border-radius: 14px;
-    min-height: 68px;
-    padding: 12px 14px;
+    border-radius: 12px;
+    width: min(100%, 260px);
+    min-height: 52px;
+    padding: 10px 12px;
   }
 
   .contacts-hero__value {
-    font-size: 14px;
+    font-size: 13.5px;
   }
 
   .contacts-body {
@@ -245,5 +270,11 @@ a.contacts-hero__value:focus-visible {
   .contacts-hero__card {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+  }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .contacts-hero__card {
+    background: color-mix(in srgb, #2a2a2a 88%, transparent);
   }
 }
