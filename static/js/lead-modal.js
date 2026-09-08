@@ -49,6 +49,7 @@
       typeInput.value = leadType || "phone_modal";
       productInput.value = productId || "";
       applyCopy(typeInput.value);
+      modal.classList.toggle("modal--arch", typeInput.value === "phone_modal");
       form.classList.remove("is-hidden");
       successBox.classList.remove("is-visible");
       modal.classList.add("is-open");
@@ -63,6 +64,7 @@
     function close() {
       if (!modal.classList.contains("is-open")) return;
       modal.classList.remove("is-open");
+      modal.classList.remove("modal--arch");
       modal.setAttribute("aria-hidden", "true");
       SonyashnykUtils.unlockScroll();
     }

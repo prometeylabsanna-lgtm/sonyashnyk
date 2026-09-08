@@ -1,36 +1,183 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Про нас — {{ site_name }}{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/pages.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+{% block meta_description %}Історія «{{ site_name }}»: від першої ділянки до власного виробництва насіння й добрив із сертифікатами якості.{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/about-stem.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Про нас</span></div>
+<nav class="breadcrumbs container about-crumbs" aria-label="Хлібні крихти">
+  <a href="{% url 'home' %}">Головна</a>
+  <span aria-hidden="true">/</span>
+  <span class="is-current">Про нас</span>
+</nav>
 
-<div class="container section--tight">
-  <div class="about-hero">
-    <div>{% include "includes/media_placeholder.html" with ratio="4x3" %}</div>
-    <div>
-      <h1 class="h1" style="margin-top:10px">Соняшник — сад, город і насіння з турботою</h1>
-      <p style="margin-top:16px;color:var(--c-body)">Ми постачаємо насіння, добрива, засоби захисту рослин та інструмент для саду й городу. Частину продукції виробляємо самостійно й підтверджуємо якість сертифікатами.</p>
+<div class="about-layout container">
+  <div class="about-main">
+    <section class="about-intro" aria-labelledby="about-intro-title">
+      <h1 id="about-intro-title" class="about-intro__title">Соняшник — сад, город і насіння з турботою</h1>
+      <p class="about-intro__lead">Ми постачаємо насіння, добрива, засоби захисту рослин та інструмент для саду й городу. Частину продукції виробляємо самостійно й підтверджуємо якість сертифікатами.</p>
+    </section>
+
+    <section class="about-why" aria-labelledby="about-why-title">
+      <h2 id="about-why-title" class="about-why__title">Чому обирають нас</h2>
+      <ul class="about-stats">
+        <li class="about-stats__card">
+          <span class="about-stats__value">1000&nbsp;+</span>
+          <span class="about-stats__label">товарів для саду й дому в каталозі</span>
+        </li>
+        <li class="about-stats__card">
+          <span class="about-stats__value">100%</span>
+          <span class="about-stats__label">власного насіння із сертифікатом</span>
+        </li>
+        <li class="about-stats__card">
+          <span class="about-stats__value">24</span>
+          <span class="about-stats__label">області з доставкою</span>
+        </li>
+        <li class="about-stats__card">
+          <span class="about-stats__value">1:1</span>
+          <span class="about-stats__label">консультація агронома</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="about-produce" aria-labelledby="about-produce-title">
+      <div class="about-produce__card">
+        <img
+          class="about-produce__bg"
+          src="{% static 'img/about/produce-cta.png' %}"
+          alt=""
+          width="1024"
+          height="778"
+          loading="lazy"
+          decoding="async"
+        >
+        <span class="about-produce__overlay" aria-hidden="true"></span>
+        <div class="about-produce__content">
+          <h2 id="about-produce-title" class="about-produce__title">Власне виробництво з підтвердженою якістю</h2>
+          <div class="about-produce__actions">
+            <a href="{% url 'catalog:index' %}" class="btn about-produce__btn about-produce__btn--solid">Каталог</a>
+            <a href="{% url 'certificates' %}" class="btn about-produce__btn about-produce__btn--ghost">Сертифікати</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <aside class="about-aside" aria-labelledby="about-path-title">
+    <h2 id="about-path-title" class="about-path__title">Наш шлях</h2>
+
+    <div class="about-stem" data-about-stem>
+      <div class="about-stem__track" aria-hidden="true">
+        <div class="about-stem__rail"></div>
+        <div class="about-stem__grow" data-stem-grow></div>
+      </div>
+
+      <article class="about-stem__item about-stem__item--nudge-a" data-stem-node>
+        <div class="about-stem__spine" aria-hidden="true">
+          <span class="about-stem__dot"></span>
+          <svg class="about-stem__leaf about-stem__leaf--main" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M18 58 C28 50 36 40 44 28"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M16 66 C24 60 32 52 40 42"/>
+          </svg>
+          <svg class="about-stem__leaf about-stem__leaf--opp about-stem__leaf--opp-hi" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M18 58 C28 50 36 40 44 28"/>
+          </svg>
+        </div>
+        <div class="about-stem__body">
+          <figure class="about-stem__photo about-stem__photo--a">
+            <img src="{% static 'img/about/apples.png' %}" alt="Яблука з власного врожаю в дерев’яному ящику" width="320" height="320" loading="lazy" decoding="async">
+          </figure>
+          <div class="about-stem__copy">
+            <time class="about-stem__year" datetime="2008">2008</time>
+            <h3 class="about-stem__name">Перша ділянка</h3>
+            <p class="about-stem__text">Родина Соняшник починає вирощувати й продавати насіння на місцевому ринку.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="about-stem__item about-stem__item--nudge-b" data-stem-node>
+        <div class="about-stem__spine" aria-hidden="true">
+          <span class="about-stem__dot"></span>
+          <svg class="about-stem__leaf about-stem__leaf--main about-stem__leaf--main-deep" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M18 58 C28 50 36 40 44 28"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M16 66 C24 60 32 52 40 42"/>
+          </svg>
+        </div>
+        <div class="about-stem__body">
+          <figure class="about-stem__photo about-stem__photo--b">
+            <img src="{% static 'img/about/harvest-bag.png' %}" alt="Сітка з овочами та продуктами з городу" width="320" height="320" loading="lazy" decoding="async">
+          </figure>
+          <div class="about-stem__copy">
+            <time class="about-stem__year" datetime="2014">2014</time>
+            <h3 class="about-stem__name">Власний фасувальний цех</h3>
+            <p class="about-stem__text">Починаємо виробляти добрива за власними рецептурами.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="about-stem__item about-stem__item--nudge-c" data-stem-node>
+        <div class="about-stem__spine" aria-hidden="true">
+          <span class="about-stem__dot"></span>
+          <svg class="about-stem__leaf about-stem__leaf--main" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M18 58 C28 50 36 40 44 28"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M16 66 C24 60 32 52 40 42"/>
+          </svg>
+          <svg class="about-stem__leaf about-stem__leaf--opp about-stem__leaf--opp-mid" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+            <path class="about-stem__leaf-vein about-stem__leaf-vein--s" d="M16 66 C24 60 32 52 40 42"/>
+          </svg>
+          <svg class="about-stem__leaf about-stem__leaf--opp about-stem__leaf--opp-lo" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+          </svg>
+        </div>
+        <div class="about-stem__body">
+          <figure class="about-stem__photo about-stem__photo--c">
+            <img src="{% static 'img/about/field-hands.png' %}" alt="Руки з колоском у полі на заході сонця" width="320" height="320" loading="lazy" decoding="async">
+          </figure>
+          <div class="about-stem__copy">
+            <time class="about-stem__year" datetime="2019">2019</time>
+            <h3 class="about-stem__name">Сертифікація якості</h3>
+            <p class="about-stem__text">Отримуємо перші лабораторні висновки на всю продукцію.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="about-stem__item about-stem__item--today" data-stem-node>
+        <div class="about-stem__spine" aria-hidden="true">
+          <span class="about-stem__dot"></span>
+          <svg class="about-stem__leaf about-stem__leaf--main about-stem__leaf--bud" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+          </svg>
+          <svg class="about-stem__leaf about-stem__leaf--opp about-stem__leaf--opp-tiny" viewBox="0 0 64 88" fill="none" aria-hidden="true">
+            <path class="about-stem__leaf-blade" d="M8 78 C10 42 28 8 56 4 C52 36 36 62 8 78 Z"/>
+            <path class="about-stem__leaf-vein" d="M12 72 C28 48 40 28 52 10"/>
+          </svg>
+        </div>
+        <div class="about-stem__body">
+          <div class="about-stem__copy">
+            <time class="about-stem__year" datetime="2026">2026</time>
+            <h3 class="about-stem__name">Сьогодні</h3>
+            <p class="about-stem__text">Понад 1000 товарів у каталозі, консультації агронома та доставка по всій Україні.</p>
+          </div>
+        </div>
+      </article>
     </div>
-  </div>
-
-  <div class="page-content">
-    <h2>Чому обирають нас</h2>
-    <ul>
-      <li>Понад 1000 товарів для саду, городу та дому в одному каталозі.</li>
-      <li>Власне виробництво насіння, добрив і ґрунтів із сертифікатами якості.</li>
-      <li>Швидка доставка Новою Поштою та Укрпоштою по всій Україні.</li>
-      <li>Консультація агронома для підбору потрібних препаратів і насіння.</li>
-    </ul>
-
-    <h2>Власне виробництво</h2>
-    <p>Ми контролюємо якість на кожному етапі — від вибору сировини до фасування. Усі документи щодо власної продукції доступні на сторінці сертифікатів.</p>
-  </div>
-
-  <div style="margin-top:24px">
-    <a href="{% url 'catalog:sale' %}" class="btn btn--primary">Перейти в каталог</a>
-    <a href="{% url 'certificates' %}" class="btn btn--outline" style="margin-left:12px">Сертифікати</a>
-  </div>
+  </aside>
 </div>
 {% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/about-stem.js' %}" defer></script>{% endblock %}

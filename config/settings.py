@@ -115,6 +115,7 @@ LIQPAY_SANDBOX = config("LIQPAY_SANDBOX", default=True, cast=bool)
 NOVA_POSHTA_API_KEY = config("NOVA_POSHTA_API_KEY", default="")
 
 CART_SESSION_KEY = "cart"
+PROMO_SESSION_KEY = "cart_promo"
 
 LOGIN_URL = "/admin/login/"
 

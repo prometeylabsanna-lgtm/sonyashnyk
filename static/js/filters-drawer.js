@@ -25,14 +25,51 @@
       });
     }
 
-    var sortSelect = document.querySelector("[data-sort-select]");
-    if (sortSelect) {
-      sortSelect.addEventListener("change", function () {
-        var url = new URL(window.location.href);
-        url.searchParams.set("sort", sortSelect.value);
-        url.searchParams.delete("page");
-        window.location.href = url.toString();
-      });
+    var sortRoot = document.querySelector("[data-sort]");
+    if (!sortRoot) return;
+
+    var sortToggle = sortRoot.querySelector("[data-sort-toggle]");
+    var sortMenu = sortRoot.querySelector("[data-sort-menu]");
+    if (!sortToggle || !sortMenu) return;
+
+    function closeSort() {
+      sortRoot.classList.remove("is-open");
+      sortMenu.hidden = true;
+      sortToggle.setAttribute("aria-expanded", "false");
     }
+
+    function openSort() {
+      sortRoot.classList.add("is-open");
+      sortMenu.hidden = false;
+      sortToggle.setAttribute("aria-expanded", "true");
+    }
+
+    sortToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (sortRoot.classList.contains("is-open")) {
+        closeSort();
+      } else {
+        openSort();
+      }
+    });
+
+    sortMenu.addEventListener("click", function (e) {
+      var option = e.target.closest("[data-sort-option]");
+      if (!option) return;
+      var value = option.getAttribute("data-sort-option");
+      if (!value) return;
+      var url = new URL(window.location.href);
+      url.searchParams.set("sort", value);
+      url.searchParams.delete("page");
+      window.location.href = url.toString();
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!sortRoot.contains(e.target)) closeSort();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeSort();
+    });
   });
 })();

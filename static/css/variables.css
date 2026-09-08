@@ -33,6 +33,7 @@
   --f-accent: 'Fixel Display', 'Segoe UI', sans-serif;
   --f-body: 'Fixel Text', 'Segoe UI', sans-serif;
   --f-ui: 'Fixel Display', 'Segoe UI', sans-serif;
+  --f-hand: 'Caveat', 'Segoe Print', 'Comic Sans MS', cursive;
 
   /* --- Розміри контейнера --- */
   --container-max: 1400px;

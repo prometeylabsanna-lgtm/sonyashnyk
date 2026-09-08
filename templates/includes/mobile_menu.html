@@ -2,9 +2,9 @@
   <div class="mobile-menu__overlay" data-mobile-menu-close></div>
   <div class="mobile-menu__panel" role="dialog" aria-modal="true" aria-label="Меню категорій">
     <div class="mobile-menu__head">
-      <span class="brand__name" style="font-size:18px">Каталог</span>
-      <button type="button" class="icon-btn" aria-label="Закрити меню" data-mobile-menu-close>
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l12 12M16 4 4 16"/></svg>
+      <span class="mobile-menu__title">Каталог</span>
+      <button type="button" class="icon-btn mobile-menu__close" aria-label="Закрити меню" data-mobile-menu-close>
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 4l12 12M16 4 4 16"/></svg>
       </button>
     </div>
     <ul class="mobile-menu__list">
@@ -13,7 +13,7 @@
           {% if cat.children.all %}
             <button type="button" data-accordion-toggle>
               {{ cat.name }}
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 8l5 5 5-5"/></svg>
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
             </button>
             <ul class="mobile-menu__sub">
               {% for sub in cat.children.all %}
@@ -26,12 +26,12 @@
         </li>
       {% endfor %}
       <li class="mobile-menu__item">
-        <a href="{% url 'catalog:sale' %}" style="color:var(--c-rose)">Акції / знижки</a>
+        <a href="{% url 'catalog:sale' %}" class="mobile-menu__sale">Акції / знижки</a>
       </li>
     </ul>
     <div class="mobile-menu__foot">
       <a href="tel:{{ site_phone_raw }}" class="btn btn--outline btn--block">{{ site_phone }}</a>
-      <div style="display:flex;gap:16px;justify-content:center">
+      <div class="mobile-menu__foot-links">
         <a href="{% url 'about' %}">Про нас</a>
         <a href="{% url 'contacts' %}">Контакти</a>
       </div>

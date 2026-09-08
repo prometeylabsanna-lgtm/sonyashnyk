@@ -1,5 +1,5 @@
 /* ============================================================
-   МОБІЛЬНЕ МЕНЮ — повноекранна панель категорій (drawer зліва)
+   МОБІЛЬНЕ МЕНЮ — панель категорій (drawer зліва)
    ============================================================ */
 .mobile-menu {
   position: fixed;
@@ -10,7 +10,8 @@
 .mobile-menu.is-open { visibility: visible; }
 
 .mobile-menu__overlay {
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: color-mix(in srgb, var(--c-ink) 45%, transparent);
   opacity: 0;
   transition: opacity var(--t-med) var(--ease);
@@ -18,44 +19,136 @@
 .mobile-menu.is-open .mobile-menu__overlay { opacity: 1; }
 
 .mobile-menu__panel {
-  position: absolute; top: 0; left: 0; bottom: 0;
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top, 0px));
+  left: 0;
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
   width: min(86vw, 360px);
-  background: var(--c-surface);
-  padding: max(16px, env(safe-area-inset-top)) 0 16px;
+  background: #323232;
+  color: #ffffff;
+  border-radius: 0 var(--radius-card) var(--radius-card) 0;
+  padding: 16px 0;
   transform: translateX(-100%);
   transition: transform var(--t-med) var(--ease);
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .mobile-menu.is-open .mobile-menu__panel { transform: translateX(0); }
 
 .mobile-menu__head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px 14px; border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 14px;
+  border-bottom: 1px solid color-mix(in srgb, #ffffff 18%, transparent);
 }
-.mobile-menu__list { list-style: none; margin: 0; padding: 6px 0; }
+.mobile-menu__title {
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.mobile-menu__close {
+  color: #ffffff;
+}
+.mobile-menu__close svg {
+  stroke: currentColor;
+}
+
+.mobile-menu__list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
 .mobile-menu__list a,
 .mobile-menu__list button {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; text-align: left; border: 0; background: transparent;
-  min-height: 48px; padding: 0 16px;
-  font-size: 14.5px; font-weight: 600; color: var(--c-ink);
-  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  min-height: 48px;
+  padding: 0 16px;
+  font-family: var(--f-ui);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+  border-bottom: 1px solid color-mix(in srgb, #ffffff 14%, transparent);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
+.mobile-menu__list a:hover,
+.mobile-menu__list button:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+.mobile-menu__sale {
+  color: #f5c2ce;
+}
+.mobile-menu__sale:hover {
+  color: #fad6de;
+}
+
 .mobile-menu__sub {
-  list-style: none; margin: 0; padding: 4px 0 8px;
-  background: var(--c-oat);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 8px;
+  background: color-mix(in srgb, #ffffff 8%, #323232);
   display: none;
 }
 .mobile-menu__item.is-expanded .mobile-menu__sub { display: block; }
 .mobile-menu__sub a {
-  min-height: 42px; padding-left: 30px;
-  font-size: 13.5px; font-weight: 500; color: var(--c-body);
+  min-height: 42px;
+  padding-left: 30px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: color-mix(in srgb, #ffffff 88%, transparent);
   border-bottom: 0;
 }
+
 .mobile-menu__foot {
-  margin-top: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px;
-  border-top: 1px solid var(--c-border);
+  margin-top: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid color-mix(in srgb, #ffffff 18%, transparent);
+}
+.mobile-menu__foot .btn--outline {
+  color: #ffffff;
+  border-color: color-mix(in srgb, #ffffff 35%, transparent);
+}
+.mobile-menu__foot .btn--outline:hover {
+  color: #ffffff;
+  border-color: #ffffff;
+  filter: none;
+  background: color-mix(in srgb, #ffffff 10%, transparent);
+}
+.mobile-menu__foot-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.mobile-menu__foot-links a {
+  color: color-mix(in srgb, #ffffff 88%, transparent);
+  font-size: 14px;
+  text-decoration: none;
+}
+.mobile-menu__foot-links a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (min-width: 600px) and (max-width: 899.98px) {
+  .mobile-menu__panel {
+    width: min(70vw, 380px);
+  }
 }
 
 @media (min-width: 900px) {

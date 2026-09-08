@@ -1,0 +1,26 @@
+/* ============================================================
+   СТОРІНКА «ОБРАНЕ»
+   ============================================================ */
+.wishlist-page__grid[hidden],
+.wishlist-page__empty[hidden],
+.wishlist-page__loading[hidden] {
+  display: none;
+}
+
+.wishlist-page__empty {
+  margin-top: 28px;
+}
+
+.wishlist-page__empty .btn {
+  margin-top: 16px;
+}
+
+.wishlist-page__grid {
+  margin-top: 24px;
+}
+
+@media (max-width: 599px) {
+  .wishlist-page__empty {
+    margin-top: 20px;
+  }
+}

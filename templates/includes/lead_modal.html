@@ -5,6 +5,17 @@
       <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l12 12M16 4 4 16"/></svg>
     </button>
 
+    <div class="modal__ornament" aria-hidden="true" data-lead-ornament>
+      <span class="modal__ornament-line"></span>
+      <svg class="modal__ornament-sprout" width="36" height="40" viewBox="0 0 36 40" fill="none">
+        <path d="M18 38V18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M18 28c-4.5-1.5-8-5.5-8.5-11 4.8.4 8.2 3.2 9.5 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M18 24c3.8-1.2 7-4.8 7.5-9.5-4.2.6-7 3-8.2 6.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M18 18c-1.2-4.5.2-8.5 3.5-11.5-4.8 1-7.5 4.5-7.2 9.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="modal__ornament-line"></span>
+    </div>
+
     <form class="modal__form" data-lead-form action="{% url 'leads:create' %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="lead_type" value="phone_modal" data-lead-type-input>
@@ -16,25 +27,27 @@
       <p class="modal__lead" data-lead-lead>Залиште номер телефону — передзвонимо і підкажемо знижку та найкращі товари під ваш запит.</p>
 
       <div class="field">
-        <label for="lead-modal-name">Ім'я</label>
+        <label class="modal__field-label" for="lead-modal-name">Ім'я</label>
         <input type="text" id="lead-modal-name" name="name" placeholder="Ваше ім'я" autocomplete="name">
       </div>
       <div class="field">
-        <label for="lead-modal-phone">Телефон</label>
+        <label class="modal__field-label" for="lead-modal-phone">Телефон</label>
         <input type="tel" id="lead-modal-phone" name="phone" placeholder="+380" required data-phone-mask autocomplete="tel">
       </div>
       <div class="field field--checkbox">
         <input type="checkbox" id="lead-modal-agree" required>
-        <label for="lead-modal-agree" style="font-size:12.5px;font-weight:400">Погоджуюсь на обробку персональних даних</label>
+        <label for="lead-modal-agree" class="modal__agree-label">Погоджуюсь на обробку персональних даних</label>
       </div>
 
-      <button type="submit" class="btn btn--primary btn--block">Отримати знижку</button>
+      <button type="submit" class="btn btn--primary btn--block" data-lead-cta>Отримати знижку</button>
     </form>
 
     <div class="modal__success" data-lead-success>
       <h3 class="h3">Дякуємо!</h3>
-      <p style="margin-top:8px;color:var(--c-muted)">Ми зв'яжемось з вами найближчим часом.</p>
+      <p class="modal__success-text">Ми зв'яжемось з вами найближчим часом.</p>
     </div>
+
+    <button type="button" class="modal__dismiss" data-modal-close data-lead-dismiss>Закрити</button>
   </div>
 </div>
 

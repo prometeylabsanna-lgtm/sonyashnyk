@@ -5,7 +5,6 @@ SORT_OPTIONS = {
     "price_asc": "base_price",
     "price_desc": "-base_price",
     "new": "-created_at",
-    "name": "name",
 }
 
 

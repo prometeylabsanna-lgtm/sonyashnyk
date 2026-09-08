@@ -1,26 +1,54 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{% if category %}{{ category.name }}{% else %}Акції та знижки{% endif %} — {{ site_name }}{% endblock %}
+{% block title %}{% if category %}{{ category.name }}{% elif is_catalog_root %}Каталог{% else %}Акції та знижки{% endif %} — {{ site_name }}{% endblock %}
 
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=13"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 
 {% block content %}
 
-{% if category %}
-  {% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs %}
+{% if category or is_catalog_root %}
+  {% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs is_catalog_root=is_catalog_root %}
 {% else %}
-  <div class="container" style="padding-block:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Акції / знижки</span></div>
+  <nav class="breadcrumbs container" aria-label="Хлібні крихти">
+    <a href="{% url 'home' %}">Головна</a>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'catalog:index' %}">Каталог</a>
+    <span aria-hidden="true">/</span>
+    <span class="is-current">Акції / знижки</span>
+  </nav>
 {% endif %}
 
 <div class="container section--tight">
-  <h1 class="h1">{% if category %}{{ category.name }}{% else %}Акції та знижки{% endif %}</h1>
+  <h1 class="h1">{% if category %}{{ category.name }}{% elif is_catalog_root %}Каталог{% else %}Акції та знижки{% endif %}</h1>
 
-  {% if subcategories %}
-    <div class="subcats hscroll" style="margin-top:24px">
+  {% if subcategories and not is_catalog_root %}
+    <div class="subcats hscroll">
       {% for sub in subcategories %}
         <a href="{{ sub.get_absolute_url }}" class="subcat-tile">
-          <div class="subcat-tile__media">{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+          <span class="subcat-tile__media">
+            {% if sub.image %}
+              <img
+                class="subcat-tile__icon"
+                src="{{ sub.image.url }}"
+                alt=""
+                width="128"
+                height="128"
+                loading="lazy"
+                decoding="async"
+              >
+            {% else %}
+              <img
+                class="subcat-tile__icon"
+                src="{% static 'img/catalog/subcats/default.png' %}?v=2"
+                alt=""
+                width="128"
+                height="128"
+                loading="lazy"
+                decoding="async"
+              >
+            {% endif %}
+          </span>
           <span class="subcat-tile__name">{{ sub.name }}</span>
         </a>
       {% endfor %}
@@ -34,13 +62,43 @@
         Фільтри
         {% if active_filters_count %}<span class="filters-btn__count">{{ active_filters_count }}</span>{% endif %}
       </button>
-      <select class="sort-select" data-sort-select aria-label="Сортування">
-        <option value="popularity" {% if current_sort == "popularity" %}selected{% endif %}>За популярністю</option>
-        <option value="price_asc" {% if current_sort == "price_asc" %}selected{% endif %}>Спочатку дешевші</option>
-        <option value="price_desc" {% if current_sort == "price_desc" %}selected{% endif %}>Спочатку дорожчі</option>
-        <option value="new" {% if current_sort == "new" %}selected{% endif %}>Новинки</option>
-        <option value="name" {% if current_sort == "name" %}selected{% endif %}>За назвою (А–Я)</option>
-      </select>
+      <div class="sort" data-sort>
+        <button type="button" class="sort__btn" data-sort-toggle aria-haspopup="listbox" aria-expanded="false">
+          <span data-sort-label>
+            {% if current_sort == "price_asc" %}Спочатку дешевші
+            {% elif current_sort == "price_desc" %}Спочатку дорожчі
+            {% elif current_sort == "new" %}Новинки
+            {% else %}За популярністю{% endif %}
+          </span>
+          <svg class="sort__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <ul class="sort__menu" data-sort-menu role="listbox" hidden>
+          <li role="option">
+            <button type="button" class="sort__option{% if current_sort == 'popularity' or not current_sort %} is-active{% endif %}" data-sort-option="popularity" {% if current_sort == "popularity" or not current_sort %}aria-selected="true"{% endif %}>
+              <span class="sort__check" aria-hidden="true">{% if current_sort == "popularity" or not current_sort %}✓{% endif %}</span>
+              За популярністю
+            </button>
+          </li>
+          <li role="option">
+            <button type="button" class="sort__option{% if current_sort == 'price_asc' %} is-active{% endif %}" data-sort-option="price_asc" {% if current_sort == "price_asc" %}aria-selected="true"{% endif %}>
+              <span class="sort__check" aria-hidden="true">{% if current_sort == "price_asc" %}✓{% endif %}</span>
+              Спочатку дешевші
+            </button>
+          </li>
+          <li role="option">
+            <button type="button" class="sort__option{% if current_sort == 'price_desc' %} is-active{% endif %}" data-sort-option="price_desc" {% if current_sort == "price_desc" %}aria-selected="true"{% endif %}>
+              <span class="sort__check" aria-hidden="true">{% if current_sort == "price_desc" %}✓{% endif %}</span>
+              Спочатку дорожчі
+            </button>
+          </li>
+          <li role="option">
+            <button type="button" class="sort__option{% if current_sort == 'new' %} is-active{% endif %}" data-sort-option="new" {% if current_sort == "new" %}aria-selected="true"{% endif %}>
+              <span class="sort__check" aria-hidden="true">{% if current_sort == "new" %}✓{% endif %}</span>
+              Новинки
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 

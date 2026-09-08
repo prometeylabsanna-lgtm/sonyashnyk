@@ -107,7 +107,7 @@
   function addToCart(button) {
     var variantId = button.getAttribute("data-variant-id");
     if (!variantId) return;
-    var wrapper = button.closest("[data-pdp-actions], .product-card__body");
+    var wrapper = button.closest("[data-pdp-actions], .product-card");
     var qtyInput = wrapper ? wrapper.querySelector("[data-qty-input]") : null;
     var quantity = qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1;
 
@@ -178,15 +178,32 @@
     var inc = e.target.closest("[data-qty-increment]");
     if (inc) {
       var incInput = inc.parentElement.querySelector("[data-qty-input]");
-      if (incInput) adjustQtyInput(incInput, 1);
+      if (incInput) {
+        adjustQtyInput(incInput, 1);
+        submitCartQtyForm(inc);
+      }
       return;
     }
     var dec = e.target.closest("[data-qty-decrement]");
     if (dec) {
       var decInput = dec.parentElement.querySelector("[data-qty-input]");
-      if (decInput) adjustQtyInput(decInput, -1);
+      if (decInput) {
+        adjustQtyInput(decInput, -1);
+        submitCartQtyForm(dec);
+      }
       return;
     }
+  });
+
+  function submitCartQtyForm(fromEl) {
+    var form = fromEl.closest("[data-cart-qty-form]");
+    if (!form) return;
+    form.submit();
+  }
+
+  document.addEventListener("change", function (e) {
+    var input = e.target.closest("[data-cart-qty-form] [data-qty-input]");
+    if (input) submitCartQtyForm(input);
   });
 
   document.addEventListener("keydown", function (e) {

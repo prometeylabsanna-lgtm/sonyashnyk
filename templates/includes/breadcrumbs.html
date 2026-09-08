@@ -1,9 +1,16 @@
 {% comment %}
   Параметри: breadcrumbs (список категорій від кореня), current_label (необов'язково,
-  напр. назва товару на PDP — тоді усі categories стають посиланнями)
+  напр. назва товару на PDP — тоді усі categories стають посиланнями),
+  is_catalog_root (True — «Каталог» як поточна сторінка)
 {% endcomment %}
 <nav class="breadcrumbs container" aria-label="Хлібні крихти">
   <a href="{% url 'home' %}">Головна</a>
+  <span aria-hidden="true">/</span>
+  {% if is_catalog_root %}
+    <span class="is-current">Каталог</span>
+  {% else %}
+    <a href="{% url 'catalog:index' %}">Каталог</a>
+  {% endif %}
   {% for cat in breadcrumbs %}
     <span aria-hidden="true">/</span>
     {% if forloop.last and not current_label %}

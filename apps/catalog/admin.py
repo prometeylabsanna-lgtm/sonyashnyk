@@ -5,10 +5,18 @@ from .models import Category, Product, ProductImage, ProductVariant
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "erp_name", "parent", "order", "is_active")
+    list_display = ("name", "erp_name", "parent", "order", "is_active", "has_custom_icon")
     list_filter = ("is_active", "parent")
     search_fields = ("name", "erp_name", "slug")
     ordering = ("order", "name")
+    fields = (
+        "name", "erp_name", "slug", "parent",
+        "image", "description", "order", "is_active",
+    )
+
+    @admin.display(boolean=True, description="Своя іконка")
+    def has_custom_icon(self, obj):
+        return bool(obj.image)
 
 
 class ProductVariantInline(admin.TabularInline):

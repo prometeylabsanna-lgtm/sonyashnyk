@@ -21,6 +21,8 @@ urlpatterns = [
     path("katalog/", include("apps.catalog.urls")),
     path("tovar/<slug:slug>/", catalog_views.product_detail, name="product_detail"),
     path("poshuk/", catalog_views.search, name="search"),
+    path("obrane/", catalog_views.wishlist, name="wishlist"),
+    path("obrane/fragment/", catalog_views.wishlist_fragment, name="wishlist_fragment"),
 
     path("koshyk/", include("apps.orders.cart_urls")),
     path("oformlennya/", include("apps.orders.checkout_urls")),

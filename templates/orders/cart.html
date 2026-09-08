@@ -2,69 +2,147 @@
 {% load static %}
 
 {% block title %}Кошик — {{ site_name }}{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cart-page.css' %}">{% endblock %}
 
 {% block content %}
-<div class="container section--tight">
-  <h1 class="h1">Кошик</h1>
+<section class="cart-page-section section--tight">
+  <div class="container">
+    <header class="cart-page__head">
+      <h1 class="cart-page__title">Ваш кошик</h1>
+    </header>
 
-  {% if not cart_items %}
-    <div class="empty-state">
-      <h2>Кошик порожній</h2>
-      <p>Додайте товари з каталогу, щоб оформити замовлення.</p>
-      <a href="{% url 'catalog:sale' %}" class="btn btn--primary" style="margin-top:16px">До каталогу</a>
-    </div>
-  {% else %}
-    <div class="cart-page" style="margin-top:24px">
-      <div class="cart-page__list">
-        {% for item in cart_items %}
-          <div class="cart-line" style="align-items:center">
-            <div class="cart-line__media" style="width:88px;height:88px">
-              {% with img=item.product.images.first %}
-                {% if img and img.image %}
-                  <img src="{{ img.image.url }}" alt="" width="88" height="88" loading="lazy" decoding="async">
-                {% else %}
-                  {% include "includes/media_placeholder.html" with ratio="1x1" %}
-                {% endif %}
-              {% endwith %}
+    {% if not cart_items %}
+      <div class="cart-page cart-page--empty">
+        <div class="cart-page__list">
+          <div class="cart-card cart-card--empty">
+            <div class="cart-card__empty-row">
+              <p class="cart-card__empty-title">Кошик<br>порожній</p>
+              <p class="cart-card__empty-text">Додайте товари з каталогу, щоб оформити замовлення.</p>
             </div>
-            <div class="cart-line__body">
-              <a href="{{ item.product.get_absolute_url }}" class="cart-line__name">{{ item.product.name }}</a>
-              <span class="cart-line__variant">{{ item.variant.label }} · {{ item.price }} ₴/шт</span>
-              <div class="cart-line__row">
-                <form method="post" action="{% url 'orders_cart:update' item.variant.id %}" style="display:flex;align-items:center;gap:10px">
-                  {% csrf_token %}
-                  <div class="qty-stepper">
-                    <button type="button" data-qty-decrement aria-label="Зменшити">−</button>
-                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" data-qty-input aria-label="Кількість">
-                    <button type="button" data-qty-increment aria-label="Збільшити">+</button>
-                  </div>
-                  <button type="submit" class="link-accent" style="border:0;background:transparent;padding:0">Оновити</button>
-                </form>
-                <form method="post" action="{% url 'orders_cart:remove' item.variant.id %}">
-                  {% csrf_token %}
-                  <button type="submit" class="cart-line__remove">Видалити</button>
-                </form>
-              </div>
-            </div>
-            <span class="price" style="white-space:nowrap">{{ item.line_total }} ₴</span>
+            <a href="{% url 'catalog:sale' %}" class="btn btn--primary">До каталогу</a>
           </div>
-        {% endfor %}
-      </div>
-
-      <aside class="cart-page__side">
-        <div class="cart-summary">
-          <div class="cart-summary__row"><span>Товари</span><span>{{ cart_subtotal }} ₴</span></div>
-          <div class="cart-summary__row">
-            <span>Доставка</span>
-            <span>{% if cart_subtotal >= free_shipping_threshold %}Безкоштовно{% else %}уточнюється{% endif %}</span>
-          </div>
-          <div class="cart-summary__row cart-summary__row--total"><span>Разом</span><span>{{ cart_subtotal }} ₴</span></div>
         </div>
-        <a href="{% url 'orders_checkout:page' %}" class="btn btn--primary btn--block">Оформити замовлення</a>
-        <a href="{% url 'catalog:sale' %}" class="btn btn--outline btn--block" style="margin-top:10px">Продовжити покупки</a>
-      </aside>
-    </div>
-  {% endif %}
-</div>
+
+        <aside class="cart-page__side">
+          <div class="cart-receipt">
+            <p class="cart-receipt__brand">{{ site_name }} · чек</p>
+            <div class="cart-receipt__divider" aria-hidden="true"></div>
+            <p class="cart-receipt__empty">Поки що тут порожньо</p>
+            <div class="cart-receipt__divider cart-receipt__divider--solid" aria-hidden="true"></div>
+            <div class="cart-receipt__total">
+              <span>Разом</span>
+              <span class="cart-receipt__sum">0 ₴</span>
+            </div>
+            <a href="{% url 'catalog:sale' %}" class="cart-receipt__continue">Продовжити покупки</a>
+          </div>
+        </aside>
+      </div>
+    {% else %}
+      <div class="cart-page">
+        <div class="cart-page__list">
+          {% for item in cart_items %}
+            <article class="cart-card">
+              <a href="{{ item.product.get_absolute_url }}" class="cart-card__media">
+                {% with img=item.product.images.first %}
+                  {% if img and img.image %}
+                    <img src="{{ img.image.url }}" alt="" width="96" height="96" loading="lazy" decoding="async">
+                  {% else %}
+                    {% include "includes/media_placeholder.html" with ratio="1x1" %}
+                  {% endif %}
+                {% endwith %}
+              </a>
+
+              <div class="cart-card__body">
+                <div class="cart-card__info">
+                  <a href="{{ item.product.get_absolute_url }}" class="cart-card__name">{{ item.product.name }}</a>
+                  <span class="cart-card__meta">{{ item.variant.label }} · {{ item.price }} ₴/шт</span>
+                </div>
+
+                <div class="cart-card__controls">
+                  <form method="post" action="{% url 'orders_cart:update' item.variant.id %}" data-cart-qty-form>
+                    {% csrf_token %}
+                    <div class="qty-stepper">
+                      <button type="button" data-qty-decrement aria-label="Зменшити">−</button>
+                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" data-qty-input inputmode="numeric" aria-label="Кількість">
+                      <button type="button" data-qty-increment aria-label="Збільшити">+</button>
+                    </div>
+                  </form>
+                  <form method="post" action="{% url 'orders_cart:remove' item.variant.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="cart-card__remove">Видалити</button>
+                  </form>
+                </div>
+              </div>
+
+              <span class="cart-card__price">{{ item.line_total }} ₴</span>
+            </article>
+          {% endfor %}
+        </div>
+
+        <aside class="cart-page__side">
+          <div class="cart-receipt">
+            <p class="cart-receipt__brand">{{ site_name }} · чек</p>
+            <div class="cart-receipt__divider" aria-hidden="true"></div>
+
+            <ul class="cart-receipt__lines">
+              {% for item in cart_items %}
+                <li class="cart-receipt__line">
+                  <span class="cart-receipt__item">{{ item.product.name }} ×{{ item.quantity }}</span>
+                  <span class="cart-receipt__item-price">{{ item.line_total }} ₴</span>
+                </li>
+              {% endfor %}
+              <li class="cart-receipt__line">
+                <span class="cart-receipt__item">Доставка</span>
+                <span class="cart-receipt__item-price">
+                  {% if cart_subtotal >= free_shipping_threshold %}безкошт.{% else %}уточн.{% endif %}
+                </span>
+              </li>
+              {% if cart_discount %}
+                <li class="cart-receipt__line cart-receipt__line--discount">
+                  <span class="cart-receipt__item">Знижка{% if promo_code %} ({{ promo_code }}){% endif %}</span>
+                  <span class="cart-receipt__item-price">−{{ cart_discount }} ₴</span>
+                </li>
+              {% endif %}
+            </ul>
+
+            <form class="cart-receipt__promo" method="post" action="{% url 'orders_cart:promo' %}">
+              {% csrf_token %}
+              <label class="visually-hidden" for="cart-promo-input">Промокод</label>
+              <div class="promo-row">
+                <input
+                  id="cart-promo-input"
+                  type="text"
+                  name="promo_code"
+                  value="{{ promo_code }}"
+                  placeholder="Промокод"
+                  autocomplete="off"
+                  maxlength="40"
+                  {% if cart_discount %}readonly{% endif %}
+                >
+                {% if cart_discount %}
+                  <button type="submit" name="action" value="clear" class="btn btn--outline">Скасувати</button>
+                {% else %}
+                  <button type="submit" name="action" value="apply" class="btn btn--outline">Застосувати</button>
+                {% endif %}
+              </div>
+              {% if promo_error %}
+                <p class="cart-receipt__promo-error">{{ promo_error }}</p>
+              {% endif %}
+            </form>
+
+            <div class="cart-receipt__divider cart-receipt__divider--solid" aria-hidden="true"></div>
+
+            <div class="cart-receipt__total">
+              <span>Разом</span>
+              <span class="cart-receipt__sum">{{ cart_total }} ₴</span>
+            </div>
+
+            <a href="{% url 'orders_checkout:page' %}" class="btn btn--primary btn--block cart-receipt__checkout">Оформити замовлення</a>
+            <a href="{% url 'catalog:sale' %}" class="cart-receipt__continue">Продовжити покупки</a>
+          </div>
+        </aside>
+      </div>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}

@@ -54,6 +54,7 @@ class Review(models.Model):
     """Відгук клієнта для секції J на головній."""
 
     name = models.CharField("Ім'я", max_length=120)
+    city = models.CharField("Місто", max_length=80, blank=True)
     text = models.TextField("Текст відгуку")
     rating = models.PositiveSmallIntegerField("Оцінка (1–5)", default=5)
     order = models.PositiveIntegerField("Порядок", default=0)

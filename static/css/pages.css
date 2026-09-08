@@ -38,14 +38,6 @@
 .cert-card__body { padding: 0 12px 14px; }
 .cert-card__title { font-size: 13px; font-weight: 600; }
 
-.contacts-grid { display: grid; gap: 28px; }
-@media (min-width: 900px) { .contacts-grid { grid-template-columns: minmax(0,1fr) 380px; } }
-.contact-item { display: flex; gap: 12px; margin-bottom: 18px; }
-.contact-item__icon { color: var(--c-sage); flex: 0 0 auto; }
-.contact-item__label { font-size: 12.5px; color: var(--c-muted); }
-.contact-item__value { font-size: 15px; font-weight: 600; color: var(--c-ink); }
-.map-placeholder { border-radius: var(--radius-md); margin-top: 20px; }
-
 .error-404 { text-align: center; padding: clamp(60px, 12vw, 120px) 16px; }
 .error-404__code {
   font-family: var(--f-display); font-size: clamp(60px, 15vw, 140px); color: var(--c-sage); line-height: 1;

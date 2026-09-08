@@ -11,17 +11,13 @@ from django.core.management.base import BaseCommand
 
 from apps.catalog.models import Category, Product, ProductImage, ProductVariant
 from apps.core.models import HeroSlide, HighlightPoint, Review
+from apps.orders.models import PromoCode
 
-CATEGORY_TREE = [
-    ("Насіння", ["Насіння овочів", "Насіння квітів", "Вагове насіння", "Газонні трави"]),
-    ("Добрива та стимулятори росту", ["Добрива для газону", "Мінеральні добрива", "Органічні добрива"]),
-    ("Засоби захисту рослин", ["Фунгіциди", "Інсектициди", "Гербіциди"]),
-    ("Садовий інструмент", ["Секатори, ножі та ножиці", "Все для газону"]),
-    ("Полив та оприскувачі", ["Оприскувачі", "Полив крапельний"]),
-    ("Посадковий матеріал", ["Цибулини та бульби квітів", "Саджанці"]),
-    ("Горщики", ["Пластикові горщики", "Керамічні горщики"]),
-    ("Грунти та все для посадки", ["Субстрати", "Торфи"]),
-]
+# Повне дерево — apps.catalog.category_tree; seed лишає сумісний плоский режим.
+# Для повного sync: python3 manage.py sync_categories
+from apps.catalog.category_tree import CATEGORY_TREE as FULL_CATEGORY_TREE
+
+CATEGORY_TREE = FULL_CATEGORY_TREE
 
 BRANDS = ["АгроХім", "БіоСад", "Соняшник", "ЗеленСвіт"]
 COUNTRIES = ["Україна", "Польща", "Нідерланди"]
@@ -82,18 +78,13 @@ class Command(BaseCommand):
         self.seed_products()
         self.seed_product_images()
         self.seed_home_content()
+        self.seed_promos()
         self.stdout.write(self.style.SUCCESS("Демо-дані успішно створено."))
 
     def seed_categories(self):
-        for order, (name, subnames) in enumerate(CATEGORY_TREE):
-            parent, _ = Category.objects.get_or_create(
-                name=name, parent=None, defaults={"order": order},
-            )
-            for sub_order, subname in enumerate(subnames):
-                Category.objects.get_or_create(
-                    name=subname, parent=parent, defaults={"order": sub_order},
-                )
-        self.stdout.write("Категорії створено.")
+        from django.core.management import call_command
+        call_command("sync_categories")
+        self.stdout.write("Категорії синхронізовано через sync_categories.")
 
     def seed_products(self):
         leaf_categories = list(Category.objects.filter(parent__isnull=False))
@@ -232,10 +223,47 @@ class Command(BaseCommand):
             )
 
         reviews_data = [
-            ("Олена К.", "Замовляла насіння томатів — усе зійшло чудово, якість супер!", 5),
-            ("Ігор П.", "Швидка доставка і адекватні ціни. Рекомендую.", 5),
-            ("Марина С.", "Дуже задоволена добривами власного виробництва.", 4),
+            ("Олена К.", "Кропивницький", "Замовляла насіння томатів — усе зійшло чудово, якість супер!", 5),
+            ("Ігор П.", "Львів", "Швидка доставка і адекватні ціни. Рекомендую.", 5),
+            ("Марина С.", "Одеса", "Дуже задоволена добривами власного виробництва.", 5),
+            ("Андрій В.", "Київ", "Консультація агронома реально допомогла з вибором захисту рослин.", 5),
+            ("Наталія Р.", "Дніпро", "Замовляю вже третій сезон. Упаковка акуратна, схожість насіння відмінна.", 5),
+            ("Сергій М.", "Харків", "Нова Пошта привезла швидко. Добрива спрацювали вже за два тижні.", 5),
+            ("Оксана Л.", "Вінниця", "Широкий асортимент і зрозумілі описи товарів. Зручно купувати онлайн.", 5),
+            ("Тарас Б.", "Полтава", "Сертифікати на власну продукцію додають довіри. Буду замовляти ще.", 5),
         ]
-        for order, (name, text, rating) in enumerate(reviews_data):
-            Review.objects.get_or_create(name=name, defaults={"text": text, "rating": rating, "order": order})
+        for order, (name, city, text, rating) in enumerate(reviews_data):
+            Review.objects.update_or_create(
+                name=name,
+                defaults={
+                    "city": city,
+                    "text": text,
+                    "rating": rating,
+                    "order": order,
+                    "is_active": True,
+                },
+            )
         self.stdout.write("Контент головної сторінки створено.")
+
+    def seed_promos(self):
+        PromoCode.objects.update_or_create(
+            code="SONYA10",
+            defaults={
+                "discount_type": PromoCode.DiscountType.PERCENT,
+                "amount": Decimal("10"),
+                "min_subtotal": Decimal("0"),
+                "is_active": True,
+                "valid_until": None,
+            },
+        )
+        PromoCode.objects.update_or_create(
+            code="SAD50",
+            defaults={
+                "discount_type": PromoCode.DiscountType.FIXED,
+                "amount": Decimal("50"),
+                "min_subtotal": Decimal("300"),
+                "is_active": True,
+                "valid_until": None,
+            },
+        )
+        self.stdout.write("Промокоди SONYA10 / SAD50 створено.")

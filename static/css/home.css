@@ -81,9 +81,10 @@
   pointer-events: auto;
 }
 .hero__cta > .btn {
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 220px;
+  flex: 0 1 auto;
+  min-width: max-content;
+  max-width: 100%;
+  white-space: nowrap;
   box-sizing: border-box;
 }
 .hero__dots {
@@ -235,8 +236,7 @@
 @media (hover: hover) and (pointer: fine) {
   .trust-item:hover .trust-item__ring,
   .trust-item:focus-within .trust-item__ring {
-    background: color-mix(in srgb, #F7E98A 55%, transparent);
-    border-color: color-mix(in srgb, #E5D36A 50%, transparent);
+    border-color: color-mix(in srgb, #1C3F1A 42%, transparent);
   }
   .trust-item:hover .trust-item__flower,
   .trust-item:focus-within .trust-item__flower {
@@ -246,10 +246,6 @@
 }
 
 @media (hover: none) {
-  .trust-item__ring {
-    background: color-mix(in srgb, #F7E98A 42%, transparent);
-    border-color: color-mix(in srgb, #E5D36A 40%, transparent);
-  }
   .trust-item__flower {
     transform: scale(1);
     opacity: 1;
@@ -311,6 +307,15 @@
 }
 .cat-tile:hover .cat-tile__media { box-shadow: var(--shadow-card); }
 .cat-tile:hover .cat-tile__media img { transform: scale(1.05); }
+.cat-tile--rozsada .cat-tile__media {
+  padding: clamp(2px, 0.8vw, 6px);
+}
+.cat-tile--rozsada .cat-tile__media img {
+  transform: scale(1.12);
+}
+.cat-tile--rozsada:hover .cat-tile__media img {
+  transform: scale(1.17);
+}
 .cat-tile__name {
   font-family: var(--f-accent);
   font-weight: 600;
@@ -325,6 +330,7 @@
 @media (max-width: 599px) {
   .cat-tile { gap: 8px; }
   .cat-tile__media { padding: 8px; }
+  .cat-tile--rozsada .cat-tile__media { padding: 2px; }
   .cat-tile__name { font-size: 12.5px; }
 }
 
@@ -545,66 +551,6 @@
   }
 }
 
-/* --- Reviews --- */
-.reviews-grid {
-  display: grid;
-  gap: clamp(14px, 2vw, 22px);
-  grid-template-columns: 1fr;
-}
-.review-card {
-  padding: 22px;
-  background: var(--c-bg);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
-  display: flex; flex-direction: column; gap: 12px;
-}
-.review-card__photo {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.review-card__stars { color: var(--c-gold); font-size: 15px; letter-spacing: 2px; }
-.review-card__text { font-size: 14px; color: var(--c-body); font-style: italic; line-height: 1.55; }
-.review-card__name { font-size: 13px; font-weight: 700; color: var(--c-ink); }
-
-@media (min-width: 700px) {
-  .reviews-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-/* --- Email band --- */
-.email-band {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  color: var(--c-ink);
-  background:
-    url("../img/home/email-band.jpg") center / cover no-repeat,
-    var(--c-sageband);
-}
-.email-band__glass {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: clamp(28px, 4vw, 40px);
-  text-align: center;
-  background: color-mix(in srgb, var(--c-surface) 52%, transparent);
-  -webkit-backdrop-filter: blur(20px) saturate(1.12);
-  backdrop-filter: blur(20px) saturate(1.12);
-  transform: translateZ(0);
-}
-.email-band form { display: flex; flex-direction: column; gap: 10px; max-width: 420px; margin: 0 auto; width: 100%; }
-@media (min-width: 600px) {
-  .email-band form { flex-direction: row; }
-  .email-band form input { flex: 1; }
-}
-.email-band input {
-  min-height: 46px; padding: 0 14px; border: 0; border-radius: var(--radius-sm);
-  font-size: 14.5px; background: var(--c-surface); color: var(--c-ink);
-  width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
 /* --- iOS Safari / touch --- */
 .hscroll {
   -webkit-overflow-scrolling: touch;
@@ -615,9 +561,6 @@
   .hero__frame { height: clamp(400px, 62svh, 520px); }
   .hero__plaque {
     background: color-mix(in srgb, var(--c-surface) 78%, transparent);
-  }
-  .email-band__glass {
-    background: color-mix(in srgb, var(--c-surface) 68%, transparent);
   }
   .cat-tile__media, .edu-card__media, .story-card__media {
     transform: translateZ(0);

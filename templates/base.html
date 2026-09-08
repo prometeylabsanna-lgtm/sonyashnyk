@@ -36,13 +36,16 @@
   leadUrl: "{% url 'leads:create' %}",
   cartAddUrl: "{% url 'orders_cart:add' %}",
   cartDrawerUrl: "{% url 'orders_cart:drawer' %}",
-  cartRemoveUrlBase: "{% url 'orders_cart:remove' 0 %}".replace("0/", "")
+  cartRemoveUrlBase: "{% url 'orders_cart:remove' 0 %}".replace("0/", ""),
+  wishlistFragmentUrl: "{% url 'wishlist_fragment' %}"
 };</script>
 <script src="{% static 'js/utils.js' %}" defer></script>
 <script src="{% static 'js/phone-mask.js' %}" defer></script>
 <script src="{% static 'js/mobile-menu.js' %}" defer></script>
 <script src="{% static 'js/lead-modal.js' %}" defer></script>
+<script src="{% static 'js/lead-form-inline.js' %}" defer></script>
 <script src="{% static 'js/cart.js' %}" defer></script>
+<script src="{% static 'js/wishlist.js' %}" defer></script>
 <script src="{% static 'js/scroll-reveal.js' %}" defer></script>
 <script src="{% static 'js/main.js' %}" defer></script>
 {% block extra_js %}{% endblock %}

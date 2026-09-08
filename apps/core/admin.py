@@ -18,5 +18,5 @@ class HighlightPointAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ("name", "rating", "order", "is_active")
+    list_display = ("name", "city", "rating", "order", "is_active")
     list_editable = ("order", "is_active")

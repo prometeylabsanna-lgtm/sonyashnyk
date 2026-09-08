@@ -1,57 +1,72 @@
 {% load static %}
 <footer class="site-footer" id="footer">
-  <div class="container">
-    <div class="grid grid--foot">
-      <div class="footer-col">
-        <div class="footer-brand">
-          <img class="footer-brand__logo" src="{% static 'img/brand/logo-sunflower.png' %}" alt="" width="36" height="35" decoding="async">
-          <span class="footer-brand__name">{{ site_name }}</span>
+  <div class="footer-split">
+    <div class="footer-cta">
+      <h2 class="footer-cta__title">Новини саду на email</h2>
+      <p class="footer-cta__text">Поради з вирощування, сезонні акції та новинки асортименту — без зайвого шуму.</p>
+      <form
+        class="footer-cta__form"
+        data-lead-form-inline
+        data-lead-type="newsletter"
+        action="{% url 'leads:create' %}"
+        method="post"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="lead_type" value="newsletter">
+        <input type="hidden" name="source_page" value="{{ request.path }}">
+        <input type="text" name="honeypot" class="visually-hidden" tabindex="-1" autocomplete="off">
+        <div class="footer-cta__row">
+          <input
+            type="email"
+            name="email"
+            placeholder="Ваш email"
+            required
+            aria-label="Email"
+            autocomplete="email"
+            inputmode="email"
+          >
+          <button type="submit" class="footer-cta__btn">Підписатись</button>
         </div>
-        <p style="font-size:13px;line-height:1.6">Насіння, добрива, засоби захисту рослин та все для саду й городу. Власне виробництво з сертифікатами якості.</p>
-        <div class="footer-payments">
-          <span>LiqPay</span>
-          <span>Нова Пошта</span>
-          <span>Укрпошта</span>
-        </div>
-      </div>
-
-      <div class="footer-col">
-        <div class="footer-col__title">Категорії</div>
-        <ul>
-          {% for cat in nav_categories|slice:":6" %}
-            <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <div class="footer-col__title">Інформація</div>
-        <ul>
-          <li><a href="{% url 'about' %}">Про нас</a></li>
-          <li><a href="{% url 'delivery' %}">Доставка і оплата</a></li>
-          <li><a href="{% url 'certificates' %}">Сертифікати</a></li>
-          <li><a href="{% url 'contacts' %}">Контакти</a></li>
-          <li><a href="{% url 'offer' %}">Договір оферти</a></li>
-          <li><a href="{% url 'privacy' %}">Політика конфіденційності</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-col">
-        <div class="footer-col__title">Контакти</div>
-        <ul>
-          <li><a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a></li>
-          <li>{{ site_working_hours }}</li>
-          <li><a href="{% url 'contacts' %}">Написати нам</a></li>
-        </ul>
-      </div>
+      </form>
     </div>
 
-    <div class="footer-bottom">
-      <span>© {% now "Y" %} {{ site_name }}. Усі права захищено.</span>
-      <nav>
-        <a href="{% url 'offer' %}">Оферта</a>
-        <a href="{% url 'privacy' %}">Конфіденційність</a>
-      </nav>
+    <div class="footer-panel">
+      <div class="footer-brand">
+        <img class="footer-brand__logo" src="{% static 'img/brand/logo-sunflower.png' %}" alt="" width="36" height="35" decoding="async">
+        <span class="footer-brand__name">{{ site_name }}</span>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-col__title">Категорії</div>
+          <ul>
+            {% for cat in nav_categories|slice:":4" %}
+              <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col__title">Інформація</div>
+          <ul>
+            <li><a href="{% url 'about' %}">Про нас</a></li>
+            <li><a href="{% url 'delivery' %}">Доставка</a></li>
+            <li><a href="{% url 'offer' %}">Оферта</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <div class="footer-col__title">Контакти</div>
+          <ul>
+            <li><a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a></li>
+            <li>{{ site_working_hours }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© {% now "Y" %} {{ site_name }}</span>
+      </div>
     </div>
   </div>
 </footer>

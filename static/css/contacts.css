@@ -1,0 +1,294 @@
+/* ============================================================
+   СТОРІНКА «КОНТАКТИ»
+   ============================================================ */
+
+.contacts-crumbs {
+  padding-bottom: 0;
+}
+
+/* --- Hero-баннер (нижчий) --- */
+.contacts-hero {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: clamp(12px, 2.2vw, 20px) var(--gap-page) 0;
+}
+
+.contacts-hero__frame {
+  position: relative;
+  height: clamp(180px, 29dvh, 260px);
+  overflow: hidden;
+  border-radius: clamp(16px, 2.4vw, 28px);
+  background: var(--c-announce);
+  isolation: isolate;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+.contacts-hero__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.contacts-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  transform: scale(1.08);
+  -webkit-transform: scale(1.08);
+  filter: blur(6px);
+  -webkit-filter: blur(6px);
+}
+
+.contacts-hero__shade {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, #1a3a1c 38%, transparent);
+  pointer-events: none;
+}
+
+.contacts-hero__content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(18px, 2.8vw, 36px);
+  color: #fff;
+}
+
+.contacts-hero__title {
+  margin: 0 0 clamp(12px, 2vw, 22px);
+  font-family: var(--f-display);
+  font-size: clamp(28px, 4.2vw, 48px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-wrap: balance;
+}
+
+.contacts-hero__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2.5vw, 36px);
+  max-width: 920px;
+}
+
+.contacts-hero__meta dd {
+  margin: 0;
+}
+
+.contacts-hero__label {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--f-body);
+  font-size: clamp(11px, 1.1vw, 13px);
+  font-weight: 500;
+  line-height: 1.3;
+  color: color-mix(in srgb, #fff 68%, transparent);
+}
+
+.contacts-hero__value {
+  font-family: var(--f-ui);
+  font-size: clamp(14px, 1.45vw, 17px);
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+  text-decoration: none;
+}
+
+a.contacts-hero__value:hover,
+a.contacts-hero__value:focus-visible {
+  color: var(--c-gold);
+  outline: none;
+}
+
+/* --- Контент під баннером --- */
+.contacts-body {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 48px) var(--gap-page) clamp(48px, 8vw, 80px);
+}
+
+.contacts-grid {
+  display: grid;
+  gap: clamp(28px, 4vw, 48px);
+  align-items: stretch;
+}
+
+.contacts-form-block__title {
+  margin: 0 0 clamp(18px, 2.4vw, 28px);
+  font-family: var(--f-display);
+  font-size: clamp(26px, 3.2vw, 36px);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--c-ink);
+}
+
+.contacts-form .field {
+  margin-bottom: 14px;
+}
+
+.contacts-form .field input,
+.contacts-form .field textarea {
+  border-radius: var(--radius-sm);
+  border-color: color-mix(in srgb, var(--c-border) 85%, var(--c-muted));
+  background: var(--c-surface);
+}
+
+.contacts-form .field textarea {
+  min-height: 140px;
+}
+
+.contacts-form__submit {
+  margin-top: 8px;
+  min-height: 50px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+}
+
+.contacts-map {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.contacts-map__frame {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 280px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--c-border);
+  background: color-mix(in srgb, var(--c-oat) 55%, var(--c-surface));
+}
+
+.contacts-map__iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  border: 0;
+}
+
+/* --- Планшет --- */
+@media (max-width: 899px) {
+  .contacts-hero__frame {
+    height: clamp(210px, 34dvh, 280px);
+  }
+
+  .contacts-hero__content {
+    padding: clamp(16px, 3.5vw, 24px);
+    justify-content: flex-end;
+  }
+
+  .contacts-hero__title {
+    margin-bottom: clamp(10px, 2.5vw, 16px);
+    font-size: clamp(26px, 6vw, 36px);
+  }
+
+  .contacts-hero__meta {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: none;
+  }
+
+  .contacts-hero__shade {
+    background:
+      linear-gradient(
+        to top,
+        color-mix(in srgb, #1a3a1c 52%, transparent) 0%,
+        color-mix(in srgb, #1a3a1c 28%, transparent) 55%,
+        color-mix(in srgb, #1a3a1c 16%, transparent) 100%
+      );
+  }
+
+  .contacts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contacts-map__frame,
+  .contacts-map__iframe {
+    min-height: 240px;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (min-width: 900px) {
+  .contacts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(32px, 5vw, 64px);
+  }
+
+  .contacts-map__frame {
+    min-height: 100%;
+  }
+
+  .contacts-map__iframe {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+/* --- Мобільний / iOS Safari --- */
+@media (max-width: 479px) {
+  .contacts-hero {
+    padding-top: 10px;
+  }
+
+  .contacts-hero__frame {
+    height: clamp(200px, 36svh, 260px);
+    border-radius: 16px;
+  }
+
+  .contacts-hero__media img {
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+  }
+
+  .contacts-hero__content {
+    padding: 14px 16px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .contacts-hero__title {
+    font-size: clamp(24px, 8vw, 30px);
+  }
+
+  .contacts-hero__value {
+    font-size: 14px;
+  }
+
+  .contacts-body {
+    padding-top: 24px;
+  }
+
+  .contacts-form .field textarea {
+    min-height: 120px;
+  }
+
+  .contacts-map__frame,
+  .contacts-map__iframe {
+    min-height: 220px;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .contacts-hero__frame {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  .contacts-hero__media img {
+    -webkit-transform: scale(1.08) translateZ(0);
+    transform: scale(1.08) translateZ(0);
+  }
+}

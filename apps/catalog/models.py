@@ -24,7 +24,13 @@ class Category(models.Model):
         "self", verbose_name="Батьківська категорія",
         null=True, blank=True, on_delete=models.CASCADE, related_name="children",
     )
-    image = models.ImageField("Зображення", upload_to="categories/", blank=True, null=True)
+    image = models.ImageField(
+        "Іконка категорії",
+        upload_to="categories/",
+        blank=True,
+        null=True,
+        help_text="Для підкатегорій (рівні 2–3). Якщо порожньо — показується іконка-соняшник за замовчуванням.",
+    )
     description = models.TextField("Опис", blank=True)
     order = models.PositiveIntegerField("Порядок сортування", default=0)
     is_active = models.BooleanField("Активна", default=True)

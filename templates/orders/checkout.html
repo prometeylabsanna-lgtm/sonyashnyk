@@ -95,7 +95,7 @@
       <aside class="checkout-summary">
         <button type="button" class="checkout-toggle-btn" data-summary-toggle aria-expanded="true" data-mobile>
           <span>Склад замовлення ({{ cart_items|length }})</span>
-          <span>{{ cart_subtotal }} ₴</span>
+          <span>{{ cart_total }} ₴</span>
         </button>
         <div data-summary-body>
           <div class="checkout-summary__items">
@@ -108,7 +108,10 @@
           </div>
           <div class="cart-summary">
             <div class="cart-summary__row"><span>Товари</span><span>{{ cart_subtotal }} ₴</span></div>
-            <div class="cart-summary__row cart-summary__row--total"><span>Разом</span><span>{{ cart_subtotal }} ₴</span></div>
+            {% if cart_discount %}
+              <div class="cart-summary__row"><span>Знижка{% if promo_code %} ({{ promo_code }}){% endif %}</span><span>−{{ cart_discount }} ₴</span></div>
+            {% endif %}
+            <div class="cart-summary__row cart-summary__row--total"><span>Разом</span><span>{{ cart_total }} ₴</span></div>
           </div>
         </div>
       </aside>

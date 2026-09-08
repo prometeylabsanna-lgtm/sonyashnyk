@@ -12,33 +12,32 @@
 {% with variant=product.default_variant %}
 <div class="container section--tight">
   <div class="pdp">
-    <div class="gallery">
+    <div class="gallery{% if product.images.all|length < 2 %} gallery--single{% endif %}">
+      {% if product.images.all|length > 1 %}
+      <div class="gallery__thumbs" role="tablist" aria-label="Фото товару">
+        {% for image in product.images.all %}
+          <button type="button" class="gallery__thumb{% if forloop.first %} is-active{% endif %}" data-gallery-thumb aria-label="Фото {{ forloop.counter }}">
+            {% if image.image %}
+              <img src="{{ image.image.url }}" alt="" width="72" height="72" loading="lazy" decoding="async">
+            {% else %}
+              {% include "includes/media_placeholder.html" with ratio="1x1" %}
+            {% endif %}
+          </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <div class="gallery__main" data-gallery-main data-hide-scroll>
         {% for image in product.images.all %}
           <div class="gallery__slide" data-gallery-slide>
             {% if image.image %}
-              <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" width="800" height="800" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
+              <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" width="640" height="640" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
             {% else %}
               {% include "includes/media_placeholder.html" with ratio="1x1" %}
             {% endif %}
           </div>
         {% empty %}
           <div class="gallery__slide" data-gallery-slide>{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
-        {% endfor %}
-      </div>
-      <div class="gallery__thumbs">
-        {% for image in product.images.all %}
-          <button type="button" class="gallery__thumb{% if forloop.first %} is-active{% endif %}" data-gallery-thumb aria-label="Фото {{ forloop.counter }}">
-            {% if image.image %}
-              <img src="{{ image.image.url }}" alt="" width="96" height="96" loading="lazy" decoding="async">
-            {% else %}
-              {% include "includes/media_placeholder.html" with ratio="1x1" %}
-            {% endif %}
-          </button>
-        {% empty %}
-          <button type="button" class="gallery__thumb is-active" data-gallery-thumb aria-label="Фото 1">
-            {% include "includes/media_placeholder.html" with ratio="1x1" %}
-          </button>
         {% endfor %}
       </div>
     </div>
@@ -58,91 +57,76 @@
         {% if product.display_old_price %}
           <span class="price price--old" data-pdp-old-price>{{ product.display_old_price }} ₴</span>
         {% else %}
-          <span class="price price--old" data-pdp-old-price style="display:none"></span>
+          <span class="price price--old" data-pdp-old-price hidden></span>
         {% endif %}
       </div>
       <div class="pdp-info__stock {% if not product.in_stock %}is-out{% endif %}" data-pdp-stock>
         {% if product.in_stock %}В наявності{% else %}Немає в наявності{% endif %}
       </div>
 
-      {% if product.variants.all|length > 1 %}
-        <div class="variant-group">
-          <div class="variant-group__title">Оберіть об'єм / фасування</div>
-          <div class="variant-list">
-            {% for v in product.variants.all %}
-              <button
-                type="button"
-                class="variant-chip{% if v.id == variant.id %} is-active{% endif %}"
-                data-variant-chip
-                data-variant-id="{{ v.id }}"
-                data-price="{{ v.price }}"
-                data-old-price="{{ v.old_price|default:'' }}"
-                data-in-stock="{% if v.stock_qty > 0 %}1{% else %}0{% endif %}"
-                {% if v.stock_qty == 0 %}disabled{% endif %}
-              >{{ v.label }}</button>
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-
-      <div class="qty-row" data-pdp-actions>
+      <div class="pdp-buy" data-pdp-actions>
         <div class="qty-stepper">
           <button type="button" data-qty-decrement aria-label="Зменшити кількість">−</button>
-          <input type="number" value="1" min="1" max="99" data-qty-input aria-label="Кількість">
+          <input type="number" value="1" min="1" max="99" data-qty-input aria-label="Кількість" inputmode="numeric">
           <button type="button" data-qty-increment aria-label="Збільшити кількість">+</button>
+        </div>
+
+        <div class="pdp-actions">
+          <button
+            type="button"
+            class="btn btn--primary"
+            data-add-to-cart
+            data-variant-id="{{ variant.id }}"
+            {% if not product.in_stock %}disabled{% endif %}
+          >До кошика</button>
+          <button
+            type="button"
+            class="btn btn--outline pdp-actions__one-click"
+            data-lead-open
+            data-lead-type="buy_one_click"
+            data-product-id="{{ product.id }}"
+            {% if not product.in_stock %}disabled{% endif %}
+          >Купити в 1 клік</button>
+          <button
+            type="button"
+            class="pdp-actions__wish"
+            data-wishlist-toggle
+            data-product-id="{{ product.id }}"
+            data-label-off="В обране"
+            data-label-on="В обраному"
+            aria-pressed="false"
+            aria-label="В обране"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
         </div>
       </div>
 
-      <div class="pdp-actions">
-        <button
-          type="button"
-          class="btn btn--primary"
-          data-add-to-cart
-          data-variant-id="{{ variant.id }}"
-          {% if not product.in_stock %}disabled{% endif %}
-        >До кошика</button>
-        <button
-          type="button"
-          class="btn btn--rose"
-          data-lead-open
-          data-lead-type="buy_one_click"
-          data-product-id="{{ product.id }}"
-          {% if not product.in_stock %}disabled{% endif %}
-        >Купити в 1 клік</button>
-      </div>
-
-      <div class="pdp-tabs">
-        <nav class="pdp-tabs__nav" data-pdp-tabs-nav>
-          <button type="button" class="pdp-tabs__btn is-active" data-pdp-tab-btn="desc">Опис</button>
-          {% if product.characteristics %}<button type="button" class="pdp-tabs__btn" data-pdp-tab-btn="specs">Характеристики</button>{% endif %}
-          {% if product.certificates.all %}<button type="button" class="pdp-tabs__btn" data-pdp-tab-btn="docs">Документи</button>{% endif %}
-        </nav>
-
-        <div class="pdp-tabs__panel is-active" data-pdp-tab-panel="desc">
+      <div class="pdp-desc">
+        <h2 class="pdp-desc__title">Опис</h2>
+        <div class="pdp-desc__body">
           <p>{{ product.description|default:product.short_description|linebreaksbr }}</p>
         </div>
 
         {% if product.characteristics %}
-        <div class="pdp-tabs__panel" data-pdp-tab-panel="specs">
-          <table class="spec-table">
-            {% for key, value in product.characteristics.items %}
-              <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
-            {% endfor %}
-          </table>
-        </div>
+        <table class="spec-table">
+          {% for key, value in product.characteristics.items %}
+            <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+          {% endfor %}
+        </table>
         {% endif %}
 
         {% if product.certificates.all %}
-        <div class="pdp-tabs__panel" data-pdp-tab-panel="docs">
-          <ul class="doc-list">
-            {% for cert in product.certificates.all %}
-              <li><a href="{{ cert.file.url }}" target="_blank" rel="noopener">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 2h7l3 3v13H5z"/></svg>
-                {{ cert.title }}
-              </a></li>
-            {% endfor %}
-          </ul>
-        </div>
+        <ul class="doc-list">
+          {% for cert in product.certificates.all %}
+            <li><a href="{{ cert.file.url }}" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 2h7l3 3v13H5z"/></svg>
+              {{ cert.title }}
+            </a></li>
+          {% endfor %}
+        </ul>
         {% endif %}
       </div>
     </div>

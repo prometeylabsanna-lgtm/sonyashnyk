@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, OrderItem
+from .models import Order, OrderItem, PromoCode
 
 
 class OrderItemInline(admin.TabularInline):
@@ -20,3 +20,11 @@ class OrderAdmin(admin.ModelAdmin):
     list_editable = ("status", "payment_status")
     readonly_fields = ("order_number", "subtotal", "total", "created_at")
     inlines = [OrderItemInline]
+
+
+@admin.register(PromoCode)
+class PromoCodeAdmin(admin.ModelAdmin):
+    list_display = ("code", "discount_type", "amount", "min_subtotal", "is_active", "valid_until")
+    list_filter = ("discount_type", "is_active")
+    search_fields = ("code",)
+    list_editable = ("is_active",)

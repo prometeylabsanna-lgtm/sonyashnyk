@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -9,6 +11,7 @@ from apps.catalog.models import ProductVariant
 from .cart import Cart
 from .forms import CheckoutForm
 from .models import Order, OrderItem
+from .promo import apply_promo_code, clear_session_promo_code, resolve_promo
 
 
 def cart_drawer_partial(request):
@@ -16,14 +19,23 @@ def cart_drawer_partial(request):
     return render(request, "includes/cart_drawer.html")
 
 
-def cart_page(request):
-    cart = Cart(request)
-    context = {
+def _cart_totals(request, cart):
+    subtotal = cart.get_subtotal()
+    promo = resolve_promo(request, subtotal)
+    return {
         "cart_items": cart.get_items(),
-        "cart_subtotal": cart.get_subtotal(),
+        "cart_subtotal": subtotal,
+        "cart_discount": promo["discount"],
+        "cart_total": promo["total"],
+        "promo_code": promo["code"],
+        "promo_error": promo["error"],
         "free_shipping_threshold": 1500,
     }
-    return render(request, "orders/cart.html", context)
+
+
+def cart_page(request):
+    cart = Cart(request)
+    return render(request, "orders/cart.html", _cart_totals(request, cart))
 
 
 @require_POST
@@ -64,18 +76,48 @@ def cart_remove(request, variant_id):
     return redirect(reverse("orders_cart:page"))
 
 
+@require_POST
+def cart_promo(request):
+    cart = Cart(request)
+    action = (request.POST.get("action") or "apply").strip().lower()
+    if action == "clear":
+        clear_session_promo_code(request)
+        messages.info(request, "Промокод скасовано.")
+        return redirect(reverse("orders_cart:page"))
+
+    result = apply_promo_code(request, request.POST.get("promo_code", ""), cart.get_subtotal())
+    if result["ok"]:
+        messages.success(request, f"Промокод «{result['code']}» застосовано.")
+    else:
+        messages.error(request, result["error"] or "Не вдалося застосувати промокод.")
+    return redirect(reverse("orders_cart:page"))
+
+
 def checkout(request):
     cart = Cart(request)
     if cart.is_empty():
         return redirect(reverse("orders_cart:page"))
 
+    subtotal = cart.get_subtotal()
+    promo_state = resolve_promo(request, subtotal)
+
     if request.method == "POST":
         form = CheckoutForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            subtotal = cart.get_subtotal()
             order.subtotal = subtotal
-            order.total = subtotal - order.discount_total
+            # Пріоритет — промокод із сесії кошика; інакше з форми
+            code = promo_state["code"] or (form.cleaned_data.get("promo_code") or "").strip().upper()
+            if code and not promo_state["code"]:
+                applied = apply_promo_code(request, code, subtotal)
+                discount = applied["discount"] if applied["ok"] else promo_state["discount"]
+                code = applied["code"] if applied["ok"] else code
+            else:
+                discount = promo_state["discount"]
+
+            order.promo_code = code
+            order.discount_total = discount
+            order.total = max(subtotal - discount, Decimal("0"))
             order.save()
 
             for item in cart.get_items():
@@ -95,14 +137,21 @@ def checkout(request):
                 order.save(update_fields=["payment_status"])
 
             cart.clear()
+            clear_session_promo_code(request)
             return redirect(reverse("orders_checkout:thank_you", args=[order.order_number]))
     else:
-        form = CheckoutForm()
+        initial = {}
+        if promo_state["code"]:
+            initial["promo_code"] = promo_state["code"]
+        form = CheckoutForm(initial=initial)
 
     context = {
         "form": form,
         "cart_items": cart.get_items(),
-        "cart_subtotal": cart.get_subtotal(),
+        "cart_subtotal": subtotal,
+        "cart_discount": promo_state["discount"],
+        "cart_total": promo_state["total"],
+        "promo_code": promo_state["code"],
     }
     return render(request, "orders/checkout.html", context)
 

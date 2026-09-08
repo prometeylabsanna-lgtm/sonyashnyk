@@ -75,6 +75,68 @@ class Order(models.Model):
         return f"{prefix}-{last:04d}"
 
 
+class PromoCode(models.Model):
+    """Промокод зі знижкою у % або фіксованою сумою."""
+
+    class DiscountType(models.TextChoices):
+        PERCENT = "percent", "Відсоток"
+        FIXED = "fixed", "Фіксована сума"
+
+    code = models.CharField("Код", max_length=40, unique=True)
+    discount_type = models.CharField(
+        "Тип знижки", max_length=10, choices=DiscountType.choices, default=DiscountType.PERCENT,
+    )
+    amount = models.DecimalField("Розмір знижки", max_digits=10, decimal_places=2)
+    min_subtotal = models.DecimalField(
+        "Мін. сума товарів", max_digits=10, decimal_places=2, default=Decimal("0"),
+    )
+    is_active = models.BooleanField("Активний", default=True)
+    valid_until = models.DateField("Діє до", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Промокод"
+        verbose_name_plural = "Промокоди"
+        ordering = ["code"]
+
+    def __str__(self):
+        return self.code
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        self.code = (self.code or "").strip().upper()
+        if self.amount <= 0:
+            raise ValidationError({"amount": "Розмір знижки має бути більшим за 0."})
+        if self.discount_type == self.DiscountType.PERCENT and self.amount > 100:
+            raise ValidationError({"amount": "Відсоток не може перевищувати 100."})
+
+    def save(self, *args, **kwargs):
+        self.code = (self.code or "").strip().upper()
+        super().save(*args, **kwargs)
+
+    def is_usable(self, subtotal: Decimal) -> tuple[bool, str]:
+        from django.utils import timezone
+
+        if not self.is_active:
+            return False, "Промокод неактивний."
+        if self.valid_until and self.valid_until < timezone.localdate():
+            return False, "Термін дії промокоду минув."
+        if subtotal < self.min_subtotal:
+            return False, f"Мінімальна сума для коду — {self.min_subtotal} ₴."
+        return True, ""
+
+    def calc_discount(self, subtotal: Decimal) -> Decimal:
+        if subtotal <= 0:
+            return Decimal("0")
+        if self.discount_type == self.DiscountType.PERCENT:
+            discount = (subtotal * self.amount / Decimal("100")).quantize(Decimal("0.01"))
+        else:
+            discount = self.amount
+        if discount > subtotal:
+            discount = subtotal
+        return discount
+
+
 class OrderItem(models.Model):
     """Позиція замовлення. Ціна й назва фіксуються на момент купівлі (снапшот)."""
 
