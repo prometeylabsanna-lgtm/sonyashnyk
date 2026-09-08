@@ -10,19 +10,16 @@
 
   var COPY = {
     phone_modal: {
-      eyebrow: "Спеціально для вас",
       title: "Не йдіть без подарунка!",
       lead: "Залиште номер телефону — передзвонимо і підкажемо знижку та найкращі товари під ваш запит.",
       cta: "Отримати знижку",
     },
     buy_one_click: {
-      eyebrow: "Швидка покупка",
       title: "Купити в 1 клік",
       lead: "Залиште ім'я й телефон — наш менеджер зателефонує для підтвердження замовлення.",
       cta: "Купити в 1 клік",
     },
     callback: {
-      eyebrow: "Зв'язок з нами",
       title: "Передзвоніть мені",
       lead: "Залиште номер — зателефонуємо протягом робочого дня.",
       cta: "Передзвоніть мені",
@@ -38,13 +35,11 @@
     var submitBtn = form.querySelector('button[type="submit"]');
     var typeInput = form.querySelector("[data-lead-type-input]");
     var productInput = form.querySelector("[data-lead-product-input]");
-    var eyebrowEl = modal.querySelector("[data-lead-eyebrow]");
     var titleEl = modal.querySelector("[data-lead-title]");
     var leadEl = modal.querySelector("[data-lead-lead]");
 
     function applyCopy(leadType) {
       var copy = COPY[leadType] || COPY.phone_modal;
-      eyebrowEl.textContent = copy.eyebrow;
       titleEl.textContent = copy.title;
       leadEl.textContent = copy.lead;
       submitBtn.textContent = copy.cta;

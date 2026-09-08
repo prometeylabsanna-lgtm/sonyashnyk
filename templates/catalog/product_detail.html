@@ -15,7 +15,13 @@
     <div class="gallery">
       <div class="gallery__main" data-gallery-main data-hide-scroll>
         {% for image in product.images.all %}
-          <div class="gallery__slide" data-gallery-slide>{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+          <div class="gallery__slide" data-gallery-slide>
+            {% if image.image %}
+              <img src="{{ image.image.url }}" alt="{{ image.alt|default:product.name }}" width="800" height="800" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async">
+            {% else %}
+              {% include "includes/media_placeholder.html" with ratio="1x1" %}
+            {% endif %}
+          </div>
         {% empty %}
           <div class="gallery__slide" data-gallery-slide>{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
         {% endfor %}
@@ -23,7 +29,11 @@
       <div class="gallery__thumbs">
         {% for image in product.images.all %}
           <button type="button" class="gallery__thumb{% if forloop.first %} is-active{% endif %}" data-gallery-thumb aria-label="Фото {{ forloop.counter }}">
-            {% include "includes/media_placeholder.html" with ratio="1x1" %}
+            {% if image.image %}
+              <img src="{{ image.image.url }}" alt="" width="96" height="96" loading="lazy" decoding="async">
+            {% else %}
+              {% include "includes/media_placeholder.html" with ratio="1x1" %}
+            {% endif %}
           </button>
         {% empty %}
           <button type="button" class="gallery__thumb is-active" data-gallery-thumb aria-label="Фото 1">

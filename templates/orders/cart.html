@@ -19,7 +19,15 @@
       <div class="cart-page__list">
         {% for item in cart_items %}
           <div class="cart-line" style="align-items:center">
-            <div class="cart-line__media" style="width:88px;height:88px">{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+            <div class="cart-line__media" style="width:88px;height:88px">
+              {% with img=item.product.images.first %}
+                {% if img and img.image %}
+                  <img src="{{ img.image.url }}" alt="" width="88" height="88" loading="lazy" decoding="async">
+                {% else %}
+                  {% include "includes/media_placeholder.html" with ratio="1x1" %}
+                {% endif %}
+              {% endwith %}
+            </div>
             <div class="cart-line__body">
               <a href="{{ item.product.get_absolute_url }}" class="cart-line__name">{{ item.product.name }}</a>
               <span class="cart-line__variant">{{ item.variant.label }} · {{ item.price }} ₴/шт</span>

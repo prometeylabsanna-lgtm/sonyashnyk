@@ -3,30 +3,36 @@
    ============================================================ */
 :root {
   /* --- Кольори --- */
-  --c-bg: #faf7f2;
+  --c-bg: #F2F2F2;
   --c-oat: #efe9e0;
   --c-sageband: #ddebef;
-  --c-limeband: #faffd4;
-  --c-roseblock: #f2e4e8;
-  --c-ink: #2f3a2c;
-  --c-body: #4a4640;
-  --c-muted: #5c574f;
-  --c-sage: #56673f;
-  --c-sagehover: #455333;
-  --c-rose: #97516d;
-  --c-border: #e3ddd2;
+  --c-limeband: #F2F2F2;
+  --c-herbband: #F2F2F2;
+  --c-roseblock: #e6f0e4;
+  --c-ink: #333333;
+  --c-body: #333333;
+  --c-muted: #555555;
+  --c-sage: #419C3E;
+  --c-sagehover: #348033;
+  --c-rose: #419C3E;
+  --c-border: #D0D0D0;
   --c-announce: #2f5b32;
   --c-announcetext: #f4f7de;
-  --c-gold: #dcc98a;
+  --c-gold: #dbe556;
   --c-surface: #ffffff;
   --c-danger: #a13b3b;
   --c-success: #3d6b3f;
+  --c-cart: #419C3E;
+  --c-card-btn: #EAE7DE;
+  --c-card-btn-hover: #FFF7AB;
+  --c-new: #fbee79;
 
   /* --- Типографіка --- */
-  --f-display: 'Antic Didone', Georgia, serif;
-  --f-accent: 'Lora', Georgia, serif;
-  --f-body: 'Open Sans', 'Segoe UI', sans-serif;
-  --f-ui: 'Fira Sans', 'Segoe UI', sans-serif;
+  --f-display: 'Fixel Display', 'Segoe UI', sans-serif;
+  --f-brand: 'Fixel Display', 'Segoe UI', sans-serif;
+  --f-accent: 'Fixel Display', 'Segoe UI', sans-serif;
+  --f-body: 'Fixel Text', 'Segoe UI', sans-serif;
+  --f-ui: 'Fixel Display', 'Segoe UI', sans-serif;
 
   /* --- Розміри контейнера --- */
   --container-max: 1400px;
@@ -35,6 +41,7 @@
   /* --- Радіуси / тіні --- */
   --radius-sm: 4px;
   --radius-md: 8px;
+  --radius-card: 24px;
   --shadow-card: 0 10px 24px color-mix(in srgb, var(--c-ink) 10%, transparent);
   --shadow-pop: 0 18px 40px color-mix(in srgb, var(--c-ink) 16%, transparent);
 

@@ -1,9 +1,10 @@
+{% load static %}
 <footer class="site-footer" id="footer">
   <div class="container">
     <div class="grid grid--foot">
       <div class="footer-col">
         <div class="footer-brand">
-          <span class="brand__mark" aria-hidden="true" style="width:26px;height:26px"></span>
+          <img class="footer-brand__logo" src="{% static 'img/brand/logo-sunflower.png' %}" alt="" width="36" height="35" decoding="async">
           <span class="footer-brand__name">{{ site_name }}</span>
         </div>
         <p style="font-size:13px;line-height:1.6">Насіння, добрива, засоби захисту рослин та все для саду й городу. Власне виробництво з сертифікатами якості.</p>

@@ -34,7 +34,7 @@ class HighlightPoint(models.Model):
     section = models.CharField("Секція", max_length=10, choices=Section.choices, default=Section.TRUST)
     icon = models.CharField(
         "Іконка", max_length=30, default="leaf",
-        help_text="Ключ іконки: leaf, truck, shield, card, phone, seed",
+        help_text="Ключ іконки: leaf, truck, shield, card, chat, phone, seed",
     )
     title = models.CharField("Заголовок", max_length=120)
     text = models.CharField("Текст", max_length=200, blank=True)

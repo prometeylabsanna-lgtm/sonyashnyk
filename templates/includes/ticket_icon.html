@@ -1,0 +1,20 @@
+{# SVG stroke-іконки для карток-квитків. Ключ: truck | card | chat | phone #}
+{% if icon == "truck" %}
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M1 7h13v10H1z"/>
+  <path d="M14 10h4l3 3v4h-7"/>
+  <circle cx="5.5" cy="18.5" r="1.5"/>
+  <circle cx="17.5" cy="18.5" r="1.5"/>
+</svg>
+{% elif icon == "card" %}
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="2" y="5" width="20" height="14" rx="2"/>
+  <path d="M2 10h20"/>
+  <path d="M6 15h4"/>
+</svg>
+{% else %}
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/>
+  <path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/>
+</svg>
+{% endif %}

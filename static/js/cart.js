@@ -1,11 +1,59 @@
 /* ============================================================
-   КОШИК — шторка (AJAX), кнопки "До кошика", степер кількості
-   Делегування подій на document, щоб переживати заміну DOM шторки.
+   КОШИК — випадаюча панель під іконкою (AJAX)
    ============================================================ */
 (function () {
   "use strict";
 
+  var lastToggle = null;
+  var GAP = 8;
+  var EDGE = 8;
+
   function getDrawer() { return document.getElementById("cart-drawer"); }
+
+  function getPanel(drawer) {
+    return drawer ? drawer.querySelector(".cart-drawer__panel") : null;
+  }
+
+  function visibleToggle() {
+    var toggles = document.querySelectorAll("[data-cart-toggle]");
+    for (var i = 0; i < toggles.length; i++) {
+      var el = toggles[i];
+      if (el.offsetParent !== null || el.getClientRects().length) {
+        var style = window.getComputedStyle(el);
+        if (style.display !== "none" && style.visibility !== "hidden") {
+          return el;
+        }
+      }
+    }
+    return toggles[0] || null;
+  }
+
+  function positionPanel(toggle) {
+    var drawer = getDrawer();
+    var panel = getPanel(drawer);
+    if (!panel) return;
+    var btn = toggle || lastToggle || visibleToggle();
+    if (!btn) return;
+    lastToggle = btn;
+
+    var rect = btn.getBoundingClientRect();
+    var panelWidth = Math.min(window.innerWidth - EDGE * 2, 360);
+    var right = Math.max(EDGE, window.innerWidth - rect.right);
+    if (right + panelWidth > window.innerWidth - EDGE) {
+      right = EDGE;
+    }
+
+    var top = rect.bottom + GAP;
+    var maxH = Math.min(window.innerHeight * 0.7, 520);
+    if (top + Math.min(maxH, 200) > window.innerHeight - EDGE) {
+      top = Math.max(EDGE, rect.top - GAP - Math.min(maxH, window.innerHeight * 0.55));
+    }
+
+    panel.style.top = top + "px";
+    panel.style.right = right + "px";
+    panel.style.left = "auto";
+    panel.style.width = panelWidth + "px";
+  }
 
   function setCartCount(count) {
     document.querySelectorAll("[data-cart-count]").forEach(function (el) {
@@ -17,12 +65,14 @@
     });
   }
 
-  function openDrawer() {
+  function openDrawer(toggle) {
     var drawer = getDrawer();
     if (!drawer) return;
+    lastToggle = toggle || lastToggle || visibleToggle();
+    positionPanel(lastToggle);
     drawer.classList.add("is-open");
     drawer.setAttribute("aria-hidden", "false");
-    SonyashnykUtils.lockScroll();
+    if (lastToggle) lastToggle.setAttribute("aria-expanded", "true");
   }
 
   function closeDrawer() {
@@ -30,7 +80,9 @@
     if (!drawer || !drawer.classList.contains("is-open")) return;
     drawer.classList.remove("is-open");
     drawer.setAttribute("aria-hidden", "true");
-    SonyashnykUtils.unlockScroll();
+    document.querySelectorAll("[data-cart-toggle]").forEach(function (el) {
+      el.setAttribute("aria-expanded", "false");
+    });
   }
 
   function refreshDrawer(keepOpen) {
@@ -42,11 +94,13 @@
         var fresh = wrapper.firstElementChild;
         var current = getDrawer();
         if (!fresh || !current) return;
-        if (keepOpen || current.classList.contains("is-open")) {
+        var wasOpen = keepOpen || current.classList.contains("is-open");
+        if (wasOpen) {
           fresh.classList.add("is-open");
           fresh.setAttribute("aria-hidden", "false");
         }
         current.replaceWith(fresh);
+        if (wasOpen) positionPanel(lastToggle);
       });
   }
 
@@ -101,7 +155,16 @@
 
   document.addEventListener("click", function (e) {
     var toggle = e.target.closest("[data-cart-toggle]");
-    if (toggle) { openDrawer(); return; }
+    if (toggle) {
+      e.preventDefault();
+      var drawer = getDrawer();
+      if (drawer && drawer.classList.contains("is-open")) {
+        closeDrawer();
+      } else {
+        openDrawer(toggle);
+      }
+      return;
+    }
 
     var close = e.target.closest("[data-cart-close]");
     if (close) { closeDrawer(); return; }
@@ -129,4 +192,14 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeDrawer();
   });
+
+  window.addEventListener("resize", function () {
+    var drawer = getDrawer();
+    if (drawer && drawer.classList.contains("is-open")) positionPanel(lastToggle);
+  });
+
+  window.addEventListener("scroll", function () {
+    var drawer = getDrawer();
+    if (drawer && drawer.classList.contains("is-open")) positionPanel(lastToggle);
+  }, { passive: true });
 })();

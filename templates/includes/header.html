@@ -21,13 +21,12 @@
     </form>
 
     <a href="{% url 'home' %}" class="brand">
-      <span class="brand__mark" aria-hidden="true"></span>
+      <img class="brand__logo" src="{% static 'img/brand/logo-sunflower.png' %}" alt="" width="56" height="55" decoding="async">
       <span class="brand__name">{{ site_name }}</span>
-      <span class="brand__tag">сад · город · насіння</span>
     </a>
 
     <div class="logobar__actions">
-      <button type="button" class="cart-btn" data-cart-toggle aria-haspopup="dialog" aria-controls="cart-drawer">
+      <button type="button" class="cart-btn" data-cart-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="cart-drawer">
         <svg width="21" height="21" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h2l1.6 8.2a1.6 1.6 0 0 0 1.6 1.3h6.4a1.6 1.6 0 0 0 1.6-1.3L17.5 8H6"/><circle cx="8.5" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></svg>
         Кошик
         <span class="cart-badge" data-cart-count>{{ cart_count }}</span>
@@ -41,7 +40,7 @@
         <div class="nav-item" tabindex="0">
           <a href="{{ cat.get_absolute_url }}" class="nav-item__link">
             {% if cat.nav_icon %}
-              <img class="nav-item__icon" src="{% static cat.nav_icon %}" alt="" width="44" height="44" decoding="async">
+              <span class="nav-item__icon" style="--nav-icon: url('{% static cat.nav_icon %}')" aria-hidden="true"></span>
             {% endif %}
             <span class="nav-item__label">{{ cat.name }}</span>
           </a>
@@ -56,7 +55,7 @@
       {% endfor %}
       <div class="nav-item nav-item--sale">
         <a href="{% url 'catalog:sale' %}" class="nav-item__link">
-          <img class="nav-item__icon" src="{% static nav_sale_icon %}" alt="" width="44" height="44" decoding="async">
+          <span class="nav-item__icon" style="--nav-icon: url('{% static nav_sale_icon %}')" aria-hidden="true"></span>
           <span class="nav-item__label">Акції</span>
         </a>
       </div>
@@ -67,14 +66,15 @@
     <button type="button" class="icon-btn" aria-label="Меню" data-mobile-menu-toggle>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><path d="M2 5h16M2 10h16M2 15h16"/></svg>
     </button>
-    <a href="{% url 'home' %}" class="brand" style="flex-direction:row;gap:8px">
-      <span class="brand__name" style="font-size:19px">{{ site_name }}</span>
+    <a href="{% url 'home' %}" class="brand brand--mobile">
+      <img class="brand__logo" src="{% static 'img/brand/logo-sunflower.png' %}" alt="" width="36" height="35" decoding="async">
+      <span class="brand__name">{{ site_name }}</span>
     </a>
     <div style="display:flex;align-items:center">
       <a href="{% url 'search' %}" class="icon-btn" aria-label="Пошук">
         <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg>
       </a>
-      <button type="button" class="icon-btn" aria-label="Кошик" data-cart-toggle>
+      <button type="button" class="icon-btn" aria-label="Кошик" data-cart-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="cart-drawer">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h2l1.6 8.2a1.6 1.6 0 0 0 1.6 1.3h6.4a1.6 1.6 0 0 0 1.6-1.3L17.5 8H6"/><circle cx="8.5" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></svg>
         <span class="cart-badge" data-cart-count style="position:absolute;top:2px;right:2px">{{ cart_count }}</span>
       </button>

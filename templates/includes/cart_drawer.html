@@ -16,7 +16,15 @@
       {% else %}
         {% for item in cart_drawer_items %}
           <div class="cart-line" data-cart-line data-variant-id="{{ item.variant.id }}">
-            <div class="cart-line__media">{% include "includes/media_placeholder.html" with ratio="1x1" %}</div>
+            <div class="cart-line__media">
+              {% with img=item.product.images.first %}
+                {% if img and img.image %}
+                  <img src="{{ img.image.url }}" alt="" width="72" height="72" loading="lazy" decoding="async">
+                {% else %}
+                  {% include "includes/media_placeholder.html" with ratio="1x1" %}
+                {% endif %}
+              {% endwith %}
+            </div>
             <div class="cart-line__body">
               <span class="cart-line__name">{{ item.product.name }}</span>
               <span class="cart-line__variant">{{ item.variant.label }}</span>

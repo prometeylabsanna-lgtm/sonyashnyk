@@ -47,7 +47,6 @@
   border: 0; background: transparent; color: var(--c-muted);
 }
 
-.modal__eyebrow { margin-bottom: 8px; }
 .modal__title { margin-bottom: 10px; }
 .modal__lead { font-size: 14.5px; color: var(--c-muted); margin-bottom: 20px; }
 .modal__success { display: none; text-align: center; padding: 20px 0; }
@@ -63,7 +62,7 @@
   width: 56px; height: 56px;
   border-radius: 50%;
   background: var(--c-sage);
-  color: var(--c-surface);
+  color: #ffffff;
   display: grid; place-items: center;
   box-shadow: var(--shadow-pop);
   transition: transform var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);

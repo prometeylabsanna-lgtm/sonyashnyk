@@ -74,10 +74,11 @@
 /* --- Секції --- */
 .section { padding-block: clamp(40px, 7vw, 80px); }
 .section--tight { padding-block: clamp(28px, 5vw, 48px); }
-.section--surface { background: var(--c-surface); }
-.section--oat { background: var(--c-oat); }
-.section--sageband { background: var(--c-sageband); }
-.section--limeband { background: var(--c-limeband); }
+.section--surface { background: var(--c-bg); }
+.section--oat { background: var(--c-bg); }
+.section--sageband { background: var(--c-bg); }
+.section--limeband { background: var(--c-bg); }
+.section--herbband { background: var(--c-bg); }
 .section__head {
   display: flex;
   align-items: flex-end;

@@ -1,0 +1,400 @@
+/* ============================================================
+   КАРТКА ТОВАРУ (каталог / головна / related)
+   ============================================================ */
+.product-card {
+  --pc-frame: 12px;
+  --pc-img-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: none;
+  transition: transform var(--t-med) var(--ease);
+  height: 100%;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+}
+
+/* --- Медіа (рамка як у референсі) --- */
+.product-card__media {
+  position: relative;
+  padding: var(--pc-frame) var(--pc-frame) 0;
+  background: var(--c-surface);
+}
+
+.product-card__media-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--pc-img-radius);
+  overflow: hidden;
+  background: var(--c-oat);
+  text-decoration: none;
+  color: inherit;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.product-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--t-slow) var(--ease);
+}
+
+.product-card__media-link .ph {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.product-card:hover .product-card__img {
+  transform: scale(1.04);
+}
+
+/* Wishlist (UI без бекенду) */
+.product-card__wish {
+  position: absolute;
+  top: calc(var(--pc-frame) + 10px);
+  right: calc(var(--pc-frame) + 10px);
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--c-ink) 12%, transparent);
+  background: var(--c-surface);
+  color: var(--c-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--t-fast) ease, border-color var(--t-fast) ease, background-color var(--t-fast) ease;
+}
+
+.product-card__wish:hover,
+.product-card__wish[aria-pressed="true"] {
+  color: var(--c-cart);
+  border-color: color-mix(in srgb, var(--c-cart) 35%, transparent);
+}
+
+.product-card__wish[aria-pressed="true"] svg {
+  fill: var(--c-cart);
+  stroke: var(--c-cart);
+}
+
+/* «Детальніше» поверх фото */
+.product-card__view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--c-ink) 18%, transparent);
+  opacity: 0;
+  transition: opacity var(--t-med) var(--ease);
+  pointer-events: none;
+}
+
+.product-card__view-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-family: var(--f-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-ink);
+  background: color-mix(in srgb, var(--c-surface) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-surface) 55%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--c-ink) 12%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover .product-card__view,
+  .product-card:focus-within .product-card__view {
+    opacity: 1;
+  }
+}
+
+/* Touch / iOS: легка підказка без hover */
+@media (hover: none) {
+  .product-card__view {
+    opacity: 1;
+    background: transparent;
+    align-items: flex-end;
+    padding-bottom: 12px;
+  }
+
+  .product-card__view-label {
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 12px;
+    background: color-mix(in srgb, var(--c-surface) 82%, transparent);
+  }
+}
+
+/* --- Body --- */
+.product-card__body {
+  padding: 14px var(--pc-frame) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.product-card__cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  line-height: 1.2;
+}
+
+.product-card__cat-icon {
+  flex: 0 0 auto;
+  color: var(--c-success);
+}
+
+.product-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-card__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--f-accent);
+  font-size: clamp(15px, 2vw, 19px);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--c-ink);
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-card__name:hover {
+  color: var(--c-cart);
+  text-decoration: none;
+}
+
+.product-card__prices {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding-top: 1px;
+}
+
+.product-card__price {
+  font-family: var(--f-accent);
+  font-size: clamp(20px, 2.6vw, 26px);
+  font-weight: 600;
+  color: #973232;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.product-card__prices .price--old {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.product-card__desc {
+  margin: 0;
+  font-family: var(--f-body);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--c-body);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-card__add {
+  margin-top: auto;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--c-card-btn);
+  color: var(--c-ink);
+  font-family: var(--f-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--t-fast) ease, color var(--t-fast) ease, transform var(--t-fast) ease;
+}
+
+.product-card__add:hover:not(:disabled) {
+  background: var(--c-cart);
+  color: #ffffff;
+}
+
+.product-card__add:active:not(:disabled) {
+  transform: scale(.98);
+}
+
+.product-card__add:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.product-card__add[data-added="1"] {
+  background: var(--c-card-btn-hover);
+  color: var(--c-ink);
+}
+
+.product-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+}
+
+.product-card__tag,
+.product-card__stock {
+  font-family: var(--f-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: none;
+  line-height: 1.25;
+  color: #3A5239;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.product-card__stock.is-out {
+  color: var(--c-danger);
+}
+
+/* --- Адаптив: планшет / мобільний / iOS Safari --- */
+@media (max-width: 899px) {
+  .product-card {
+    --pc-frame: 11px;
+    --pc-img-radius: 16px;
+    border-radius: 20px;
+  }
+
+  .product-card__body {
+    padding: 12px var(--pc-frame) 14px;
+    gap: 7px;
+  }
+
+  .product-card__name {
+    font-size: 15px;
+  }
+
+  .product-card__price {
+    font-size: 20px;
+  }
+
+  .product-card__desc {
+    font-size: 13.5px;
+  }
+
+  .product-card__add {
+    min-height: 46px;
+    font-size: 11.5px;
+  }
+
+  .product-card__wish {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 599px) {
+  .product-card {
+    --pc-frame: 10px;
+    --pc-img-radius: 14px;
+    border-radius: 18px;
+  }
+
+  .product-card__media-link {
+    aspect-ratio: 1 / 1;
+  }
+
+  .product-card__wish {
+    top: calc(var(--pc-frame) + 8px);
+    right: calc(var(--pc-frame) + 8px);
+    width: 36px;
+    height: 36px;
+  }
+
+  .product-card__body {
+    padding: 10px var(--pc-frame) 12px;
+  }
+
+  .product-card__title-row {
+    gap: 8px;
+  }
+
+  .product-card__name {
+    font-size: 14px;
+  }
+
+  .product-card__price {
+    font-size: 18px;
+  }
+
+  .product-card__desc {
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+  }
+
+  .product-card__add {
+    min-height: 44px;
+    gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-card__img,
+  .product-card__view,
+  .product-card__add {
+    transition: none;
+  }
+
+  .product-card:hover {
+    transform: none;
+  }
+
+  .product-card:hover .product-card__img {
+    transform: none;
+  }
+}
