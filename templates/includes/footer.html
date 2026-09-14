@@ -121,7 +121,20 @@
       </div>
 
       <div class="footer-bottom">
-        <span>© {% now "Y" %} {{ site_name }}</span>
+        <span class="footer-bottom__copy">© {% now "Y" %} {{ site_name }}</span>
+        <p class="site-footer__credit">
+          Розробка від команди
+          {% if request.resolver_match.url_name == 'home' %}
+            <a
+              class="site-footer__credit-link"
+              href="https://www.prometeylabs.com/internet-shop-v2/"
+              target="_blank"
+              rel="nofollow noopener noreferrer"
+            >PrometeyLabs</a>
+          {% else %}
+            <span class="site-footer__credit-name">PrometeyLabs</span>
+          {% endif %}
+        </p>
       </div>
     </div>
   </div>
