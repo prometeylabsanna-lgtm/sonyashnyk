@@ -42,5 +42,5 @@ urlpatterns = [
 
 handler404 = "apps.core.views.custom_404"
 
-if settings.DEBUG:
+if settings.DEBUG or getattr(settings, "IS_VERCEL", False):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

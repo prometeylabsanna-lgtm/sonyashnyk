@@ -179,10 +179,18 @@ PRODUCT_DESCS = {
 class Command(BaseCommand):
     help = "Наповнює БД демо-даними (категорії, товари, банери) для перевірки верстки."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--skip-images",
+            action="store_true",
+            help="Не копіювати фото товарів (швидший seed на Vercel).",
+        )
+
     def handle(self, *args, **options):
         self.seed_categories()
         self.seed_products()
-        self.seed_product_images()
+        if not options.get("skip_images"):
+            self.seed_product_images()
         self.seed_home_content()
         self.seed_promos()
         self.stdout.write(self.style.SUCCESS("Демо-дані успішно створено."))

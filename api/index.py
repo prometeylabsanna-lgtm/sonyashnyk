@@ -1,8 +1,7 @@
 """
 Vercel Python entrypoint (WSGI → Django).
 
-Без env на Vercel міграції можуть не пройти (Postgres недоступний) —
-тоді сайт все одно піднімається з порожніми даними.
+На Vercel: SQLite у /tmp → migrate + seed_demo (якщо БД порожня).
 """
 
 import os
@@ -13,9 +12,17 @@ from django.core.wsgi import get_wsgi_application
 
 app = get_wsgi_application()
 
-try:
-    from django.core.management import call_command
+from django.conf import settings
 
-    call_command("migrate", interactive=False, run_syncdb=False)
-except Exception:
-    pass
+if getattr(settings, "IS_VERCEL", False):
+    try:
+        from django.core.management import call_command
+
+        from apps.catalog.models import Category
+
+        call_command("migrate", interactive=False, run_syncdb=False)
+        if not Category.objects.exists():
+            call_command("seed_demo", "--skip-images")
+    except Exception as exc:
+        # Не валимо cold start — сторінки все одно відкриються
+        print(f"[vercel] bootstrap failed: {exc}")

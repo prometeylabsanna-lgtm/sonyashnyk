@@ -80,25 +80,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# --- Database (PostgreSQL) ------------------------------------------------
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME", default="sonyashnyk_db"),
-        "USER": config("DB_USER", default="sonyashnyk"),
-        "PASSWORD": config("DB_PASSWORD", default="sonyashnyk_dev_pass"),
-        "HOST": config("DB_HOST", default="127.0.0.1"),
-        "PORT": config("DB_PORT", default="5432"),
-        "CONN_MAX_AGE": 0,
-        "OPTIONS": {
-            "connect_timeout": 3,
-        },
-    }
-}
-
-# Без Postgres на тест-Vercel — сесії в cookie, щоб сторінки відкривались
+# --- Database -------------------------------------------------------------
+# Локально / DO — Postgres. Тест-Vercel — SQLite у /tmp (єдине writable місце).
 if IS_VERCEL:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "/tmp/sonyashnyk.sqlite3",
+        }
+    }
     SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="sonyashnyk_db"),
+            "USER": config("DB_USER", default="sonyashnyk"),
+            "PASSWORD": config("DB_PASSWORD", default="sonyashnyk_dev_pass"),
+            "HOST": config("DB_HOST", default="127.0.0.1"),
+            "PORT": config("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": 0,
+            "OPTIONS": {
+                "connect_timeout": 3,
+            },
+        }
+    }
 
 # --- Passwords --------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -132,7 +138,7 @@ if IS_VERCEL:
     WHITENOISE_AUTOREFRESH = True
 
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path("/tmp/sonyashnyk_media") if IS_VERCEL else (BASE_DIR / "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
