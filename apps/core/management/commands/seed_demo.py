@@ -205,8 +205,10 @@ class Command(BaseCommand):
         if not leaf_categories:
             return
 
+        # Було 3 на лист (~228). Для демо — ~половина (1 або 2 на лист).
         counter = 0
-        for category in leaf_categories:
+        for cat_idx, category in enumerate(leaf_categories):
+            per_leaf = 2 if cat_idx % 2 == 0 else 1
             names = PRODUCT_NAMES.get(category.name, [
                 f"{category.name} «Старт»",
                 f"{category.name} «Урожай»",
@@ -231,7 +233,7 @@ class Command(BaseCommand):
                 "Підходить для більшості ділянок в Україні. "
                 "Placeholder-опис до узгодження фінального контенту.",
             ])
-            for i in range(3):
+            for i in range(per_leaf):
                 counter += 1
                 name = names[i % len(names)]
                 short = descs[i % len(descs)]
