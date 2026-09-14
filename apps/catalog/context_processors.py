@@ -1,5 +1,7 @@
 from django.core.cache import cache
 
+from apps.core.db_safe import database_reachable
+
 from .category_tree import HOME_ROOT_SLUGS
 from .models import Category
 
@@ -19,6 +21,11 @@ NAV_SALE_ICON = "img/header/categories/aktsiyi.webp"
 
 def nav_categories(request):
     """Кореневі категорії 1 рівня (як на головній) + підкатегорії для шапки/футера."""
+    if not database_reachable():
+        return {
+            "nav_categories": [],
+            "nav_sale_icon": NAV_SALE_ICON,
+        }
     categories = cache.get("nav_categories")
     if categories is None:
         cats_by_slug = {

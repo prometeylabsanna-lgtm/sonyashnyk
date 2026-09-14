@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 from apps.catalog.category_tree import HOME_ROOT_SLUGS
 from apps.catalog.models import Category, Product
+from apps.core.db_safe import database_reachable
 
 from .models import HeroSlide, HighlightPoint, Review
 
@@ -20,10 +21,30 @@ CATEGORY_ICON_FALLBACK = "img/home/categories/nasinnya.webp"
 
 
 def home(request):
+    if not database_reachable():
+        return render(
+            request,
+            "core/home.html",
+            {
+                "slides": [],
+                "trust_points": [],
+                "info_points": [],
+                "top_categories": [],
+                "hit_products": [],
+                "new_products": [],
+                "sale_products": [],
+                "reviews": [],
+                "featured_review": None,
+                "side_reviews": [],
+            },
+        )
+
     # Фіксований набір кореневих плиток на головній (нові корені не змішуємо)
     cats_by_slug = {
         c.slug: c
-        for c in Category.objects.filter(slug__in=HOME_ROOT_SLUGS, parent__isnull=True, is_active=True)
+        for c in Category.objects.filter(
+            slug__in=HOME_ROOT_SLUGS, parent__isnull=True, is_active=True
+        )
     }
     top_categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
     for cat in top_categories:
@@ -35,12 +56,22 @@ def home(request):
 
     context = {
         "slides": HeroSlide.objects.filter(is_active=True),
-        "trust_points": HighlightPoint.objects.filter(is_active=True, section=HighlightPoint.Section.TRUST),
-        "info_points": HighlightPoint.objects.filter(is_active=True, section=HighlightPoint.Section.INFO),
+        "trust_points": HighlightPoint.objects.filter(
+            is_active=True, section=HighlightPoint.Section.TRUST
+        ),
+        "info_points": HighlightPoint.objects.filter(
+            is_active=True, section=HighlightPoint.Section.INFO
+        ),
         "top_categories": top_categories,
-        "hit_products": Product.objects.filter(is_active=True, is_hit=True).prefetch_related("variants", "images")[:8],
-        "new_products": Product.objects.filter(is_active=True, is_new=True).prefetch_related("variants", "images")[:8],
-        "sale_products": Product.objects.filter(is_active=True, is_sale=True).prefetch_related("variants", "images")[:4],
+        "hit_products": Product.objects.filter(
+            is_active=True, is_hit=True
+        ).prefetch_related("variants", "images")[:8],
+        "new_products": Product.objects.filter(
+            is_active=True, is_new=True
+        ).prefetch_related("variants", "images")[:8],
+        "sale_products": Product.objects.filter(
+            is_active=True, is_sale=True
+        ).prefetch_related("variants", "images")[:4],
         "reviews": reviews_qs,
         "featured_review": featured_review,
         "side_reviews": side_reviews,

@@ -1,5 +1,7 @@
 from django.shortcuts import render
 
+from apps.core.db_safe import database_reachable
+
 from .models import Certificate
 
 
@@ -12,9 +14,17 @@ def delivery(request):
 
 
 def certificates(request):
-    items = Certificate.objects.filter(is_active=True).select_related("product")
-    series_list = sorted({c.series for c in items if c.series})
-    return render(request, "pages/certificates.html", {"certificates": items, "series_list": series_list})
+    if not database_reachable():
+        items = []
+        series_list = []
+    else:
+        items = Certificate.objects.filter(is_active=True).select_related("product")
+        series_list = sorted({c.series for c in items if c.series})
+    return render(
+        request,
+        "pages/certificates.html",
+        {"certificates": items, "series_list": series_list},
+    )
 
 
 def contacts(request):

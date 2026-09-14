@@ -14,7 +14,21 @@ SECRET_KEY = config(
     default="django-insecure-dev-key-change-me-in-production",
 )
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
-ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
+# Vercel завжди виставляє VERCEL=1
+IS_VERCEL = config("VERCEL", default=False, cast=bool)
+ALLOWED_HOSTS = config(
+    "DJANGO_ALLOWED_HOSTS",
+    default="127.0.0.1,localhost,.vercel.app",
+    cast=Csv(),
+)
+if IS_VERCEL and "*" not in ALLOWED_HOSTS and ".vercel.app" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS = list(ALLOWED_HOSTS) + [".vercel.app"]
+
+CSRF_TRUSTED_ORIGINS = config(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default="https://*.vercel.app",
+    cast=Csv(),
+)
 
 # --- Applications ---------------------------------------------------------
 INSTALLED_APPS = [
@@ -35,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -74,8 +89,16 @@ DATABASES = {
         "PASSWORD": config("DB_PASSWORD", default="sonyashnyk_dev_pass"),
         "HOST": config("DB_HOST", default="127.0.0.1"),
         "PORT": config("DB_PORT", default="5432"),
+        "CONN_MAX_AGE": 0,
+        "OPTIONS": {
+            "connect_timeout": 3,
+        },
     }
 }
+
+# Без Postgres на тест-Vercel — сесії в cookie, щоб сторінки відкривались
+if IS_VERCEL:
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # --- Passwords --------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -95,6 +118,18 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+# На Vercel без collectstatic у CI — віддаємо static через finders
+if IS_VERCEL:
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = True
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
