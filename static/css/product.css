@@ -140,6 +140,13 @@
 .pdp-info__meta {
   font-size: 13px;
   color: var(--c-muted);
+  margin-bottom: 8px;
+}
+
+.pdp-info__volume {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-ink);
   margin-bottom: 18px;
 }
 

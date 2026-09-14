@@ -16,11 +16,13 @@ from apps.orders.models import PromoCode
 # Повне дерево — apps.catalog.category_tree; seed лишає сумісний плоский режим.
 # Для повного sync: python3 manage.py sync_categories
 from apps.catalog.category_tree import CATEGORY_TREE as FULL_CATEGORY_TREE
+from apps.catalog.category_tree import category_allows_volume_filter
 
 CATEGORY_TREE = FULL_CATEGORY_TREE
 
 BRANDS = ["АгроХім", "БіоСад", "Соняшник", "ЗеленСвіт"]
 COUNTRIES = ["Україна", "Польща", "Нідерланди"]
+VOLUME_SAMPLES = ["6 мл", "100 мл", "1 л", "500 г", "5 кг", "10 л"]
 
 # Назви без «товар N» — по 3 на підкатегорію
 PRODUCT_NAMES = {
@@ -232,8 +234,18 @@ class Command(BaseCommand):
                     product.name = name
                     product.short_description = short
                     product.description = full
-                    product.save(update_fields=["name", "short_description", "description"])
+                    product.pack_volume = (
+                        VOLUME_SAMPLES[counter % len(VOLUME_SAMPLES)]
+                        if category_allows_volume_filter(product.category)
+                        else ""
+                    )
+                    product.save(update_fields=["name", "short_description", "description", "pack_volume"])
                     continue
+                pack_volume = (
+                    VOLUME_SAMPLES[counter % len(VOLUME_SAMPLES)]
+                    if category_allows_volume_filter(category)
+                    else ""
+                )
                 product = Product.objects.create(
                     category=category,
                     sku=sku,
@@ -242,6 +254,7 @@ class Command(BaseCommand):
                     description=full,
                     brand=BRANDS[counter % len(BRANDS)],
                     country_of_origin=COUNTRIES[counter % len(COUNTRIES)],
+                    pack_volume=pack_volume,
                     base_price=Decimal(str(50 + counter * 3 % 400)),
                     is_own_production=(counter % 4 == 0),
                     is_hit=(counter % 5 == 0),
@@ -323,30 +336,44 @@ class Command(BaseCommand):
             ("truck", "Швидка доставка", "Нова Пошта / Укрпошта"),
             ("card", "Оплата онлайн", "LiqPay, післяплата"),
             ("leaf", "Власне виробництво", "Сертифікована якість"),
-            ("seed", "Консультація агронома", "Допоможемо з вибором"),
+            ("chat", "Професійна консультація", "Допоможемо з вибором"),
         ]
+        HighlightPoint.objects.filter(
+            section=HighlightPoint.Section.TRUST,
+            title="Консультація агронома",
+        ).update(title="Професійна консультація", icon="chat")
         for order, (icon, title, text) in enumerate(trust_data):
-            HighlightPoint.objects.get_or_create(
+            HighlightPoint.objects.update_or_create(
                 section=HighlightPoint.Section.TRUST, title=title,
-                defaults={"icon": icon, "text": text, "order": order},
+                defaults={"icon": icon, "text": text, "order": order, "is_active": True},
             )
 
         info_data = [
             ("truck", "Доставка НП / Укрпоштою", "По всій Україні"),
             ("card", "Оплата онлайн", "Безпечно через LiqPay"),
-            ("chat", "Консультація агронома", "Підкажемо, що обрати"),
+            ("chat", "Професійна консультація", "Підкажемо, що обрати"),
+            ("years", "Більше 20 років досвіду", "Допомагаємо з врожаєм та рослинами з 2003-го року"),
+            ("shield", "Оригінальна продукція", "Офіційні постачання, без підробок"),
         ]
+        HighlightPoint.objects.filter(
+            section=HighlightPoint.Section.INFO,
+            title="Консультація агронома",
+        ).update(title="Професійна консультація", icon="chat")
+        HighlightPoint.objects.filter(
+            section=HighlightPoint.Section.INFO,
+            title="Тільки оригінальна продукція",
+        ).update(title="Оригінальна продукція")
         for order, (icon, title, text) in enumerate(info_data):
-            HighlightPoint.objects.get_or_create(
+            HighlightPoint.objects.update_or_create(
                 section=HighlightPoint.Section.INFO, title=title,
-                defaults={"icon": icon, "text": text, "order": order},
+                defaults={"icon": icon, "text": text, "order": order, "is_active": True},
             )
 
         reviews_data = [
             ("Олена К.", "Кропивницький", "Замовляла насіння томатів — усе зійшло чудово, якість супер!", 5),
             ("Ігор П.", "Львів", "Швидка доставка і адекватні ціни. Рекомендую.", 5),
             ("Марина С.", "Одеса", "Дуже задоволена добривами власного виробництва.", 5),
-            ("Андрій В.", "Київ", "Консультація агронома реально допомогла з вибором захисту рослин.", 5),
+            ("Андрій В.", "Київ", "Професійна консультація реально допомогла з вибором захисту рослин.", 5),
             ("Наталія Р.", "Дніпро", "Замовляю вже третій сезон. Упаковка акуратна, схожість насіння відмінна.", 5),
             ("Сергій М.", "Харків", "Нова Пошта привезла швидко. Добрива спрацювали вже за два тижні.", 5),
             ("Оксана Л.", "Вінниця", "Широкий асортимент і зрозумілі описи товарів. Зручно купувати онлайн.", 5),

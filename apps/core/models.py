@@ -1,6 +1,33 @@
 from django.db import models
 
 
+class SiteSettings(models.Model):
+    """Глобальні налаштування сайту (singleton, pk=1)."""
+
+    instagram_url = models.URLField("Instagram", blank=True, default="")
+    tiktok_url = models.URLField("TikTok", blank=True, default="")
+    telegram_url = models.URLField("Telegram", blank=True, default="")
+
+    class Meta:
+        verbose_name = "Налаштування сайту"
+        verbose_name_plural = "Налаштування сайту"
+
+    def __str__(self):
+        return "Налаштування сайту"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class HeroSlide(models.Model):
     """Слайд головного банера на головній сторінці."""
 
@@ -34,7 +61,7 @@ class HighlightPoint(models.Model):
     section = models.CharField("Секція", max_length=10, choices=Section.choices, default=Section.TRUST)
     icon = models.CharField(
         "Іконка", max_length=30, default="leaf",
-        help_text="Ключ іконки: leaf, truck, shield, card, chat, phone, seed",
+        help_text="Ключ іконки: leaf, truck, shield, card, chat, phone, seed, years",
     )
     title = models.CharField("Заголовок", max_length=120)
     text = models.CharField("Текст", max_length=200, blank=True)

@@ -49,9 +49,14 @@
 .logobar {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 14px var(--gap-page);
+  padding: 0 var(--gap-page);
   display: none;
   gap: 16px;
+  box-sizing: border-box;
+  /* Фіксована смуга лого. Не міняти height разом із розміром img. */
+  height: 80px;
+  overflow: hidden;
+  align-items: center;
 }
 .logobar__pages {
   display: flex;
@@ -189,71 +194,89 @@
 
 .brand {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   text-decoration: none;
   justify-self: center;
+  width: auto;
+  height: 80px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  /* рівно 2px до рамки смуги зверху і знизу */
+  padding-block: 2px;
 }
 .brand:hover { text-decoration: none; }
-.brand__mark {
-  width: 29px; height: 29px; border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, var(--c-body) 0 22%, var(--c-gold) 23% 46%, var(--c-sage) 47% 100%);
-}
 .brand__logo {
   display: block;
-  width: 58px;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: contain;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.brand__name {
-  display: block;
   width: auto;
-  height: 38px;
-  max-width: min(240px, 42vw);
+  height: 76px; /* 80 − 2 − 2 */
+  max-height: 76px;
   object-fit: contain;
   object-position: center;
+  transform: none;
+  /*
+    Білий контур лого зливається з сірим --c-bg → здається, ніби лого на 30–50% менше.
+    Легка тінь робить контур видимим без обрізання (на відміну від object-fit: cover).
+  */
+  filter: drop-shadow(0 0 0.6px rgb(58 47 24 / 0.45));
   -webkit-user-select: none;
   user-select: none;
   pointer-events: none;
 }
 .brand--mobile {
-  flex-direction: row;
-  gap: 7px;
-  align-items: center;
-  min-width: 0;
+  justify-self: auto;
+  width: auto;
+  height: 56px;
+  padding-block: 2px;
 }
 .brand--mobile .brand__logo {
-  width: 30px;
-  flex: 0 0 auto;
-}
-.brand--mobile .brand__name {
-  height: 22px;
-  max-width: min(148px, 46vw);
-  flex: 0 1 auto;
+  width: auto;
+  height: 52px;
+  max-height: 52px;
+  object-fit: contain;
+  object-position: center;
 }
 
 @supports (-webkit-touch-callout: none) {
-  .brand__logo,
-  .brand__name {
+  .brand__logo {
     -webkit-touch-callout: none;
   }
 }
 
 @media (max-width: 389.98px) {
-  .brand--mobile .brand__name {
-    height: 18px;
-    max-width: min(120px, 42vw);
+  .brand--mobile {
+    height: 48px;
+  }
+  .brand--mobile .brand__logo {
+    height: 44px;
+    max-height: 44px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 899.98px) {
+  .logobar {
+    height: 72px;
+  }
+  .brand {
+    height: 72px;
+  }
+  .brand__logo {
+    height: 68px;
+    max-height: 68px;
   }
 }
 
 @media (min-width: 900px) and (max-width: 1099.98px) {
-  .brand__name {
-    height: 32px;
-    max-width: 200px;
+  .logobar {
+    height: 72px;
+  }
+  .brand {
+    height: 72px;
+  }
+  .brand__logo {
+    height: 68px;
+    max-height: 68px;
   }
 }
 
@@ -320,7 +343,11 @@
   line-height: 1;
 }
 
-.main-nav { border-top: 1px solid var(--c-border); display: none; }
+.main-nav {
+  border-top: 1px solid var(--c-border);
+  display: none;
+  background: var(--c-surface);
+}
 .main-nav__row {
   max-width: var(--container-max); margin: 0 auto; padding: 8px var(--gap-page) 6px;
   display: flex; align-items: flex-start; justify-content: space-between;
@@ -407,8 +434,14 @@
 
 /* --- Мобільна панель хедера --- */
 .header-mobile {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 12px;
+  box-sizing: border-box;
+  height: 56px; /* як було: 8+40+8 */
+  overflow: hidden;
 }
 .icon-btn {
   width: 40px; height: 40px; display: grid; place-items: center;
@@ -428,7 +461,7 @@
 @media (min-width: 900px) and (max-width: 1099.98px) {
   .logobar {
     gap: 10px;
-    padding-block: 12px;
+    padding-block: 0;
   }
   .logobar__pages {
     gap: 2px;

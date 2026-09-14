@@ -15,11 +15,9 @@
       <div class="cart-page cart-page--empty">
         <div class="cart-page__list">
           <div class="cart-card cart-card--empty">
-            <div class="cart-card__empty-row">
-              <p class="cart-card__empty-title">Кошик<br>порожній</p>
-              <p class="cart-card__empty-text">Додайте товари з каталогу, щоб оформити замовлення.</p>
-            </div>
-            <a href="{% url 'catalog:sale' %}" class="btn btn--primary">До каталогу</a>
+            <p class="cart-card__empty-title">Кошик порожній</p>
+            <p class="cart-card__empty-text">Додайте товари з каталогу, щоб оформити замовлення.</p>
+            <a href="{% url 'catalog:index' %}" class="btn btn--primary cart-card__empty-btn">До каталогу</a>
           </div>
         </div>
 

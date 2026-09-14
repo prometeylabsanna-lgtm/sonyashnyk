@@ -93,6 +93,12 @@ class Product(models.Model):
 
     brand = models.CharField("Бренд / виробник", max_length=120, blank=True)
     country_of_origin = models.CharField("Країна виробник", max_length=120, blank=True)
+    pack_volume = models.CharField(
+        "Обʼєм / фасування",
+        max_length=80,
+        blank=True,
+        help_text="Наприклад: 6 мл, 100 мл, 1 л, 500 г. Окремі фасування — окремі товари.",
+    )
 
     base_price = models.DecimalField("Базова ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField(

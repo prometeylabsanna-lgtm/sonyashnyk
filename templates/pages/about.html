@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Про нас — {{ site_name }}{% endblock %}
-{% block meta_description %}Історія «{{ site_name }}»: від першої ділянки до власного виробництва насіння й добрив із сертифікатами якості.{% endblock %}
+{% block meta_description %}Торговельна марка «{{ site_name }}»: понад 20 років досвіду з вирощування рослин і їх захисту. Сертифікована продукція, консультації та філософія «Вирощуй не шкодячи».{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/about.css' %}">
 <link rel="stylesheet" href="{% static 'css/about-stem.css' %}">
@@ -17,52 +17,27 @@
 <div class="about-layout container">
   <div class="about-main">
     <section class="about-intro" aria-labelledby="about-intro-title">
-      <h1 id="about-intro-title" class="about-intro__title">Соняшник — сад, город і насіння з турботою</h1>
-      <p class="about-intro__lead">Ми постачаємо насіння, добрива, засоби захисту рослин та інструмент для саду й городу. Частину продукції виробляємо самостійно й підтверджуємо якість сертифікатами.</p>
+      <h1 id="about-intro-title" class="about-intro__title">Торговельна марка «Соняшник»</h1>
+      <p class="about-intro__lead">Має більше 20 років досвіду з вирощування рослин та їх захисту.</p>
+      <p class="about-intro__text">Ми впевнені: найякісніші продукти — вирощені на власній землі, а найщасливіші люди — ті, що мають можливість до землі доторкнутись.</p>
+      <p class="about-intro__text">ТМ «Соняшник» є офіційним представником найкращих аграрних брендів України та світу.</p>
+      <p class="about-intro__text">Продукція представлена у крамницях мережі «Соняшник» завжди якісна та сертифікована. Ми працюємо з найкращими виробниками, завжди маємо свіжу продукцію, що зберігається із дотриманням усіх необхідних умов.</p>
+      <p class="about-intro__text">Ми щиро віримо у світле аграрне майбутнє нашої країни, обожнюємо нашу справу та віддано допомагаємо клієнтам отримати найкращі врожаї, найквітучіші сади та затишні зелені куточки — де б ви не знаходились.</p>
     </section>
 
-    <section class="about-why" aria-labelledby="about-why-title">
-      <h2 id="about-why-title" class="about-why__title">Чому обирають нас</h2>
-      <ul class="about-stats">
-        <li class="about-stats__card">
-          <span class="about-stats__value">1000&nbsp;+</span>
-          <span class="about-stats__label">товарів для саду й дому в каталозі</span>
-        </li>
-        <li class="about-stats__card">
-          <span class="about-stats__value">100%</span>
-          <span class="about-stats__label">власного насіння із сертифікатом</span>
-        </li>
-        <li class="about-stats__card">
-          <span class="about-stats__value">24</span>
-          <span class="about-stats__label">області з доставкою</span>
-        </li>
-        <li class="about-stats__card">
-          <span class="about-stats__value">1:1</span>
-          <span class="about-stats__label">консультація агронома</span>
-        </li>
+    <section class="about-shelves" aria-labelledby="about-shelves-title">
+      <h2 id="about-shelves-title" class="about-shelves__title">На поличках наших крамниць завжди&nbsp;є</h2>
+      <ul class="about-shelves__list">
+        <li>🌻 Найкраще пакетоване та вагове насіння з усього світу (Україна, Голландія, Данія, Японія, Польща, Молдова, Франція та інші)</li>
+        <li>🌻 Добрива та стимулятори росту;</li>
+        <li>🌻 Найдієвіші засоби захисту рослин від хвороб та шкідників;</li>
+        <li>🌻 БІО-захист рослин;</li>
+        <li>🌻 Добрива для всіх видів садових та кімнатних рослин;</li>
+        <li>🌻 Садовий інструмент;</li>
+        <li>🌻 Системи крапельного зрошування та поливу;</li>
+        <li>🌻 Все для кімнатних рослин;</li>
+        <li>🌻 Усі супутні товари, що можуть вам знадобитись.</li>
       </ul>
-    </section>
-
-    <section class="about-produce" aria-labelledby="about-produce-title">
-      <div class="about-produce__card">
-        <img
-          class="about-produce__bg"
-          src="{% static 'img/about/produce-cta.png' %}"
-          alt=""
-          width="1024"
-          height="778"
-          loading="lazy"
-          decoding="async"
-        >
-        <span class="about-produce__overlay" aria-hidden="true"></span>
-        <div class="about-produce__content">
-          <h2 id="about-produce-title" class="about-produce__title">Власне виробництво з підтвердженою якістю</h2>
-          <div class="about-produce__actions">
-            <a href="{% url 'catalog:index' %}" class="btn about-produce__btn about-produce__btn--solid">Каталог</a>
-            <a href="{% url 'certificates' %}" class="btn about-produce__btn about-produce__btn--ghost">Сертифікати</a>
-          </div>
-        </div>
-      </div>
     </section>
   </div>
 
@@ -85,9 +60,9 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2008">2008</time>
-            <h3 class="about-stem__name">Перша ділянка</h3>
-            <p class="about-stem__text">Родина Соняшник починає вирощувати й продавати насіння на місцевому ринку.</p>
+            <time class="about-stem__year" datetime="2003">2003</time>
+            <h3 class="about-stem__name">Перші кроки з землею</h3>
+            <p class="about-stem__text">Починаємо шлях у вирощуванні рослин та їх захисті — основа досвіду ТМ «Соняшник».</p>
           </div>
           <figure class="about-stem__photo about-stem__photo--a">
             <img src="{% static 'img/about/apples.png' %}" alt="Яблука з власного врожаю в дерев’яному ящику" width="320" height="320" loading="lazy" decoding="async">
@@ -107,9 +82,9 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2014">2014</time>
-            <h3 class="about-stem__name">Власний фасувальний цех</h3>
-            <p class="about-stem__text">Починаємо виробляти добрива за власними рецептурами.</p>
+            <time class="about-stem__year" datetime="2012">2012</time>
+            <h3 class="about-stem__name">Мережа крамниць</h3>
+            <p class="about-stem__text">Розвиваємо мережу «Соняшник»: свіжа продукція від перевірених виробників із дотриманням умов зберігання.</p>
           </div>
           <figure class="about-stem__photo about-stem__photo--b">
             <img src="{% static 'img/about/harvest-bag.png' %}" alt="Сітка з овочами та продуктами з городу" width="320" height="320" loading="lazy" decoding="async">
@@ -129,9 +104,9 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2019">2019</time>
-            <h3 class="about-stem__name">Сертифікація якості</h3>
-            <p class="about-stem__text">Отримуємо перші лабораторні висновки на всю продукцію.</p>
+            <time class="about-stem__year" datetime="2018">2018</time>
+            <h3 class="about-stem__name">Бренди світу й України</h3>
+            <p class="about-stem__text">Стаємо офіційним представником провідних аграрних брендів. Асортимент — насіння, захист, добрива, інструмент і полив.</p>
           </div>
           <figure class="about-stem__photo about-stem__photo--c">
             <img src="{% static 'img/about/field-hands.png' %}" alt="Руки з колоском у полі на заході сонця" width="320" height="320" loading="lazy" decoding="async">
@@ -151,13 +126,64 @@
         <div class="about-stem__body">
           <div class="about-stem__copy">
             <time class="about-stem__year" datetime="2026">2026</time>
-            <h3 class="about-stem__name">Сьогодні</h3>
-            <p class="about-stem__text">Понад 1000 товарів у каталозі, консультації агронома та доставка по всій Україні.</p>
+            <h3 class="about-stem__name">Вирощуй не шкодячи</h3>
+            <p class="about-stem__text">Консультації, схеми захисту на сезон, сертифікована продукція та підтримка в соцмережах — для саду, городу й кімнатних рослин.</p>
           </div>
         </div>
       </article>
     </div>
   </aside>
+
+  <section class="about-philosophy" aria-labelledby="about-philosophy-title">
+    <h2 id="about-philosophy-title" class="about-philosophy__title">Наша філософія</h2>
+    <p class="about-philosophy__motto">Вирощуй не шкодячи.</p>
+    <p class="about-philosophy__text">Ми пропонуємо раціональне використання добрив та засобів захисту рослин з максимальною користю для вас і мінімальною шкодою для навколишнього середовища. Ви завжди можете отримати ефективну консультацію з допомогою по догляду та використанню засобів, системою захисту рослини на сезон та схемами лікування для вашого саду або кімнатних зелених друзів.</p>
+    <p class="about-philosophy__text">А наші соцмережі допоможуть вам розібратися з особливостями застосування препаратів на різних культурах та полегшать ведення рослинного господарства.</p>
+  </section>
+
+  <section class="about-why" aria-labelledby="about-why-title">
+    <h2 id="about-why-title" class="about-why__title">Чому нас обирають</h2>
+    <ul class="about-stats">
+      <li class="about-stats__card">
+        <span class="about-stats__value">100%</span>
+        <span class="about-stats__label">оригінальної продукції від кращих світових та українських виробників. Засоби захисту рослин, насіння та добрива — ви можете бути впевнені в якості та безпечності кожного товару</span>
+      </li>
+      <li class="about-stats__card">
+        <span class="about-stats__value">23</span>
+        <span class="about-stats__label">роки досвіду вирощування рослин у саду, на городі та на підвіконні</span>
+      </li>
+      <li class="about-stats__card">
+        <span class="about-stats__value">12</span>
+        <span class="about-stats__label">місяців щороку тестуємо найкращі новинки на власній ділянці та рослинах</span>
+      </li>
+      <li class="about-stats__card">
+        <span class="about-stats__value">1000&nbsp;+</span>
+        <span class="about-stats__label">товарів для саду й дому в каталозі</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="about-produce" aria-labelledby="about-produce-title">
+    <div class="about-produce__card">
+      <img
+        class="about-produce__bg"
+        src="{% static 'img/about/produce-cta.png' %}"
+        alt=""
+        width="1024"
+        height="778"
+        loading="lazy"
+        decoding="async"
+      >
+      <span class="about-produce__overlay" aria-hidden="true"></span>
+      <div class="about-produce__content">
+        <h2 id="about-produce-title" class="about-produce__title">Потрібно багато товару? Зателефонуйте нам — і ми запропонуємо індивідуальну вартість.</h2>
+        <div class="about-produce__actions">
+          <a href="{% url 'catalog:index' %}" class="btn about-produce__btn about-produce__btn--solid">До каталогу</a>
+          <a href="tel:{{ site_phone_raw }}" class="btn about-produce__btn about-produce__btn--ghost">Зателефонувати</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 {% endblock %}
 

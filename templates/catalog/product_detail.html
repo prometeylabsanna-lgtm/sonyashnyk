@@ -51,6 +51,9 @@
       </div>
       <h1 class="h1 pdp-info__title">{{ product.name }}</h1>
       <div class="pdp-info__meta">Код: {{ product.sku }}{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
+      {% if product.pack_volume %}
+        <div class="pdp-info__volume">Обʼєм: {{ product.pack_volume }}</div>
+      {% endif %}
 
       <div class="pdp-info__prices">
         <span class="price pdp-info__price" data-pdp-price>{{ product.display_price }} ₴</span>

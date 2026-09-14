@@ -7,7 +7,7 @@
   --grow: 0;
   --leaf-side: -1;
   position: relative;
-  padding: 4px 0 12px;
+  padding: 8px 0 20px;
 }
 
 .about-stem__track {
@@ -42,10 +42,10 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  column-gap: 14px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 22px;
   align-items: start;
-  padding: clamp(6px, 1.2vw, 12px) 0;
+  padding: clamp(12px, 1.8vw, 20px) 0;
 }
 .about-stem__item--nudge-a { --photo-nudge: 0; }
 .about-stem__item--nudge-b { --photo-nudge: 4px; }
@@ -135,7 +135,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -157,32 +157,32 @@
   display: block;
   font-family: var(--f-display);
   font-weight: 700;
-  font-size: clamp(20px, 2vw, 26px);
+  font-size: clamp(24px, 2.4vw, 30px);
   line-height: 1;
   color: var(--about-year, #9a5a52);
 }
 .about-stem__name {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-family: var(--f-accent);
-  font-size: clamp(15px, 1.5vw, 18px);
+  font-size: clamp(17px, 1.7vw, 20px);
   font-weight: 700;
   line-height: 1.25;
   color: var(--c-ink);
 }
 .about-stem__text {
-  margin: 6px 0 0;
-  font-size: 13.5px;
-  line-height: 1.5;
+  margin: 8px 0 0;
+  font-size: clamp(14.5px, 1.35vw, 16px);
+  line-height: 1.55;
   color: var(--c-body);
-  max-width: 36ch;
+  max-width: 38ch;
 }
 
 .about-stem__photo {
   margin: 0;
   flex-shrink: 0;
   align-self: flex-start;
-  width: clamp(84px, 9vw, 112px);
-  height: clamp(84px, 9vw, 112px);
+  width: clamp(108px, 12vw, 140px);
+  height: clamp(108px, 12vw, 140px);
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid color-mix(in srgb, var(--c-sage) 35%, var(--c-surface));
@@ -207,17 +207,11 @@
   object-position: center;
   display: block;
 }
-.about-stem__photo--a {
-  width: clamp(88px, 9.5vw, 118px);
-  height: clamp(88px, 9.5vw, 118px);
-}
-.about-stem__photo--b {
-  width: clamp(78px, 8.5vw, 102px);
-  height: clamp(78px, 8.5vw, 102px);
-}
+.about-stem__photo--a,
+.about-stem__photo--b,
 .about-stem__photo--c {
-  width: clamp(92px, 10vw, 122px);
-  height: clamp(92px, 10vw, 122px);
+  width: clamp(108px, 12vw, 140px);
+  height: clamp(108px, 12vw, 140px);
 }
 
 @media (max-width: 1024px) {
@@ -228,32 +222,39 @@
 }
 
 @media (max-width: 1024px) and (min-width: 768px) {
+  .about-stem__item {
+    column-gap: 20px;
+  }
+  .about-stem__photo,
   .about-stem__photo--a,
   .about-stem__photo--b,
   .about-stem__photo--c {
-    width: clamp(80px, 11vw, 104px);
-    height: clamp(80px, 11vw, 104px);
+    width: clamp(100px, 13vw, 128px);
+    height: clamp(100px, 13vw, 128px);
   }
 }
 
 @media (max-width: 767px) {
   .about-stem { --stem-x: 29px; }
   .about-stem__item {
-    grid-template-columns: 28px minmax(0, 1fr);
-    column-gap: 12px;
-    padding: 8px 0;
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 18px;
+    padding: 12px 0;
   }
   .about-stem__leaf {
     top: -19px;
     width: 24px;
     height: 34px;
   }
+  .about-stem__year { font-size: clamp(22px, 6vw, 28px); }
+  .about-stem__name { font-size: clamp(16px, 4.5vw, 19px); }
+  .about-stem__text { font-size: 15px; }
   .about-stem__photo,
   .about-stem__photo--a,
   .about-stem__photo--b,
   .about-stem__photo--c {
-    width: 88px;
-    height: 88px;
+    width: 108px;
+    height: 108px;
   }
 }
 

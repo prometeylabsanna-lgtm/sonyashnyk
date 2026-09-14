@@ -36,7 +36,7 @@ def catalog_index(request):
         "products": _paginate(request, products),
         "total_count": products.count(),
         "current_sort": request.GET.get("sort", "popularity"),
-        **build_filter_context(request, products),
+        **build_filter_context(request, products, category=None),
     }
     return render(request, "catalog/category.html", context)
 
@@ -60,7 +60,7 @@ def category(request, slug):
         "products": _paginate(request, products),
         "total_count": products.count(),
         "current_sort": request.GET.get("sort", "popularity"),
-        **build_filter_context(request, products),
+        **build_filter_context(request, products, category=current_category),
     }
     return render(request, "catalog/category.html", context)
 
@@ -79,7 +79,7 @@ def sale(request):
         "products": _paginate(request, products),
         "total_count": products.count(),
         "current_sort": request.GET.get("sort", "popularity"),
-        **build_filter_context(request, products),
+        **build_filter_context(request, products, category=None),
     }
     return render(request, "catalog/category.html", context)
 

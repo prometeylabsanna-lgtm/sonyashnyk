@@ -1,7 +1,8 @@
 {% comment %}
   Фільтри: шторка на мобільному/планшеті → бічна панель на десктопі (≥1100px).
-  Параметри з контексту: available_brands, available_countries, selected_brands,
-  selected_countries, request.GET (для збереження значень price_min/price_max/in_stock)
+  Параметри з контексту: available_brands, available_countries, available_volumes,
+  selected_brands, selected_countries, selected_volumes, show_volume_filter,
+  request.GET (для збереження значень price_min/price_max/in_stock)
 {% endcomment %}
 <aside class="filters" data-filters aria-hidden="true">
   <div class="filters__overlay" data-filters-close></div>
@@ -53,6 +54,18 @@
         <label class="filter-check">
           <input type="checkbox" name="country" value="{{ country }}" {% if country in selected_countries %}checked{% endif %}>
           {{ country }}
+        </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if show_volume_filter and available_volumes %}
+    <div class="filter-group">
+      <div class="filter-group__title">Обʼєм / фасування</div>
+      {% for volume in available_volumes %}
+        <label class="filter-check">
+          <input type="checkbox" name="volume" value="{{ volume }}" {% if volume in selected_volumes %}checked{% endif %}>
+          {{ volume }}
         </label>
       {% endfor %}
     </div>

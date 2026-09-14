@@ -32,9 +32,16 @@ class ProductImageInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
-        "name", "sku", "category", "base_price", "is_own_production",
+        "name", "sku", "category", "pack_volume", "base_price", "is_own_production",
         "is_hit", "is_new", "is_sale", "is_active",
     )
     list_filter = ("category", "is_own_production", "is_hit", "is_new", "is_sale", "is_active")
-    search_fields = ("name", "sku")
+    search_fields = ("name", "sku", "pack_volume")
     inlines = [ProductVariantInline, ProductImageInline]
+    fields = (
+        "category", "sku", "name", "slug",
+        "short_description", "description", "characteristics",
+        "brand", "country_of_origin", "pack_volume",
+        "base_price", "old_price",
+        "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
+    )

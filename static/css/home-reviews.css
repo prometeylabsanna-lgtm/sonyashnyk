@@ -31,6 +31,12 @@
   background: var(--c-announce);
   color: var(--c-announcetext);
   border-radius: var(--radius-md);
+  box-shadow: 0 0 0 transparent;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  transition:
+    box-shadow var(--t-med) var(--ease),
+    transform var(--t-med) var(--ease);
 }
 
 .reviews-featured .reviews-stars {
@@ -78,6 +84,9 @@
   box-shadow: 0 8px 20px color-mix(in srgb, var(--c-ink) 8%, transparent);
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  transition:
+    box-shadow var(--t-med) var(--ease),
+    transform var(--t-med) var(--ease);
 }
 
 .reviews-card .reviews-stars {
@@ -143,6 +152,37 @@
 
   .reviews-card {
     min-height: 140px;
+  }
+}
+
+/* --- Desktop hover --- */
+@media (hover: hover) and (pointer: fine) {
+  .reviews-featured:hover,
+  .reviews-card:hover {
+    z-index: 1;
+    -webkit-transform: translateZ(0) scale(1.03);
+    transform: translateZ(0) scale(1.03);
+  }
+
+  .reviews-featured:hover {
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--c-ink) 16%, transparent);
+  }
+
+  .reviews-card:hover {
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--c-ink) 14%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reviews-featured,
+  .reviews-card {
+    transition: none;
+  }
+
+  .reviews-featured:hover,
+  .reviews-card:hover {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }
 

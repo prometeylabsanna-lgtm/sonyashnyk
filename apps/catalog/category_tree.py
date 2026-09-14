@@ -159,3 +159,23 @@ SKIP_ICON_SLUGS = {
     "vagove-nasinnia",
     "gazonni-travi",
 }
+
+# Фільтр «Обʼєм / фасування» (§3.3 sitemap): корені + окреме «Вагове насіння»
+VOLUME_FILTER_ROOT_SLUGS = frozenset({
+    "dobriva-ta-stimuliatori-rostu",
+    "zasobi-zakhistu-roslin",
+    "grunti-ta-vse-dlia-posadki",
+})
+VOLUME_FILTER_EXTRA_SLUGS = frozenset({
+    "vagove-nasinnia",
+})
+
+
+def category_allows_volume_filter(category):
+    """Чи показувати фільтр обʼєму для поточної категорії (або її предків)."""
+    if category is None:
+        return False
+    for node in category.breadcrumb_chain():
+        if node.slug in VOLUME_FILTER_ROOT_SLUGS or node.slug in VOLUME_FILTER_EXTRA_SLUGS:
+            return True
+    return False

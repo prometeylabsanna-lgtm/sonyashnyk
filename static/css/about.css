@@ -7,13 +7,19 @@
   --about-year: #9a5a52;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(300px, 1fr);
-  gap: clamp(28px, 4vw, 48px);
+  grid-template-areas:
+    "main aside"
+    "philosophy why"
+    "produce why";
+  column-gap: clamp(28px, 4vw, 48px);
+  row-gap: clamp(20px, 3vw, 28px);
   align-items: start;
   padding-top: clamp(20px, 3.5vw, 36px);
   padding-bottom: clamp(48px, 8vw, 88px);
 }
 
 .about-main {
+  grid-area: main;
   display: flex;
   flex-direction: column;
   gap: clamp(28px, 4vw, 44px);
@@ -21,25 +27,113 @@
 }
 
 .about-aside {
+  grid-area: aside;
   min-width: 0;
   padding-top: 6px;
+}
+
+.about-philosophy {
+  grid-area: philosophy;
+  min-width: 0;
+  padding-top: clamp(20px, 3vw, 36px);
+}
+
+.about-why {
+  grid-area: why;
+  min-width: 0;
+  align-self: start;
+  padding-top: clamp(20px, 3vw, 36px);
+}
+
+.about-produce {
+  grid-area: produce;
+  min-width: 0;
+  padding-top: clamp(16px, 2.5vw, 28px);
 }
 
 /* --- Intro --- */
 .about-intro__title {
   margin: 0;
   font-family: var(--f-display);
-  font-size: clamp(28px, 3.6vw, 42px);
+  font-size: clamp(32px, 4vw, 46px);
   line-height: 1.15;
   color: var(--c-ink);
   text-wrap: balance;
 }
 .about-intro__lead {
   margin: 16px 0 0;
-  font-size: clamp(15px, 1.5vw, 17px);
+  font-size: clamp(17px, 1.7vw, 20px);
   line-height: 1.6;
   color: var(--c-body);
-  max-width: 48ch;
+  max-width: 52ch;
+}
+
+.about-intro__text {
+  margin: 12px 0 0;
+  font-size: clamp(16px, 1.55vw, 18px);
+  line-height: 1.65;
+  color: var(--c-body);
+  max-width: 54ch;
+}
+
+/* --- Shelves / assortment --- */
+.about-shelves__title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(26px, 2.8vw, 34px);
+  line-height: 1.2;
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+
+.about-shelves__list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-shelves__list li {
+  position: relative;
+  padding: 12px 14px 12px 16px;
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.55;
+  color: var(--c-body);
+  background: color-mix(in srgb, var(--c-oat) 55%, var(--c-surface));
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--c-border) 50%, transparent);
+  -webkit-hyphens: none;
+  hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+/* --- Philosophy --- */
+.about-philosophy__title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(28px, 3.4vw, 38px);
+  line-height: 1.2;
+  color: var(--c-ink);
+}
+
+.about-philosophy__motto {
+  margin: 14px 0 0;
+  font-family: var(--f-display);
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.3;
+  color: var(--about-year);
+  text-wrap: balance;
+}
+
+.about-philosophy__text {
+  margin: 12px 0 0;
+  font-size: clamp(16px, 1.55vw, 18px);
+  line-height: 1.65;
+  color: var(--c-body);
+  max-width: 54ch;
 }
 
 /* --- Stats 2×2 --- */
@@ -84,7 +178,7 @@
   color: var(--c-muted);
 }
 
-/* --- CTA (ширина лівої колонки) --- */
+/* --- CTA (права колонка, під timeline) --- */
 .about-produce__card {
   position: relative;
   display: flex;
@@ -95,7 +189,7 @@
   border-radius: var(--radius-md);
   color: var(--c-announcetext);
   background: var(--c-announce);
-  min-height: clamp(180px, 28vw, 240px);
+  min-height: clamp(180px, 24vw, 220px);
 }
 
 .about-produce__bg {
@@ -132,12 +226,14 @@
 .about-produce__title {
   margin: 0;
   font-family: var(--f-display);
-  font-size: clamp(20px, 2.4vw, 28px);
-  line-height: 1.25;
+  font-size: clamp(20px, 2.5vw, 28px);
+  line-height: 1.3;
   color: #ffffff;
   text-wrap: balance;
-  max-width: 22ch;
+  max-width: 34ch;
   text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+  -webkit-hyphens: none;
+  hyphens: none;
 }
 
 .about-produce__actions {
@@ -150,6 +246,7 @@
   min-height: 44px;
   padding: 0 20px;
   border-radius: var(--radius-sm);
+  font-size: 16px;
 }
 
 .about-produce__btn--solid {
@@ -177,7 +274,8 @@
 @media (max-width: 1024px) and (min-width: 768px) {
   .about-layout {
     grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
-    gap: 28px;
+    column-gap: 28px;
+    row-gap: 24px;
   }
   .about-stats__card { padding: 16px; }
 }
@@ -191,9 +289,25 @@
   }
   .about-aside { order: 1; padding-top: 0; }
   .about-main { order: 2; gap: 24px; }
+  .about-philosophy { order: 3; }
+  .about-why { order: 4; }
+  .about-produce { order: 5; align-self: stretch; }
 
-  .about-intro__title { font-size: clamp(26px, 7vw, 32px); }
-  .about-intro__lead { font-size: 15px; }
+  .about-intro__title { font-size: clamp(28px, 7.5vw, 34px); }
+  .about-shelves__title {
+    white-space: normal;
+    font-size: clamp(24px, 6vw, 30px);
+  }
+  .about-intro__lead,
+  .about-intro__text,
+  .about-philosophy__text,
+  .about-shelves__list li { font-size: 17px; }
+
+  .about-shelves__list { gap: 8px; }
+  .about-shelves__list li { padding: 11px 12px; }
+
+  .about-philosophy__title { font-size: clamp(26px, 6.5vw, 32px); }
+  .about-philosophy__motto { font-size: clamp(20px, 5.5vw, 24px); }
 
   .about-stats {
     grid-template-columns: 1fr 1fr;
@@ -204,9 +318,14 @@
 
   .about-produce__card {
     width: 100%;
+    min-height: 180px;
   }
   .about-produce__content {
     padding: 20px 18px;
+  }
+  .about-produce__title {
+    max-width: none;
+    font-size: clamp(20px, 5.2vw, 24px);
   }
   .about-produce__actions { width: 100%; }
   .about-produce__btn {
