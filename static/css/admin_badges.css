@@ -1,0 +1,35 @@
+/* Бейджі статусів у Django admin */
+.badge-admin {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.badge-admin--new {
+  background: #fde8e8;
+  color: #b42318;
+}
+.badge-admin--progress {
+  background: #fff4e5;
+  color: #b54708;
+}
+.badge-admin--shipped {
+  background: #e0f2fe;
+  color: #026aa2;
+}
+.badge-admin--done,
+.badge-admin--paid {
+  background: #e3f9e5;
+  color: #067647;
+}
+.badge-admin--pending {
+  background: #f2f4f7;
+  color: #344054;
+}
+.badge-admin--failed {
+  background: #fce7f6;
+  color: #c11574;
+}

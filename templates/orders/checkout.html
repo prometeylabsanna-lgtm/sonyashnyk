@@ -8,7 +8,10 @@
 <div class="container section--tight">
   <h1 class="h1">Оформлення замовлення</h1>
 
-  <form method="post" novalidate style="margin-top:24px">
+  <form method="post" novalidate class="checkout-form" style="margin-top:24px"
+        data-np-enabled="{{ np_api_enabled|yesno:'1,0' }}"
+        data-np-cities-url="{{ np_cities_url }}"
+        data-np-warehouses-url="{{ np_warehouses_url }}">
     {% csrf_token %}
     <div class="checkout">
       <div class="checkout-main">
@@ -45,12 +48,23 @@
           <div class="checkout-delivery-fields" data-delivery-fields>
             <div class="field {% if form.city.errors %}field--error{% endif %}">
               <label data-delivery-city-label for="{{ form.city.id_for_label }}">Місто</label>
-              {{ form.city }}
+              <div class="search-select" data-search-select="city">
+                {{ form.city }}
+                {{ form.np_city_ref }}
+                <ul class="search-select__list" data-search-list hidden></ul>
+              </div>
               {% for e in form.city.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
+              {% if not np_api_enabled %}
+                <span class="field__hint">API НП ще не підключено — введіть місто вручну.</span>
+              {% endif %}
             </div>
-            <div class="field {% if form.warehouse.errors %}field--error{% endif %}">
+            <div class="field {% if form.warehouse.errors %}field--error{% endif %}" data-warehouse-field>
               <label data-delivery-warehouse-label for="{{ form.warehouse.id_for_label }}">Відділення / адреса</label>
-              {{ form.warehouse }}
+              <div class="search-select" data-search-select="warehouse">
+                {{ form.warehouse }}
+                {{ form.np_warehouse_ref }}
+                <ul class="search-select__list" data-search-list hidden></ul>
+              </div>
               {% for e in form.warehouse.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
             </div>
           </div>

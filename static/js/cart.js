@@ -126,7 +126,8 @@
           SonyashnykUtils.showToast("Додано в кошик");
           refreshDrawer(false);
         } else {
-          SonyashnykUtils.showToast("Не вдалося додати товар.");
+          var msg = (result.data && result.data.error) || "Не вдалося додати товар.";
+          SonyashnykUtils.showToast(msg);
         }
       })
       .catch(function () {

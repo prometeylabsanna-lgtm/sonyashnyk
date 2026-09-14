@@ -38,6 +38,8 @@ class Order(models.Model):
     delivery_method = models.CharField("Спосіб доставки", max_length=16, choices=DeliveryMethod.choices)
     city = models.CharField("Місто", max_length=120, blank=True)
     warehouse = models.CharField("Відділення / адреса", max_length=200, blank=True)
+    np_city_ref = models.CharField("NP CityRef", max_length=64, blank=True)
+    np_warehouse_ref = models.CharField("NP WarehouseRef", max_length=64, blank=True)
 
     payment_method = models.CharField("Спосіб оплати", max_length=16, choices=PaymentMethod.choices)
     payment_status = models.CharField(

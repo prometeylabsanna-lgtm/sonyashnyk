@@ -7,20 +7,34 @@
 {% block content %}
 <div class="container">
   <div class="thank-you">
-    <div class="thank-you__icon" aria-hidden="true">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
-    </div>
-    <h1 class="h1">Дякуємо за замовлення!</h1>
-    <p class="thank-you__order">Номер замовлення: №{{ order.order_number }}</p>
-
-    {% if order.payment_method == "liqpay" and order.payment_status == "pending" %}
-      <p style="color:var(--c-muted)">Очікуємо підтвердження оплати LiqPay. Якщо оплата не пройшла — зв'яжіться з нами.</p>
+    {% if order.payment_status == "failed" %}
+      <div class="thank-you__icon thank-you__icon--fail" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      </div>
+      <h1 class="h1">Оплата не пройшла</h1>
+      <p class="thank-you__order">Замовлення №{{ order.order_number }} збережено</p>
+      <p class="thank-you__hint">Можете спробувати сплатити ще раз або обрати інший спосіб — менеджер також бачить замовлення в адмінці.</p>
     {% else %}
-      <p style="color:var(--c-muted)">Найближчим часом наш менеджер зв'яжеться з вами для підтвердження.</p>
+      <div class="thank-you__icon" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+      </div>
+      <h1 class="h1">Дякуємо за замовлення!</h1>
+      <p class="thank-you__order">Номер замовлення: №{{ order.order_number }}</p>
+
+      {% if order.payment_method == "liqpay" and order.payment_status == "pending" %}
+        <p class="thank-you__hint">Очікуємо підтвердження оплати LiqPay. Сторінка оновиться після callback; також можете сплатити ще раз.</p>
+      {% elif order.payment_method == "liqpay" and order.payment_status == "paid" %}
+        <p class="thank-you__hint">Оплату отримано. Найближчим часом менеджер підтвердить відправку.</p>
+      {% else %}
+        <p class="thank-you__hint">Найближчим часом наш менеджер зв'яжеться з вами для підтвердження.</p>
+      {% endif %}
     {% endif %}
 
-    <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap">
-      <a href="{% url 'catalog:sale' %}" class="btn btn--primary">Продовжити покупки</a>
+    <div class="thank-you__actions">
+      {% if can_pay_again %}
+        <a href="{% url 'orders_checkout:pay' order.order_number %}" class="btn btn--primary">Сплатити ще раз</a>
+      {% endif %}
+      <a href="{% url 'catalog:sale' %}" class="btn {% if can_pay_again %}btn--outline{% else %}btn--primary{% endif %}">Продовжити покупки</a>
       <a href="{% url 'home' %}" class="btn btn--outline">На головну</a>
     </div>
   </div>

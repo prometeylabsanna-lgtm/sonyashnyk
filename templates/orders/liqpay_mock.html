@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Тестова оплата — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="thank-you">
+    <h1 class="h1">Sandbox-оплата (mock)</h1>
+    <p class="thank-you__order">Замовлення №{{ order.order_number }} — {{ order.total }} ₴</p>
+    <p class="thank-you__hint">
+      Ключі LiqPay ще не задані в .env. Це локальна симуляція успіху/помилки.
+      Після додавання ключів клієнт піде на реальний LiqPay sandbox.
+    </p>
+    <form method="post" action="{% url 'orders_checkout:pay_mock' order.order_number %}" class="thank-you__actions">
+      {% csrf_token %}
+      <button type="submit" name="action" value="success" class="btn btn--primary">Симулювати успіх</button>
+      <button type="submit" name="action" value="fail" class="btn btn--outline">Симулювати помилку</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

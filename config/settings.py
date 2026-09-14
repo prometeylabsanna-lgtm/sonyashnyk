@@ -108,7 +108,8 @@ SITE_PHONE_RAW = "+380671234567"
 SITE_WORKING_HOURS = "Пн–Сб 9:00–18:00"
 FREE_SHIPPING_THRESHOLD = 1500
 
-# Заглушки платіжних/логістичних інтеграцій (mock, реальні ключі — пізніше)
+# Платіж / логістика (ключі з .env; без ключів — mock / ручний fallback)
+SITE_URL = config("SITE_URL", default="http://127.0.0.1:8000")
 LIQPAY_PUBLIC_KEY = config("LIQPAY_PUBLIC_KEY", default="")
 LIQPAY_PRIVATE_KEY = config("LIQPAY_PRIVATE_KEY", default="")
 LIQPAY_SANDBOX = config("LIQPAY_SANDBOX", default=True, cast=bool)
