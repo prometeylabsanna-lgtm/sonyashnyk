@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
 {% block extra_css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,19 +12,17 @@
 
 {% block content %}
 
+{% section_visible 'home' 'hero_section_visible' as show_hero %}
+{% if show_hero %}
 <section class="hero" aria-label="Головне" data-hero>
   <div class="hero__frame">
     {% for slide in slides %}
       <article class="hero__slide{% if forloop.first %} is-active{% endif %}" data-hero-slide>
         <div class="hero__media">
-          {% if slide.image %}
-            <img src="{{ slide.image.url }}" alt="" width="1600" height="900" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
-          {% elif forloop.counter == 1 %}
-            <img src="{% static 'img/home/hero-seeds.jpg' %}" alt="" width="1600" height="1067" fetchpriority="high">
-          {% elif forloop.counter == 2 %}
-            <img src="{% static 'img/home/hero-vegetables.jpg' %}" alt="" width="1600" height="1067" loading="lazy">
-          {% else %}
-            <img src="{% static 'img/home/hero-fertilizer.jpg' %}" alt="" width="1600" height="1067" loading="lazy">
+          {% if slide.image_url %}
+            <img src="{{ slide.image_url }}" alt="{{ slide.alt_text }}" width="1600" height="900" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+          {% elif slide.static_image %}
+            <img src="{% static slide.static_image %}" alt="{{ slide.alt_text }}" width="1600" height="1067" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
           {% endif %}
         </div>
         <div class="hero__plaque">
@@ -36,59 +34,18 @@
           </div>
         </div>
       </article>
-    {% empty %}
-      <article class="hero__slide is-active" data-hero-slide>
-        <div class="hero__media">
-          <img src="{% static 'img/home/hero-seeds.jpg' %}" alt="" width="1600" height="1067" fetchpriority="high">
-        </div>
-        <div class="hero__plaque">
-          <h1 class="hero__title">Якісне насіння для багатого врожаю</h1>
-          <p class="hero__lead">Овочеве, квіткове та вагове насіння з перевіреною схожістю — для саду, городу й розсади.</p>
-          <div class="hero__cta">
-            <a href="{% url 'catalog:category' 'nasinnia' %}" class="btn btn--primary">До каталогу</a>
-            <a href="{% url 'catalog:sale' %}" class="btn btn--glass">До акцій</a>
-          </div>
-        </div>
-      </article>
-      <article class="hero__slide" data-hero-slide>
-        <div class="hero__media">
-          <img src="{% static 'img/home/hero-vegetables.jpg' %}" alt="" width="1600" height="1067" loading="lazy">
-        </div>
-        <div class="hero__plaque">
-          <h1 class="hero__title">Овочі з вашої ділянки</h1>
-          <p class="hero__lead">Насіння овочевих культур для свіжих салатів, консервації та сімейного столу весь сезон.</p>
-          <div class="hero__cta">
-            <a href="{% url 'catalog:category' 'nasinnia' %}" class="btn btn--primary">Обрати насіння</a>
-            <a href="{% url 'catalog:sale' %}" class="btn btn--glass">До акцій</a>
-          </div>
-        </div>
-      </article>
-      <article class="hero__slide" data-hero-slide>
-        <div class="hero__media">
-          <img src="{% static 'img/home/hero-fertilizer.jpg' %}" alt="" width="1600" height="1067" loading="lazy">
-        </div>
-        <div class="hero__plaque">
-          <h1 class="hero__title">Добрива для сильного росту</h1>
-          <p class="hero__lead">Органічні та мінеральні підживлення з перевіреною якістю — для здорових рослин і високого врожаю.</p>
-          <div class="hero__cta">
-            <a href="{% url 'catalog:category' 'dobriva-ta-stimuliatori-rostu' %}" class="btn btn--primary">До добрив</a>
-            <a href="{% url 'catalog:sale' %}" class="btn btn--glass">До акцій</a>
-          </div>
-        </div>
-      </article>
     {% endfor %}
     <div class="hero__dots" role="group" aria-label="Слайди">
       {% for slide in slides %}
         <button type="button" class="hero__dot{% if forloop.first %} is-active{% endif %}" data-hero-dot aria-label="Слайд {{ forloop.counter }}"></button>
-      {% empty %}
-        <button type="button" class="hero__dot is-active" data-hero-dot aria-label="Слайд 1"></button>
-        <button type="button" class="hero__dot" data-hero-dot aria-label="Слайд 2"></button>
-        <button type="button" class="hero__dot" data-hero-dot aria-label="Слайд 3"></button>
       {% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 
+{% section_visible 'home' 'trust_section_visible' as show_trust %}
+{% if show_trust %}
 <section class="section section--trust" aria-label="Чому нам довіряють">
   <div class="container">
     <div class="trust-bar">
@@ -133,12 +90,15 @@
     </div>
   </div>
 </section>
+{% endif %}
 
+{% section_visible 'home' 'categories_section_visible' as show_cats %}
+{% if show_cats %}
 <section class="section section--surface" aria-label="Категорії">
   <div class="container">
     <div class="section__head">
-      <h2>Категорії каталогу</h2>
-      <a href="{% url 'catalog:sale' %}" class="link-accent">Усі категорії</a>
+      <h2>{% block_plain 'home' 'categories_title' %}</h2>
+      <a href="{% block_url 'home' 'categories_link' %}" class="link-accent">{% block_plain 'home' 'categories_link_label' %}</a>
     </div>
     <div class="grid grid--cats">
       {% for cat in top_categories %}
@@ -159,15 +119,17 @@
     </div>
   </div>
 </section>
+{% endif %}
 
-{% if hit_products %}
+{% section_visible 'home' 'hits_section_visible' as show_hits %}
+{% if show_hits and hit_products %}
 <section class="section" aria-label="Хіти продажу">
   <div class="container">
     <div class="section__head">
       <div>
-        <h2>Хіти продажу</h2>
+        <h2>{% block_plain 'home' 'hits_title' %}</h2>
       </div>
-      <a href="{% url 'catalog:sale' %}" class="link-accent">У каталог</a>
+      <a href="{% block_url 'home' 'hits_link' %}" class="link-accent">{% block_plain 'home' 'hits_link_label' %}</a>
     </div>
     <div class="product-rail" data-product-rail>
       <button type="button" class="product-rail__nav product-rail__nav--prev" data-rail-prev aria-label="Попередні товари" disabled>
@@ -186,12 +148,13 @@
 </section>
 {% endif %}
 
-{% if new_products %}
+{% section_visible 'home' 'news_section_visible' as show_news %}
+{% if show_news and new_products %}
 <section class="section" aria-label="Новинки">
   <div class="container">
     <div class="section__head">
       <div>
-        <h2>Новинки сезону</h2>
+        <h2>{% block_plain 'home' 'news_title' %}</h2>
       </div>
     </div>
     <div class="product-rail" data-product-rail>
@@ -211,42 +174,47 @@
 </section>
 {% endif %}
 
+{% section_visible 'home' 'story_section_visible' as show_story %}
+{% if show_story %}
 <section class="section section--storyband" aria-label="Про «Соняшник»">
   <div class="container">
     <div class="section__head">
-      <h2>Вирощуємо довіру разом із вашим урожаєм</h2>
+      <h2>{% block_plain 'home' 'story_title' %}</h2>
     </div>
     <div class="story-band">
-      <article class="story-card" data-reveal>
-        <div class="story-card__media" data-media-zoom>
-          <img src="{% static 'img/home/story-grow.jpg' %}" alt="Город власного виробництва" width="800" height="640" loading="lazy" decoding="async">
-        </div>
-        <h3 class="story-card__title">Власне виробництво</h3>
-        <p class="story-card__text">Частину асортименту виробляємо самостійно. Відбираємо партії, перевіряємо схожість і пакуємо так, щоб насіння доїхало до вас у відмінному стані.</p>
-        <a href="{% url 'about' %}" class="btn btn--outline story-card__cta">Про нас</a>
-      </article>
-
-      <article class="story-card" data-reveal>
-        <div class="story-card__media" data-media-zoom>
-          <img src="{% static 'img/home/story-sustain.jpg' %}" alt="Розсада та догляд за насінням" width="800" height="640" loading="lazy" decoding="async">
-        </div>
-        <h3 class="story-card__title">Про нас</h3>
-        <p class="story-card__text">Ваш успіх у городі — наш головний орієнтир. Ділимося досвідом, допомагаємо з вибором і супроводжуємо від посіву до врожаю.</p>
-        <a href="{% url 'certificates' %}" class="btn btn--outline story-card__cta">Сертифікати</a>
-      </article>
-
-      <article class="story-card" data-reveal>
-        <div class="story-card__media" data-media-zoom>
-          <img src="{% static 'img/home/story-harvest.jpg' %}" alt="Свіжі овочі з городу" width="800" height="640" loading="lazy" decoding="async">
-        </div>
-        <h3 class="story-card__title">Оригінальна продукція</h3>
-        <p class="story-card__text">Засоби захисту рослин, насіння та добрива від найкращих світових та українських виробників. Ви можете бути впевнені в якості та безпечності кожного товару.</p>
-        <a href="{% url 'catalog:sale' %}" class="btn btn--outline story-card__cta">До каталогу</a>
-      </article>
+      {% for i in "123" %}
+        <article class="story-card" data-reveal>
+          <div class="story-card__media" data-media-zoom>
+            {% if i == "1" %}
+              {% block_image 'home' 'story_1_image' css_class='' alt='' fallback_static='img/home/story-grow.jpg' %}
+            {% elif i == "2" %}
+              {% block_image 'home' 'story_2_image' css_class='' alt='' fallback_static='img/home/story-sustain.jpg' %}
+            {% else %}
+              {% block_image 'home' 'story_3_image' css_class='' alt='' fallback_static='img/home/story-harvest.jpg' %}
+            {% endif %}
+          </div>
+          {% if i == "1" %}
+            <h3 class="story-card__title">{% block_plain 'home' 'story_1_title' %}</h3>
+            <p class="story-card__text">{% block_plain 'home' 'story_1_text' %}</p>
+            <a href="{% block_url 'home' 'story_1_cta' %}" class="btn btn--outline story-card__cta">{% block_plain 'home' 'story_1_cta_label' %}</a>
+          {% elif i == "2" %}
+            <h3 class="story-card__title">{% block_plain 'home' 'story_2_title' %}</h3>
+            <p class="story-card__text">{% block_plain 'home' 'story_2_text' %}</p>
+            <a href="{% block_url 'home' 'story_2_cta' %}" class="btn btn--outline story-card__cta">{% block_plain 'home' 'story_2_cta_label' %}</a>
+          {% else %}
+            <h3 class="story-card__title">{% block_plain 'home' 'story_3_title' %}</h3>
+            <p class="story-card__text">{% block_plain 'home' 'story_3_text' %}</p>
+            <a href="{% block_url 'home' 'story_3_cta' %}" class="btn btn--outline story-card__cta">{% block_plain 'home' 'story_3_cta_label' %}</a>
+          {% endif %}
+        </article>
+      {% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 
+{% section_visible 'home' 'benefits_section_visible' as show_benefits %}
+{% if show_benefits %}
 <section class="section section--tickets" aria-label="Переваги">
   <div class="container">
     <div class="ticket-grid">
@@ -328,13 +296,15 @@
     </div>
   </div>
 </section>
+{% endif %}
 
-{% if sale_products %}
+{% section_visible 'home' 'sale_section_visible' as show_sale %}
+{% if show_sale and sale_products %}
 <section class="section" aria-label="Акції">
   <div class="container">
     <div class="section__head">
-      <h2>Акції та знижки</h2>
-      <a href="{% url 'catalog:sale' %}" class="link-accent">Усі акції</a>
+      <h2>{% block_plain 'home' 'sale_title' %}</h2>
+      <a href="{% block_url 'home' 'sale_link' %}" class="link-accent">{% block_plain 'home' 'sale_link_label' %}</a>
     </div>
     <div class="product-rail" data-product-rail>
       <button type="button" class="product-rail__nav product-rail__nav--prev" data-rail-prev aria-label="Попередні товари" disabled>
@@ -353,11 +323,13 @@
 </section>
 {% endif %}
 
+{% section_visible 'home' 'reviews_section_visible' as show_reviews %}
+{% if show_reviews %}
 <section class="section reviews" aria-label="Відгуки">
   <div class="container">
     <div class="section__head">
       <div>
-        <h2>Відгуки покупців</h2>
+        <h2>{% block_plain 'home' 'reviews_title' %}</h2>
       </div>
     </div>
 
@@ -415,6 +387,7 @@
     </div>
   </div>
 </section>
+{% endif %}
 
 {% endblock %}
 

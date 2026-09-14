@@ -1,31 +1,14 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Політика конфіденційності — {{ site_name }}{% endblock %}
+{% load static site_content %}
+{% block title %}{% block_text "privacy" "page_title" %} — {{ site_name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/pages.css' %}">{% endblock %}
-
 {% block content %}
-<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Політика конфіденційності</span></div>
-
+{% section_visible 'privacy' 'page_section_visible' as show %}
+{% if show %}
+<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">{% block_plain 'privacy' 'page_title' %}</span></div>
 <div class="container section--tight page-content">
-  <h1 class="h1">Політика конфіденційності</h1>
-  <p>Ця політика визначає порядок обробки персональних даних користувачів сайту «{{ site_name }}».</p>
-
-  <h2>1. Які дані ми збираємо</h2>
-  <ul>
-    <li>Ім'я, номер телефону, email — при оформленні замовлення чи заявки.</li>
-    <li>Адреса доставки — для передачі службам доставки.</li>
-    <li>Технічні дані (cookies) — для коректної роботи сайту.</li>
-  </ul>
-
-  <h2>2. Мета обробки даних</h2>
-  <p>Дані використовуються виключно для обробки замовлень, зв'язку з покупцем та покращення роботи сайту.</p>
-
-  <h2>3. Захист даних</h2>
-  <p>Сайт не зберігає дані банківських карток. Оплата обробляється через захищений сервіс LiqPay.</p>
-
-  <h2>4. Права користувача</h2>
-  <p>Користувач має право вимагати видалення чи уточнення своїх персональних даних, звернувшись через сторінку «Контакти».</p>
-
-  <p style="margin-top:24px;color:var(--c-muted);font-size:13px">Текст політики буде доопрацьовано юридичним відділом перед публікацією.</p>
+  <h1 class="h1">{% block_plain 'privacy' 'page_title' %}</h1>
+  <div>{% block_html 'privacy' 'page_body' %}</div>
 </div>
+{% endif %}
 {% endblock %}

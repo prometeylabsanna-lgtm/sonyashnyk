@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Про нас — {{ site_name }}{% endblock %}
+{% load static site_content %}
+{% block title %}{% block_text "about" "intro_title" %} — {{ site_name }}{% endblock %}
 {% block meta_description %}Торговельна марка «{{ site_name }}»: понад 20 років досвіду з вирощування рослин і їх захисту. Сертифікована продукція, консультації та філософія «Вирощуй не шкодячи».{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/about.css' %}">
@@ -16,31 +16,34 @@
 
 <div class="about-layout container">
   <div class="about-main">
+    {% section_visible 'about' 'intro_section_visible' as show_intro %}
+    {% if show_intro %}
     <section class="about-intro" aria-labelledby="about-intro-title">
-      <h1 id="about-intro-title" class="about-intro__title">Торговельна марка «Соняшник»</h1>
-      <p class="about-intro__lead">Має більше 20 років досвіду з вирощування рослин та їх захисту.</p>
-      <p class="about-intro__text">Ми впевнені: найякісніші продукти — вирощені на власній землі, а найщасливіші люди — ті, що мають можливість до землі доторкнутись.</p>
-      <p class="about-intro__text">ТМ «Соняшник» є офіційним представником найкращих аграрних брендів України та світу.</p>
-      <p class="about-intro__text">Продукція представлена у крамницях мережі «Соняшник» завжди якісна та сертифікована. Ми працюємо з найкращими виробниками, завжди маємо свіжу продукцію, що зберігається із дотриманням усіх необхідних умов.</p>
-      <p class="about-intro__text">Ми щиро віримо у світле аграрне майбутнє нашої країни, обожнюємо нашу справу та віддано допомагаємо клієнтам отримати найкращі врожаї, найквітучіші сади та затишні зелені куточки — де б ви не знаходились.</p>
+      <h1 id="about-intro-title" class="about-intro__title">{% block_plain 'about' 'intro_title' %}</h1>
+      <p class="about-intro__lead">{% block_plain 'about' 'intro_lead' %}</p>
+      {% block_text 'about' 'intro_body' as intro_body %}
+      {% for para in intro_body|cms_splitlines %}
+      <p class="about-intro__text">{{ para }}</p>
+      {% endfor %}
     </section>
+    {% endif %}
 
+    {% section_visible 'about' 'shelves_section_visible' as show_shelves %}
+    {% if show_shelves %}
     <section class="about-shelves" aria-labelledby="about-shelves-title">
-      <h2 id="about-shelves-title" class="about-shelves__title">На поличках наших крамниць завжди&nbsp;є</h2>
+      <h2 id="about-shelves-title" class="about-shelves__title">{% block_plain 'about' 'shelves_title' %}</h2>
       <ul class="about-shelves__list">
-        <li>🌻 Найкраще пакетоване та вагове насіння з усього світу (Україна, Голландія, Данія, Японія, Польща, Молдова, Франція та інші)</li>
-        <li>🌻 Добрива та стимулятори росту;</li>
-        <li>🌻 Найдієвіші засоби захисту рослин від хвороб та шкідників;</li>
-        <li>🌻 БІО-захист рослин;</li>
-        <li>🌻 Добрива для всіх видів садових та кімнатних рослин;</li>
-        <li>🌻 Садовий інструмент;</li>
-        <li>🌻 Системи крапельного зрошування та поливу;</li>
-        <li>🌻 Все для кімнатних рослин;</li>
-        <li>🌻 Усі супутні товари, що можуть вам знадобитись.</li>
+        {% block_text 'about' 'shelves_list' as shelves_list %}
+        {% for item in shelves_list|cms_splitlines %}
+        <li>🌻 {{ item }}</li>
+        {% endfor %}
       </ul>
     </section>
+    {% endif %}
   </div>
 
+  {% section_visible 'about' 'timeline_section_visible' as show_timeline %}
+  {% if show_timeline %}
   <aside class="about-aside" aria-label="Хронологія">
     <div class="about-stem" data-about-stem>
       <div class="about-stem__track" aria-hidden="true">
@@ -48,6 +51,7 @@
         <div class="about-stem__grow" data-stem-grow></div>
       </div>
 
+      {% block_text 'about' 'timeline_1_year' as t1_year %}
       <article class="about-stem__item about-stem__item--nudge-a" data-stem-node>
         <div class="about-stem__spine" aria-hidden="true">
           <span class="about-stem__dot"></span>
@@ -60,16 +64,17 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2003">2003</time>
-            <h3 class="about-stem__name">Перші кроки з землею</h3>
-            <p class="about-stem__text">Починаємо шлях у вирощуванні рослин та їх захисті — основа досвіду ТМ «Соняшник».</p>
+            <time class="about-stem__year" datetime="{{ t1_year }}">{% block_plain 'about' 'timeline_1_year' %}</time>
+            <h3 class="about-stem__name">{% block_plain 'about' 'timeline_1_name' %}</h3>
+            <p class="about-stem__text">{% block_plain 'about' 'timeline_1_text' %}</p>
           </div>
           <figure class="about-stem__photo about-stem__photo--a">
-            <img src="{% static 'img/about/apples.png' %}" alt="Яблука з власного врожаю в дерев’яному ящику" width="320" height="320" loading="lazy" decoding="async">
+            {% block_image 'about' 'timeline_1_image' css_class='' alt='Яблука з власного врожаю в дерев’яному ящику' fallback_static='img/about/apples.png' %}
           </figure>
         </div>
       </article>
 
+      {% block_text 'about' 'timeline_2_year' as t2_year %}
       <article class="about-stem__item about-stem__item--nudge-b" data-stem-node>
         <div class="about-stem__spine" aria-hidden="true">
           <span class="about-stem__dot"></span>
@@ -82,16 +87,17 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2012">2012</time>
-            <h3 class="about-stem__name">Мережа крамниць</h3>
-            <p class="about-stem__text">Розвиваємо мережу «Соняшник»: свіжа продукція від перевірених виробників із дотриманням умов зберігання.</p>
+            <time class="about-stem__year" datetime="{{ t2_year }}">{% block_plain 'about' 'timeline_2_year' %}</time>
+            <h3 class="about-stem__name">{% block_plain 'about' 'timeline_2_name' %}</h3>
+            <p class="about-stem__text">{% block_plain 'about' 'timeline_2_text' %}</p>
           </div>
           <figure class="about-stem__photo about-stem__photo--b">
-            <img src="{% static 'img/about/harvest-bag.png' %}" alt="Сітка з овочами та продуктами з городу" width="320" height="320" loading="lazy" decoding="async">
+            {% block_image 'about' 'timeline_2_image' css_class='' alt='Сітка з овочами та продуктами з городу' fallback_static='img/about/harvest-bag.png' %}
           </figure>
         </div>
       </article>
 
+      {% block_text 'about' 'timeline_3_year' as t3_year %}
       <article class="about-stem__item about-stem__item--nudge-c" data-stem-node>
         <div class="about-stem__spine" aria-hidden="true">
           <span class="about-stem__dot"></span>
@@ -104,16 +110,17 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2018">2018</time>
-            <h3 class="about-stem__name">Бренди світу й України</h3>
-            <p class="about-stem__text">Стаємо офіційним представником провідних аграрних брендів. Асортимент — насіння, захист, добрива, інструмент і полив.</p>
+            <time class="about-stem__year" datetime="{{ t3_year }}">{% block_plain 'about' 'timeline_3_year' %}</time>
+            <h3 class="about-stem__name">{% block_plain 'about' 'timeline_3_name' %}</h3>
+            <p class="about-stem__text">{% block_plain 'about' 'timeline_3_text' %}</p>
           </div>
           <figure class="about-stem__photo about-stem__photo--c">
-            <img src="{% static 'img/about/field-hands.png' %}" alt="Руки з колоском у полі на заході сонця" width="320" height="320" loading="lazy" decoding="async">
+            {% block_image 'about' 'timeline_3_image' css_class='' alt='Руки з колоском у полі на заході сонця' fallback_static='img/about/field-hands.png' %}
           </figure>
         </div>
       </article>
 
+      {% block_text 'about' 'timeline_4_year' as t4_year %}
       <article class="about-stem__item about-stem__item--today" data-stem-node>
         <div class="about-stem__spine" aria-hidden="true">
           <span class="about-stem__dot"></span>
@@ -125,65 +132,69 @@
         </div>
         <div class="about-stem__body">
           <div class="about-stem__copy">
-            <time class="about-stem__year" datetime="2026">2026</time>
-            <h3 class="about-stem__name">Вирощуй не шкодячи</h3>
-            <p class="about-stem__text">Консультації, схеми захисту на сезон, сертифікована продукція та підтримка в соцмережах — для саду, городу й кімнатних рослин.</p>
+            <time class="about-stem__year" datetime="{{ t4_year }}">{% block_plain 'about' 'timeline_4_year' %}</time>
+            <h3 class="about-stem__name">{% block_plain 'about' 'timeline_4_name' %}</h3>
+            <p class="about-stem__text">{% block_plain 'about' 'timeline_4_text' %}</p>
           </div>
         </div>
       </article>
     </div>
   </aside>
+  {% endif %}
 
+  {% section_visible 'about' 'philosophy_section_visible' as show_philosophy %}
+  {% if show_philosophy %}
   <section class="about-philosophy" aria-labelledby="about-philosophy-title">
-    <h2 id="about-philosophy-title" class="about-philosophy__title">Наша філософія</h2>
-    <p class="about-philosophy__motto">Вирощуй не шкодячи.</p>
-    <p class="about-philosophy__text">Ми пропонуємо раціональне використання добрив та засобів захисту рослин з максимальною користю для вас і мінімальною шкодою для навколишнього середовища. Ви завжди можете отримати ефективну консультацію з допомогою по догляду та використанню засобів, системою захисту рослини на сезон та схемами лікування для вашого саду або кімнатних зелених друзів.</p>
-    <p class="about-philosophy__text">А наші соцмережі допоможуть вам розібратися з особливостями застосування препаратів на різних культурах та полегшать ведення рослинного господарства.</p>
+    <h2 id="about-philosophy-title" class="about-philosophy__title">{% block_plain 'about' 'philosophy_title' %}</h2>
+    <p class="about-philosophy__motto">{% block_plain 'about' 'philosophy_motto' %}</p>
+    {% block_text 'about' 'philosophy_text' as philosophy_text %}
+    {% for para in philosophy_text|cms_splitlines %}
+    <p class="about-philosophy__text">{{ para }}</p>
+    {% endfor %}
   </section>
+  {% endif %}
 
+  {% section_visible 'about' 'why_section_visible' as show_why %}
+  {% if show_why %}
   <section class="about-why" aria-labelledby="about-why-title">
-    <h2 id="about-why-title" class="about-why__title">Чому нас обирають</h2>
+    <h2 id="about-why-title" class="about-why__title">{% block_plain 'about' 'why_title' %}</h2>
     <ul class="about-stats">
       <li class="about-stats__card">
-        <span class="about-stats__value">100%</span>
-        <span class="about-stats__label">оригінальної продукції від кращих світових та українських виробників. Засоби захисту рослин, насіння та добрива — ви можете бути впевнені в якості та безпечності кожного товару</span>
+        <span class="about-stats__value">{% block_plain 'about' 'why_1_value' %}</span>
+        <span class="about-stats__label">{% block_plain 'about' 'why_1_label' %}</span>
       </li>
       <li class="about-stats__card">
-        <span class="about-stats__value">23</span>
-        <span class="about-stats__label">роки досвіду вирощування рослин у саду, на городі та на підвіконні</span>
+        <span class="about-stats__value">{% block_plain 'about' 'why_2_value' %}</span>
+        <span class="about-stats__label">{% block_plain 'about' 'why_2_label' %}</span>
       </li>
       <li class="about-stats__card">
-        <span class="about-stats__value">12</span>
-        <span class="about-stats__label">місяців щороку тестуємо найкращі новинки на власній ділянці та рослинах</span>
+        <span class="about-stats__value">{% block_plain 'about' 'why_3_value' %}</span>
+        <span class="about-stats__label">{% block_plain 'about' 'why_3_label' %}</span>
       </li>
       <li class="about-stats__card">
-        <span class="about-stats__value">1000&nbsp;+</span>
-        <span class="about-stats__label">товарів для саду й дому в каталозі</span>
+        <span class="about-stats__value">{% block_plain 'about' 'why_4_value' %}</span>
+        <span class="about-stats__label">{% block_plain 'about' 'why_4_label' %}</span>
       </li>
     </ul>
   </section>
+  {% endif %}
 
+  {% section_visible 'about' 'produce_section_visible' as show_produce %}
+  {% if show_produce %}
   <section class="about-produce" aria-labelledby="about-produce-title">
     <div class="about-produce__card">
-      <img
-        class="about-produce__bg"
-        src="{% static 'img/about/produce-cta.png' %}"
-        alt=""
-        width="1024"
-        height="778"
-        loading="lazy"
-        decoding="async"
-      >
+      {% block_image 'about' 'produce_image' css_class='about-produce__bg' alt='' fallback_static='img/about/produce-cta.png' %}
       <span class="about-produce__overlay" aria-hidden="true"></span>
       <div class="about-produce__content">
-        <h2 id="about-produce-title" class="about-produce__title">Потрібно багато товару? Зателефонуйте нам — і ми запропонуємо індивідуальну вартість.</h2>
+        <h2 id="about-produce-title" class="about-produce__title">{% block_plain 'about' 'produce_title' %}</h2>
         <div class="about-produce__actions">
-          <a href="{% url 'catalog:index' %}" class="btn about-produce__btn about-produce__btn--solid">До каталогу</a>
-          <a href="tel:{{ site_phone_raw }}" class="btn about-produce__btn about-produce__btn--ghost">Зателефонувати</a>
+          <a href="{% url 'catalog:index' %}" class="btn about-produce__btn about-produce__btn--solid">{% block_plain 'about' 'produce_btn_catalog' %}</a>
+          <a href="tel:{{ site_phone_raw }}" class="btn about-produce__btn about-produce__btn--ghost">{% block_plain 'about' 'produce_btn_call' %}</a>
         </div>
       </div>
     </div>
   </section>
+  {% endif %}
 </div>
 {% endblock %}
 

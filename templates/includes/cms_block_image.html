@@ -1,0 +1,6 @@
+{% load static %}
+{% if url %}
+  <img src="{{ url }}" alt="{{ alt }}" {% if css_class %}class="{{ css_class }}"{% endif %} width="800" height="640" loading="lazy" decoding="async">
+{% elif static_path %}
+  <img src="{% static static_path %}" alt="{{ alt }}" {% if css_class %}class="{{ css_class }}"{% endif %} width="800" height="640" loading="lazy" decoding="async">
+{% endif %}

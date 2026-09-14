@@ -1,10 +1,12 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
-{% block title %}Дякуємо за замовлення — {{ site_name }}{% endblock %}
+{% block title %}{% block_text "thankyou" "page_title" %} — {{ site_name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'thankyou' 'page_section_visible' as show %}
+{% if show %}
 <div class="container">
   <div class="thank-you">
     {% if order.payment_status == "failed" %}
@@ -18,7 +20,7 @@
       <div class="thank-you__icon" aria-hidden="true">
         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
       </div>
-      <h1 class="h1">Дякуємо за замовлення!</h1>
+      <h1 class="h1">{% block_plain 'thankyou' 'page_title' %}</h1>
       <p class="thank-you__order">Номер замовлення: №{{ order.order_number }}</p>
 
       {% if order.payment_method == "liqpay" and order.payment_status == "pending" %}
@@ -26,7 +28,10 @@
       {% elif order.payment_method == "liqpay" and order.payment_status == "paid" %}
         <p class="thank-you__hint">Оплату отримано. Найближчим часом менеджер підтвердить відправку.</p>
       {% else %}
-        <p class="thank-you__hint">Найближчим часом наш менеджер зв'яжеться з вами для підтвердження.</p>
+        {% block_text 'thankyou' 'page_lead' as page_lead %}
+        {% if page_lead %}
+        <p class="thank-you__hint">{% block_plain 'thankyou' 'page_lead' %}</p>
+        {% endif %}
       {% endif %}
     {% endif %}
 
@@ -39,4 +44,5 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}

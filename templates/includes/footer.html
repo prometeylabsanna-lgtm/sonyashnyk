@@ -1,9 +1,11 @@
-{% load static %}
+{% load static site_content %}
 <footer class="site-footer" id="footer">
   <div class="footer-split">
+    {% section_visible 'site' 'footer_cta_visible' as show_footer_cta %}
+    {% if show_footer_cta %}
     <div class="footer-cta">
-      <h2 class="footer-cta__title">Новини саду на email</h2>
-      <p class="footer-cta__text">Поради з вирощування, сезонні акції та новинки асортименту — без зайвого шуму.</p>
+      <h2 class="footer-cta__title">{% block_plain 'site' 'footer_cta_title' %}</h2>
+      <p class="footer-cta__text">{% block_plain 'site' 'footer_cta_text' %}</p>
       <form
         class="footer-cta__form"
         data-lead-form-inline
@@ -25,10 +27,11 @@
             autocomplete="email"
             inputmode="email"
           >
-          <button type="submit" class="footer-cta__btn">Підписатись</button>
+          <button type="submit" class="footer-cta__btn">{% block_plain 'site' 'footer_cta_btn' %}</button>
         </div>
       </form>
     </div>
+    {% endif %}
 
     <div class="footer-panel">
       <div class="footer-brand">
@@ -37,7 +40,7 @@
 
       <div class="footer-cols">
         <div class="footer-col">
-          <div class="footer-col__title">Категорії</div>
+          <div class="footer-col__title">{% block_plain 'site' 'footer_col_cats_title' %}</div>
           <ul>
             {% for cat in nav_categories|slice:":4" %}
               <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
@@ -46,7 +49,7 @@
         </div>
 
         <div class="footer-col">
-          <div class="footer-col__title">Інформація</div>
+          <div class="footer-col__title">{% block_plain 'site' 'footer_col_info_title' %}</div>
           <ul>
             <li><a href="{% url 'about' %}">Про нас</a></li>
             <li><a href="{% url 'delivery' %}">Доставка</a></li>
@@ -55,7 +58,7 @@
         </div>
 
         <div class="footer-col footer-col--contacts">
-          <div class="footer-col__title">Контакти</div>
+          <div class="footer-col__title">{% block_plain 'site' 'footer_col_contacts_title' %}</div>
           <ul class="footer-col__list">
             <li><a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a></li>
             <li>{{ site_working_hours }}</li>

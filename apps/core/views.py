@@ -4,7 +4,8 @@ from apps.catalog.category_tree import HOME_ROOT_SLUGS
 from apps.catalog.models import Category, Product
 from apps.core.db_safe import database_reachable
 
-from .models import HeroSlide, HighlightPoint, Review
+from apps.core.hero_slides import get_hero_slides
+from apps.core.models import HighlightPoint, Review
 
 # Іконки категорій (static WebP з прозорим фоном) — не змінюємо набір головної
 CATEGORY_ICONS = {
@@ -26,7 +27,7 @@ def home(request):
             request,
             "core/home.html",
             {
-                "slides": [],
+                "slides": get_hero_slides(),
                 "trust_points": [],
                 "info_points": [],
                 "top_categories": [],
@@ -55,7 +56,7 @@ def home(request):
     side_reviews = reviews_qs[1:5] if reviews_qs else []
 
     context = {
-        "slides": HeroSlide.objects.filter(is_active=True),
+        "slides": get_hero_slides(),
         "trust_points": HighlightPoint.objects.filter(
             is_active=True, section=HighlightPoint.Section.TRUST
         ),

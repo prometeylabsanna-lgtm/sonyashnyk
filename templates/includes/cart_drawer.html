@@ -1,8 +1,11 @@
+{% load site_content %}
+{% section_visible 'site' 'cart_drawer_visible' as show_cart_drawer %}
+{% if show_cart_drawer %}
 <div class="cart-drawer" id="cart-drawer" data-cart-drawer aria-hidden="true">
   <div class="cart-drawer__overlay" data-cart-close></div>
-  <div class="cart-drawer__panel" role="dialog" aria-modal="true" aria-label="Кошик">
+  <div class="cart-drawer__panel" role="dialog" aria-modal="true" aria-label="{% block_text 'site' 'cart_drawer_title' %}">
     <div class="cart-drawer__head">
-      <span class="h3">Кошик ({{ cart_count }})</span>
+      <span class="h3">{% block_plain 'site' 'cart_drawer_title' %} ({{ cart_count }})</span>
       <button type="button" class="icon-btn" aria-label="Закрити кошик" data-cart-close>
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l12 12M16 4 4 16"/></svg>
       </button>
@@ -11,7 +14,7 @@
     <div class="cart-drawer__items" data-cart-drawer-items>
       {% if not cart_drawer_items %}
         <div class="cart-empty">
-          <p>Кошик порожній</p>
+          <p>{% block_plain 'site' 'cart_drawer_empty' %}</p>
         </div>
       {% else %}
         {% for item in cart_drawer_items %}
@@ -30,7 +33,7 @@
               <span class="cart-line__variant">{{ item.variant.label }}</span>
               <div class="cart-line__row">
                 <span class="price">{{ item.price }} ₴ × {{ item.quantity }}</span>
-                <button type="button" class="cart-line__remove" data-cart-remove data-variant-id="{{ item.variant.id }}">Видалити</button>
+                <button type="button" class="cart-line__remove" data-cart-remove data-variant-id="{{ item.variant.id }}">{% block_plain 'site' 'cart_drawer_remove' %}</button>
               </div>
             </div>
           </div>
@@ -42,13 +45,14 @@
       <div class="cart-drawer__foot">
         <div class="cart-summary">
           <div class="cart-summary__row cart-summary__row--total">
-            <span>Разом</span>
+            <span>{% block_plain 'site' 'cart_drawer_total' %}</span>
             <span data-cart-drawer-subtotal>{{ cart_drawer_subtotal }} ₴</span>
           </div>
         </div>
-        <a href="{% url 'orders_cart:page' %}" class="btn btn--outline btn--block" style="margin-bottom:10px">Переглянути кошик</a>
-        <a href="{% url 'orders_checkout:page' %}" class="btn btn--primary btn--block">Оформити замовлення</a>
+        <a href="{% url 'orders_cart:page' %}" class="btn btn--outline btn--block" style="margin-bottom:10px">{% block_plain 'site' 'cart_drawer_view' %}</a>
+        <a href="{% url 'orders_checkout:page' %}" class="btn btn--primary btn--block">{% block_plain 'site' 'cart_drawer_checkout' %}</a>
       </div>
     {% endif %}
   </div>
 </div>
+{% endif %}

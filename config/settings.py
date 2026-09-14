@@ -32,6 +32,9 @@ CSRF_TRUSTED_ORIGINS = config(
 
 # --- Applications ---------------------------------------------------------
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -162,3 +165,85 @@ PROMO_SESSION_KEY = "cart_promo"
 LOGIN_URL = "/admin/login/"
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+
+# --- Unfold admin (акцент #E4DA69) ----------------------------------------
+def _content_sidebar_items():
+    from apps.core.site_content_registry import build_content_sidebar_items
+
+    return build_content_sidebar_items()
+
+
+UNFOLD = {
+    "SITE_TITLE": "Соняшник Admin",
+    "SITE_HEADER": "Соняшник — Адмінпанель",
+    "SITE_SYMBOL": "spa",
+    "COLORS": {
+        "primary": {
+            "50": "250 247 220",
+            "100": "246 241 190",
+            "200": "240 232 150",
+            "300": "234 225 120",
+            "400": "230 221 100",
+            "500": "228 218 105",
+            "600": "200 190 70",
+            "700": "160 150 50",
+            "800": "120 112 40",
+            "900": "80 74 28",
+            "950": "45 42 16",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "command_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Налаштування",
+                "items": [
+                    {
+                        "title": "Налаштування сайту",
+                        "icon": "settings",
+                        "link": "/admin/core/sitesettings/",
+                    },
+                ],
+            },
+            {
+                "title": "Контент сторінок",
+                "separator": True,
+                "items": _content_sidebar_items(),
+            },
+            {
+                "title": "Каталог",
+                "separator": True,
+                "items": [
+                    {"title": "Категорії", "icon": "category", "link": "/admin/catalog/category/"},
+                    {"title": "Товари", "icon": "inventory_2", "link": "/admin/catalog/product/"},
+                ],
+            },
+            {
+                "title": "Продажі",
+                "separator": True,
+                "items": [
+                    {"title": "Замовлення", "icon": "shopping_cart", "link": "/admin/orders/order/"},
+                    {"title": "Промокоди", "icon": "local_offer", "link": "/admin/orders/promocode/"},
+                ],
+            },
+            {
+                "title": "Ліди",
+                "separator": True,
+                "items": [
+                    {"title": "Заявки", "icon": "support_agent", "link": "/admin/leads/lead/"},
+                ],
+            },
+            {
+                "title": "Контент",
+                "separator": True,
+                "items": [
+                    {"title": "Переваги", "icon": "loyalty", "link": "/admin/core/highlightpoint/"},
+                    {"title": "Відгуки", "icon": "rate_review", "link": "/admin/core/review/"},
+                    {"title": "Сертифікати", "icon": "workspace_premium", "link": "/admin/pages/certificate/"},
+                ],
+            },
+        ],
+    },
+}

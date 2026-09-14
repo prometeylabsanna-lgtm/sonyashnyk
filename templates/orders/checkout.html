@@ -1,12 +1,14 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
-{% block title %}Оформлення замовлення — {{ site_name }}{% endblock %}
+{% block title %}{% block_text "checkout" "page_title" %} — {{ site_name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'checkout' 'page_section_visible' as show %}
+{% if show %}
 <div class="container section--tight">
-  <h1 class="h1">Оформлення замовлення</h1>
+  <h1 class="h1">{% block_plain 'checkout' 'page_title' %}</h1>
 
   <form method="post" novalidate class="checkout-form" style="margin-top:24px"
         data-np-enabled="{{ np_api_enabled|yesno:'1,0' }}"
@@ -132,6 +134,7 @@
     </div>
   </form>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}<script src="{% static 'js/checkout.js' %}" defer></script>{% endblock %}

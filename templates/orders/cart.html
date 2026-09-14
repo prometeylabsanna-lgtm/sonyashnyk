@@ -1,23 +1,25 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
-{% block title %}Кошик — {{ site_name }}{% endblock %}
+{% block title %}{% block_text "cart" "page_title" %} — {{ site_name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/cart-page.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'cart' 'page_section_visible' as show %}
+{% if show %}
 <section class="cart-page-section section--tight">
   <div class="container">
     <header class="cart-page__head">
-      <h1 class="cart-page__title">Ваш кошик</h1>
+      <h1 class="cart-page__title">{% block_plain 'cart' 'page_title' %}</h1>
     </header>
 
     {% if not cart_items %}
       <div class="cart-page cart-page--empty">
         <div class="cart-page__list">
           <div class="cart-card cart-card--empty">
-            <p class="cart-card__empty-title">Кошик порожній</p>
-            <p class="cart-card__empty-text">Додайте товари з каталогу, щоб оформити замовлення.</p>
-            <a href="{% url 'catalog:index' %}" class="btn btn--primary cart-card__empty-btn">До каталогу</a>
+            <p class="cart-card__empty-title">{% block_plain 'cart' 'empty_title' %}</p>
+            <p class="cart-card__empty-text">{% block_plain 'cart' 'empty_text' %}</p>
+            <a href="{% url 'catalog:index' %}" class="btn btn--primary cart-card__empty-btn">{% block_plain 'cart' 'empty_cta' %}</a>
           </div>
         </div>
 
@@ -143,4 +145,5 @@
     {% endif %}
   </div>
 </section>
+{% endif %}
 {% endblock %}

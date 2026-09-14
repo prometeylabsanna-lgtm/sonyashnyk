@@ -1,22 +1,25 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
-{% block title %}Обране — {{ site_name }}{% endblock %}
+{% block title %}{% block_text "wishlist" "page_title" %} — {{ site_name }}{% endblock %}
 {% block meta_description %}Ваші обрані товари в магазині «{{ site_name }}».{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}"><link rel="stylesheet" href="{% static 'css/wishlist.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'wishlist' 'page_section_visible' as show %}
+{% if show %}
 <div class="container section--tight wishlist-page" data-wishlist-page>
-  <h1 class="h1">Обране</h1>
+  <h1 class="h1">{% block_plain 'wishlist' 'page_title' %}</h1>
 
-  <p class="wishlist-page__loading" data-wishlist-loading hidden>Завантаження…</p>
+  <p class="wishlist-page__loading" data-wishlist-loading hidden>{% block_plain 'wishlist' 'loading' %}</p>
 
   <div class="wishlist-page__empty empty-state" data-wishlist-empty>
-    <h2>Поки порожньо</h2>
-    <p>Додавайте товари сердечком на картках або на сторінці товару.</p>
-    <a href="{% url 'catalog:index' %}" class="btn btn--primary">До каталогу</a>
+    <h2>{% block_plain 'wishlist' 'empty_title' %}</h2>
+    <p>{% block_plain 'wishlist' 'empty_text' %}</p>
+    <a href="{% url 'catalog:index' %}" class="btn btn--primary">{% block_plain 'wishlist' 'empty_cta' %}</a>
   </div>
 
   <div class="grid grid--products wishlist-page__grid" data-wishlist-grid hidden></div>
 </div>
+{% endif %}
 {% endblock %}

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from django.utils.html import format_html
 
 from .models import Lead
@@ -18,7 +19,7 @@ class NewLeadsFilter(admin.SimpleListFilter):
 
 
 @admin.register(Lead)
-class LeadAdmin(admin.ModelAdmin):
+class LeadAdmin(ModelAdmin):
     list_display = ("created_at", "lead_type", "name", "phone", "status_badge", "product")
     list_filter = (NewLeadsFilter, "lead_type", "status")
     search_fields = ("name", "phone", "email")

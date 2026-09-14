@@ -1,3 +1,7 @@
+{% load site_content %}
+{% section_visible 'site' 'fab_visible' as show_fab %}
+{% if show_fab %}
 <button type="button" class="fab" aria-label="Швидкий зв'язок" data-lead-open data-lead-type="callback">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2C10.5 20 4 13.5 4 6a2 2 0 0 1 1-2Z"/></svg>
 </button>
+{% endif %}

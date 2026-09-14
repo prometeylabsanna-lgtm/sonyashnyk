@@ -1,11 +1,31 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
-from .models import HeroSlide, HighlightPoint, Review, SiteSettings
+from apps.core.admin_site_content_proxies import register_site_content_section_admins
+from apps.core.admin_utils import ReadableUnfoldFieldsMixin, SingletonModelAdminMixin
+from apps.core.models import HighlightPoint, Review, SiteSettings
+
+# SiteBlock / HeroSlide — не реєструємо як звичайний ModelAdmin (CMS proxy).
 
 
 @admin.register(SiteSettings)
-class SiteSettingsAdmin(admin.ModelAdmin):
+class SiteSettingsAdmin(ReadableUnfoldFieldsMixin, SingletonModelAdminMixin, ModelAdmin):
     fieldsets = (
+        (
+            "Основне",
+            {
+                "fields": (
+                    "site_name",
+                    "phone",
+                    "phone_raw",
+                    "email",
+                    "address",
+                    "work_hours",
+                    "free_shipping_threshold",
+                    "meta_description",
+                ),
+            },
+        ),
         (
             "Соцмережі",
             {
@@ -15,27 +35,18 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ),
     )
 
-    def has_add_permission(self, request):
-        return not SiteSettings.objects.exists()
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(HeroSlide)
-class HeroSlideAdmin(admin.ModelAdmin):
-    list_display = ("title", "order", "is_active")
-    list_editable = ("order", "is_active")
-
 
 @admin.register(HighlightPoint)
-class HighlightPointAdmin(admin.ModelAdmin):
+class HighlightPointAdmin(ModelAdmin):
     list_display = ("title", "section", "icon", "order", "is_active")
     list_filter = ("section",)
     list_editable = ("order", "is_active")
 
 
 @admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
+class ReviewAdmin(ModelAdmin):
     list_display = ("name", "city", "rating", "order", "is_active")
     list_editable = ("order", "is_active")
+
+
+register_site_content_section_admins()

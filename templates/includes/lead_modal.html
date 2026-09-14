@@ -1,3 +1,6 @@
+{% load site_content %}
+{% section_visible 'site' 'lead_modal_visible' as show_lead_modal %}
+{% if show_lead_modal %}
 <div class="modal" id="lead-modal" data-lead-modal aria-hidden="true">
   <div class="modal__overlay" data-modal-close></div>
   <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
@@ -23,8 +26,8 @@
       <input type="hidden" name="source_page" value="{{ request.path }}">
       <input type="text" name="honeypot" class="visually-hidden" tabindex="-1" autocomplete="off">
 
-      <h2 id="lead-modal-title" class="h2 modal__title" data-lead-title>Не йдіть без подарунка!</h2>
-      <p class="modal__lead" data-lead-lead>Залиште номер телефону — передзвонимо і підкажемо знижку та найкращі товари під ваш запит.</p>
+      <h2 id="lead-modal-title" class="h2 modal__title" data-lead-title>{% block_plain 'site' 'lead_modal_title' %}</h2>
+      <p class="modal__lead" data-lead-lead>{% block_plain 'site' 'lead_modal_lead' %}</p>
 
       <div class="field">
         <label class="modal__field-label" for="lead-modal-name">Ім'я</label>
@@ -36,19 +39,21 @@
       </div>
       <div class="field field--checkbox">
         <input type="checkbox" id="lead-modal-agree" required>
-        <label for="lead-modal-agree" class="modal__agree-label">Погоджуюсь на обробку персональних даних</label>
+        <label for="lead-modal-agree" class="modal__agree-label">{% block_plain 'site' 'lead_modal_agree' %}</label>
       </div>
 
-      <button type="submit" class="btn btn--primary btn--block" data-lead-cta>Отримати знижку</button>
+      <button type="submit" class="btn btn--primary btn--block" data-lead-cta>{% block_plain 'site' 'lead_modal_cta' %}</button>
     </form>
 
     <div class="modal__success" data-lead-success>
-      <h3 class="h3">Дякуємо!</h3>
-      <p class="modal__success-text">Ми зв'яжемось з вами найближчим часом.</p>
+      <h3 class="h3">{% block_plain 'site' 'lead_modal_success_title' %}</h3>
+      <p class="modal__success-text">{% block_plain 'site' 'lead_modal_success_text' %}</p>
     </div>
 
     <button type="button" class="modal__dismiss" data-modal-close data-lead-dismiss>Закрити</button>
   </div>
 </div>
+
+{% endif %}
 
 <div id="toast" class="toast" data-toast role="status" aria-live="polite"></div>

@@ -1,14 +1,19 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Сертифікати — {{ site_name }}{% endblock %}
+{% load static site_content %}
+{% block title %}{% block_text "certificates" "page_title" %} — {{ site_name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/pages.css' %}">{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">Сертифікати</span></div>
+{% section_visible 'certificates' 'page_section_visible' as show %}
+{% if show %}
+<div class="container" style="padding-top:14px"><a href="{% url 'home' %}">Головна</a> <span aria-hidden="true">/</span> <span class="is-current">{% block_plain 'certificates' 'page_title' %}</span></div>
 
 <div class="container section--tight">
-  <h1 class="h1">Сертифікати власного виробництва</h1>
-  <p style="margin-top:10px;color:var(--c-muted)">Документи, що підтверджують якість продукції власного виробництва «{{ site_name }}».</p>
+  <h1 class="h1">{% block_plain 'certificates' 'page_title' %}</h1>
+  {% block_text 'certificates' 'page_lead' as page_lead %}
+  {% if page_lead %}
+  <p style="margin-top:10px;color:var(--c-muted)">{% block_plain 'certificates' 'page_lead' %}</p>
+  {% endif %}
 
   {% if series_list %}
     <div class="cert-filter">
@@ -33,11 +38,11 @@
     </div>
   {% else %}
     <div class="empty-state">
-      <h2>Сертифікати додаються</h2>
-      <p>Наразі документи в процесі завантаження в адмінку. Зверніться до нас за деталями.</p>
+      <p>{% block_plain 'certificates' 'empty_text' %}</p>
     </div>
   {% endif %}
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}<script src="{% static 'js/pages.js' %}" defer></script>{% endblock %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
 {% block title %}{{ product.name }} — {{ site_name }}{% endblock %}
 {% block meta_description %}{{ product.short_description|default:product.name }}{% endblock %}
@@ -7,6 +7,8 @@
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/product.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'product' 'page_section_visible' as show_pdp %}
+{% if show_pdp %}
 {% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs current_label=product.name %}
 
 {% with variant=product.default_variant %}
@@ -44,15 +46,15 @@
 
     <div class="pdp-info">
       <div class="pdp-info__badges">
-        {% if product.is_hit %}<span class="badge badge--hit">Хіт</span>{% endif %}
-        {% if product.is_new %}<span class="badge badge--new">Новинка</span>{% endif %}
-        {% if product.is_sale %}<span class="badge badge--sale">Акція</span>{% endif %}
-        {% if product.is_own_production %}<span class="badge badge--own">Власне виробництво</span>{% endif %}
+        {% if product.is_hit %}<span class="badge badge--hit">{% block_plain 'product' 'badge_hit' %}</span>{% endif %}
+        {% if product.is_new %}<span class="badge badge--new">{% block_plain 'product' 'badge_new' %}</span>{% endif %}
+        {% if product.is_sale %}<span class="badge badge--sale">{% block_plain 'product' 'badge_sale' %}</span>{% endif %}
+        {% if product.is_own_production %}<span class="badge badge--own">{% block_plain 'product' 'badge_own' %}</span>{% endif %}
       </div>
       <h1 class="h1 pdp-info__title">{{ product.name }}</h1>
-      <div class="pdp-info__meta">Код: {{ product.sku }}{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
+      <div class="pdp-info__meta">{% block_plain 'product' 'sku_label' %} {{ product.sku }}{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
       {% if product.pack_volume %}
-        <div class="pdp-info__volume">Обʼєм: {{ product.pack_volume }}</div>
+        <div class="pdp-info__volume">{% block_plain 'product' 'volume_label' %} {{ product.pack_volume }}</div>
       {% endif %}
 
       <div class="pdp-info__prices">
@@ -64,7 +66,7 @@
         {% endif %}
       </div>
       <div class="pdp-info__stock {% if not product.in_stock %}is-out{% endif %}" data-pdp-stock>
-        {% if product.in_stock %}В наявності{% else %}Немає в наявності{% endif %}
+        {% if product.in_stock %}{% block_plain 'product' 'in_stock' %}{% else %}{% block_plain 'product' 'out_of_stock' %}{% endif %}
       </div>
 
       <div class="pdp-buy" data-pdp-actions>
@@ -81,7 +83,7 @@
             data-add-to-cart
             data-variant-id="{{ variant.id }}"
             {% if not product.in_stock %}disabled{% endif %}
-          >До кошика</button>
+          >{% block_plain 'product' 'add_cart' %}</button>
           <button
             type="button"
             class="btn btn--outline pdp-actions__one-click"
@@ -89,16 +91,16 @@
             data-lead-type="buy_one_click"
             data-product-id="{{ product.id }}"
             {% if not product.in_stock %}disabled{% endif %}
-          >Купити в 1 клік</button>
+          >{% block_plain 'product' 'one_click' %}</button>
           <button
             type="button"
             class="pdp-actions__wish"
             data-wishlist-toggle
             data-product-id="{{ product.id }}"
-            data-label-off="В обране"
-            data-label-on="В обраному"
+            data-label-off="{% block_text 'product' 'wish_off' %}"
+            data-label-on="{% block_text 'product' 'wish_on' %}"
             aria-pressed="false"
-            aria-label="В обране"
+            aria-label="{% block_text 'product' 'wish_off' %}"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -108,7 +110,7 @@
       </div>
 
       <div class="pdp-desc">
-        <h2 class="pdp-desc__title">Опис</h2>
+        <h2 class="pdp-desc__title">{% block_plain 'product' 'desc_title' %}</h2>
         <div class="pdp-desc__body">
           <p>{{ product.description|default:product.short_description|linebreaksbr }}</p>
         </div>
@@ -138,14 +140,15 @@
 {% endwith %}
 
 {% if related_products %}
-<section class="section section--oat" aria-label="Схожі товари">
+<section class="section section--oat" aria-label="{% block_text 'product' 'related_title' %}">
   <div class="container">
-    <div class="section__head"><h2>Схожі товари</h2></div>
+    <div class="section__head"><h2>{% block_plain 'product' 'related_title' %}</h2></div>
     <div class="grid grid--products">
       {% for product in related_products %}{% include "includes/product_card.html" %}{% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 {% endif %}
 {% endblock %}
 

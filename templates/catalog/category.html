@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
-{% block title %}{% if category %}{{ category.name }}{% elif is_catalog_root %}Каталог{% else %}Акції та знижки{% endif %} — {{ site_name }}{% endblock %}
+{% block title %}{% if category %}{{ category.name }}{% elif is_catalog_root %}{% block_text "catalog" "page_title" %}{% else %}{% block_text "catalog" "sale_title" %}{% endif %} — {{ site_name }}{% endblock %}
 
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=13"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'catalog' 'page_section_visible' as show_catalog %}
+{% if show_catalog %}
 
 {% if category or is_catalog_root %}
   {% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs is_catalog_root=is_catalog_root %}
@@ -13,14 +15,14 @@
   <nav class="breadcrumbs container" aria-label="Хлібні крихти">
     <a href="{% url 'home' %}">Головна</a>
     <span aria-hidden="true">/</span>
-    <a href="{% url 'catalog:index' %}">Каталог</a>
+    <a href="{% url 'catalog:index' %}">{% block_plain 'catalog' 'page_title' %}</a>
     <span aria-hidden="true">/</span>
-    <span class="is-current">Акції / знижки</span>
+    <span class="is-current">{% block_plain 'catalog' 'sale_crumb' %}</span>
   </nav>
 {% endif %}
 
 <div class="container section--tight">
-  <h1 class="h1">{% if category %}{{ category.name }}{% elif is_catalog_root %}Каталог{% else %}Акції та знижки{% endif %}</h1>
+  <h1 class="h1">{% if category %}{{ category.name }}{% elif is_catalog_root %}{% block_plain 'catalog' 'page_title' %}{% else %}{% block_plain 'catalog' 'sale_title' %}{% endif %}</h1>
 
   {% if subcategories and not is_catalog_root %}
     <div class="subcats hscroll">
@@ -56,19 +58,19 @@
   {% endif %}
 
   <div class="catalog-toolbar">
-    <span class="catalog-toolbar__count">Знайдено: {{ total_count }} товар(ів)</span>
+    <span class="catalog-toolbar__count">{% block_format 'catalog' 'count_label' count=total_count %}</span>
     <div class="catalog-toolbar__right">
       <button type="button" class="filters-btn" data-filters-toggle>
-        Фільтри
+        {% block_plain 'catalog' 'filters_btn' %}
         {% if active_filters_count %}<span class="filters-btn__count">{{ active_filters_count }}</span>{% endif %}
       </button>
       <div class="sort" data-sort>
         <button type="button" class="sort__btn" data-sort-toggle aria-haspopup="listbox" aria-expanded="false">
           <span data-sort-label>
-            {% if current_sort == "price_asc" %}Спочатку дешевші
-            {% elif current_sort == "price_desc" %}Спочатку дорожчі
-            {% elif current_sort == "new" %}Новинки
-            {% else %}За популярністю{% endif %}
+            {% if current_sort == "price_asc" %}{% block_plain 'catalog' 'sort_price_asc' %}
+            {% elif current_sort == "price_desc" %}{% block_plain 'catalog' 'sort_price_desc' %}
+            {% elif current_sort == "new" %}{% block_plain 'catalog' 'sort_new' %}
+            {% else %}{% block_plain 'catalog' 'sort_popularity' %}{% endif %}
           </span>
           <svg class="sort__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </button>
@@ -76,25 +78,25 @@
           <li role="option">
             <button type="button" class="sort__option{% if current_sort == 'popularity' or not current_sort %} is-active{% endif %}" data-sort-option="popularity" {% if current_sort == "popularity" or not current_sort %}aria-selected="true"{% endif %}>
               <span class="sort__check" aria-hidden="true">{% if current_sort == "popularity" or not current_sort %}✓{% endif %}</span>
-              За популярністю
+              {% block_plain 'catalog' 'sort_popularity' %}
             </button>
           </li>
           <li role="option">
             <button type="button" class="sort__option{% if current_sort == 'price_asc' %} is-active{% endif %}" data-sort-option="price_asc" {% if current_sort == "price_asc" %}aria-selected="true"{% endif %}>
               <span class="sort__check" aria-hidden="true">{% if current_sort == "price_asc" %}✓{% endif %}</span>
-              Спочатку дешевші
+              {% block_plain 'catalog' 'sort_price_asc' %}
             </button>
           </li>
           <li role="option">
             <button type="button" class="sort__option{% if current_sort == 'price_desc' %} is-active{% endif %}" data-sort-option="price_desc" {% if current_sort == "price_desc" %}aria-selected="true"{% endif %}>
               <span class="sort__check" aria-hidden="true">{% if current_sort == "price_desc" %}✓{% endif %}</span>
-              Спочатку дорожчі
+              {% block_plain 'catalog' 'sort_price_desc' %}
             </button>
           </li>
           <li role="option">
             <button type="button" class="sort__option{% if current_sort == 'new' %} is-active{% endif %}" data-sort-option="new" {% if current_sort == "new" %}aria-selected="true"{% endif %}>
               <span class="sort__check" aria-hidden="true">{% if current_sort == "new" %}✓{% endif %}</span>
-              Новинки
+              {% block_plain 'catalog' 'sort_new' %}
             </button>
           </li>
         </ul>
@@ -113,14 +115,15 @@
         {% include "includes/pagination.html" with page_obj=products %}
       {% else %}
         <div class="empty-state">
-          <h2>Товарів не знайдено</h2>
-          <p>Спробуйте змінити фільтри або перегляньте інші категорії.</p>
-          <a href="{% url 'home' %}" class="btn btn--primary" style="margin-top:16px">На головну</a>
+          <h2>{% block_plain 'catalog' 'empty_title' %}</h2>
+          <p>{% block_plain 'catalog' 'empty_text' %}</p>
+          <a href="{% url 'home' %}" class="btn btn--primary" style="margin-top:16px">{% block_plain 'catalog' 'empty_cta' %}</a>
         </div>
       {% endif %}
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}<script src="{% static 'js/filters-drawer.js' %}" defer></script>{% endblock %}

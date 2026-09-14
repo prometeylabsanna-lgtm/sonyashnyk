@@ -1,15 +1,17 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static site_content %}
 
-{% block title %}Пошук{% if query %}: {{ query }}{% endif %} — {{ site_name }}{% endblock %}
+{% block title %}{% block_text "search" "page_title" %}{% if query %}: {{ query }}{% endif %} — {{ site_name }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 
 {% block content %}
+{% section_visible 'search' 'page_section_visible' as show %}
+{% if show %}
 <div class="container section--tight">
-  <h1 class="h1">Результати пошуку{% if query %}: «{{ query }}»{% endif %}</h1>
+  <h1 class="h1">{% block_plain 'search' 'page_title' %}{% if query %}: «{{ query }}»{% endif %}</h1>
 
   {% if not query %}
-    <p style="margin-top:16px;color:var(--c-muted)">Введіть назву товару або код у поле пошуку в шапці сайту.</p>
+    <p style="margin-top:16px;color:var(--c-muted)">{% block_plain 'search' 'hint_text' %}</p>
   {% elif products %}
     <p style="margin-top:8px;color:var(--c-muted)">Знайдено: {{ total_count }} товар(ів)</p>
     <div class="grid grid--products" style="margin-top:24px">
@@ -18,10 +20,11 @@
     {% include "includes/pagination.html" with page_obj=products %}
   {% else %}
     <div class="empty-state">
-      <h2>Нічого не знайдено</h2>
-      <p>Спробуйте інший запит або перегляньте каталог.</p>
-      <a href="{% url 'catalog:sale' %}" class="btn btn--primary" style="margin-top:16px">До каталогу</a>
+      <h2>{% block_plain 'search' 'empty_title' %}</h2>
+      <p>{% block_plain 'search' 'empty_text' %}</p>
+      <a href="{% url 'catalog:sale' %}" class="btn btn--primary" style="margin-top:16px">{% block_plain 'search' 'empty_cta' %}</a>
     </div>
   {% endif %}
 </div>
+{% endif %}
 {% endblock %}

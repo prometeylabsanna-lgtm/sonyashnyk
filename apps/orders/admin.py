@@ -1,11 +1,12 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 from django.db.models import Count
 from django.utils.html import format_html
 
 from .models import Order, OrderItem, PromoCode
 
 
-class OrderItemInline(admin.TabularInline):
+class OrderItemInline(TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ("product", "variant", "product_name", "variant_label", "price", "quantity")
@@ -25,7 +26,7 @@ class NewOrdersFilter(admin.SimpleListFilter):
 
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = (
         "order_number", "full_name", "phone", "status_badge", "payment_badge",
         "delivery_method", "total", "created_at",
@@ -107,7 +108,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(PromoCode)
-class PromoCodeAdmin(admin.ModelAdmin):
+class PromoCodeAdmin(ModelAdmin):
     list_display = ("code", "discount_type", "amount", "min_subtotal", "is_active", "valid_until")
     list_filter = ("discount_type", "is_active")
     search_fields = ("code",)
