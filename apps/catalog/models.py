@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 
@@ -29,7 +30,10 @@ class Category(models.Model):
         upload_to="categories/",
         blank=True,
         null=True,
-        help_text="Для підкатегорій (рівні 2–3). Якщо порожньо — показується іконка-соняшник за замовчуванням.",
+        help_text=(
+            "PNG або WebP. Для кореневих — шапка/головна; для підкатегорій — плитки в каталозі. "
+            "Якщо порожньо — статична іконка (корені) або соняшник за замовчуванням (підкатегорії)."
+        ),
     )
     description = models.TextField("Опис", blank=True)
     order = models.PositiveIntegerField("Порядок сортування", default=0)
@@ -47,6 +51,12 @@ class Category(models.Model):
         if not self.slug:
             self.slug = make_unique_slug(Category, self.name, instance_pk=self.pk)
         super().save(*args, **kwargs)
+        cache.delete("nav_categories")
+
+    def delete(self, *args, **kwargs):
+        result = super().delete(*args, **kwargs)
+        cache.delete("nav_categories")
+        return result
 
     def get_absolute_url(self):
         return reverse("catalog:category", kwargs={"slug": self.slug})

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.templatetags.static import static
 
 from apps.catalog.category_tree import HOME_ROOT_SLUGS
 from apps.catalog.models import Category, Product
@@ -7,7 +8,7 @@ from apps.core.db_safe import database_reachable
 from apps.core.hero_slides import get_hero_slides
 from apps.core.models import HighlightPoint, Review
 
-# Іконки категорій (static WebP з прозорим фоном) — не змінюємо набір головної
+# Іконки категорій (static WebP) — fallback, якщо немає Category.image
 CATEGORY_ICONS = {
     "nasinnia": "img/home/categories/nasinnya.webp",
     "dobriva-ta-stimuliatori-rostu": "img/home/categories/dobryva.webp",
@@ -19,6 +20,15 @@ CATEGORY_ICONS = {
     "grunti-ta-vse-dlia-posadki": "img/home/categories/grunty.webp",
 }
 CATEGORY_ICON_FALLBACK = "img/home/categories/nasinnya.webp"
+
+
+def _category_icon_url(cat):
+    if cat.image:
+        try:
+            return cat.image.url
+        except Exception:
+            pass
+    return static(CATEGORY_ICONS.get(cat.slug, CATEGORY_ICON_FALLBACK))
 
 
 def home(request):
@@ -49,7 +59,7 @@ def home(request):
     }
     top_categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
     for cat in top_categories:
-        cat.icon_static = CATEGORY_ICONS.get(cat.slug, CATEGORY_ICON_FALLBACK)
+        cat.icon_url = _category_icon_url(cat)
 
     reviews_qs = list(Review.objects.filter(is_active=True)[:5])
     featured_review = reviews_qs[0] if reviews_qs else None

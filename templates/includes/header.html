@@ -94,8 +94,19 @@
       {% for cat in nav_categories %}
         <div class="nav-item" tabindex="0">
           <a href="{{ cat.get_absolute_url }}" class="nav-item__link">
-            {% if cat.nav_icon %}
-              <span class="nav-item__icon" style="--nav-icon: url('{% static cat.nav_icon %}')" aria-hidden="true"></span>
+            {% if cat.nav_icon_custom and cat.nav_icon_url %}
+              <img
+                class="nav-item__icon-img"
+                src="{{ cat.nav_icon_url }}"
+                alt=""
+                width="37"
+                height="37"
+                loading="lazy"
+                decoding="async"
+                aria-hidden="true"
+              >
+            {% elif cat.nav_icon_url %}
+              <span class="nav-item__icon" style="--nav-icon: url('{{ cat.nav_icon_url }}')" aria-hidden="true"></span>
             {% endif %}
             <span class="nav-item__label">{{ cat.name }}</span>
           </a>

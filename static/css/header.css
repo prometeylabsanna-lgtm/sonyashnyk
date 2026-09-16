@@ -384,8 +384,18 @@
   -webkit-mask-position: center;
   mask-position: center;
 }
+.nav-item__icon-img {
+  display: block;
+  width: clamp(29px, 2.7vw, 37px);
+  height: clamp(29px, 2.7vw, 37px);
+  flex: 0 0 auto;
+  pointer-events: none;
+  object-fit: contain;
+  object-position: center;
+}
 /* «Все для розсади» — тонка лінійна іконка, потрібен більший бокс */
-.nav-item--rozsada .nav-item__icon {
+.nav-item--rozsada .nav-item__icon,
+.nav-item--rozsada .nav-item__icon-img {
   width: clamp(42px, 4vw, 56px);
   height: clamp(42px, 4vw, 56px);
   margin-block: -4px;

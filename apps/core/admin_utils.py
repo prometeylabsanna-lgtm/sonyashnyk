@@ -30,6 +30,11 @@ class ReadableUnfoldFieldsMixin:
 
 
 class ImagePreviewMixin:
+    """Превʼю поля `image` у change-формі та (за потреби) у списку."""
+
+    preview_max_height = 80
+    preview_max_width = 120
+
     @admin.display(description="Превʼю")
     def image_preview(self, obj):
         image = getattr(obj, "image", None)
@@ -40,6 +45,10 @@ class ImagePreviewMixin:
         except Exception:
             return "—"
         return format_html(
-            '<img src="{}" alt="" style="max-height:80px;max-width:120px;object-fit:cover;border-radius:4px">',
+            '<img src="{}" alt="" '
+            'style="max-height:{}px;max-width:{}px;object-fit:contain;'
+            'border-radius:4px;background:#f3f4f6;padding:4px">',
             url,
+            self.preview_max_height,
+            self.preview_max_width,
         )

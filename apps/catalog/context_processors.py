@@ -1,11 +1,12 @@
 from django.core.cache import cache
+from django.templatetags.static import static
 
 from apps.core.db_safe import database_reachable
 
 from .category_tree import HOME_ROOT_SLUGS
 from .models import Category
 
-# Іконки desktop main-nav (WebP з прозорим фоном)
+# Іконки desktop main-nav (WebP з прозорим фоном) — fallback, якщо немає Category.image
 NAV_CATEGORY_ICONS = {
     "nasinnia": "img/header/categories/nasinnia.webp",
     "dobriva-ta-stimuliatori-rostu": "img/header/categories/dobryva.webp",
@@ -17,6 +18,20 @@ NAV_CATEGORY_ICONS = {
     "grunti-ta-vse-dlia-posadki": "img/header/categories/grunty.webp",
 }
 NAV_SALE_ICON = "img/header/categories/aktsiyi.webp"
+
+
+def _attach_nav_icon(cat):
+    """Пріоритет: Category.image → статичний fallback за slug."""
+    if cat.image:
+        try:
+            cat.nav_icon_url = cat.image.url
+            cat.nav_icon_custom = True
+            return
+        except Exception:
+            pass
+    path = NAV_CATEGORY_ICONS.get(cat.slug)
+    cat.nav_icon_url = static(path) if path else None
+    cat.nav_icon_custom = False
 
 
 def nav_categories(request):
@@ -37,7 +52,7 @@ def nav_categories(request):
         categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
         cache.set("nav_categories", categories, 300)
     for cat in categories:
-        cat.nav_icon = NAV_CATEGORY_ICONS.get(cat.slug)
+        _attach_nav_icon(cat)
     return {
         "nav_categories": categories,
         "nav_sale_icon": NAV_SALE_ICON,
