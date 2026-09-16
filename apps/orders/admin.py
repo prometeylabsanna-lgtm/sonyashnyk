@@ -1,7 +1,15 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin, TabularInline
 from django.db.models import Count
 from django.utils.html import format_html
+from unfold.admin import ModelAdmin, TabularInline
+
+from apps.core.admin_filters import (
+    CleanBooleanDropdownFilter,
+    CleanChoicesDropdownFilter,
+    CleanDropdownFilter,
+    TopDropdownFiltersMixin,
+    horizontal_options_for,
+)
 
 from .models import Order, OrderItem, PromoCode
 
@@ -12,7 +20,7 @@ class OrderItemInline(TabularInline):
     readonly_fields = ("product", "variant", "product_name", "variant_label", "price", "quantity")
 
 
-class NewOrdersFilter(admin.SimpleListFilter):
+class NewOrdersFilter(CleanDropdownFilter):
     title = "Нові"
     parameter_name = "only_new"
 
@@ -26,12 +34,19 @@ class NewOrdersFilter(admin.SimpleListFilter):
 
 
 @admin.register(Order)
-class OrderAdmin(ModelAdmin):
+class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_display = (
         "order_number", "full_name", "phone", "status_badge", "payment_badge",
         "delivery_method", "total", "created_at",
     )
-    list_filter = (NewOrdersFilter, "status", "payment_status", "delivery_method", "payment_method")
+    list_filter = (
+        NewOrdersFilter,
+        ("status", CleanChoicesDropdownFilter),
+        ("payment_status", CleanChoicesDropdownFilter),
+        ("delivery_method", CleanChoicesDropdownFilter),
+        ("payment_method", CleanChoicesDropdownFilter),
+    )
+    list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("order_number", "full_name", "phone", "email", "city", "warehouse")
     readonly_fields = (
         "order_number", "subtotal", "discount_total", "total", "created_at",
@@ -108,8 +123,12 @@ class OrderAdmin(ModelAdmin):
 
 
 @admin.register(PromoCode)
-class PromoCodeAdmin(ModelAdmin):
+class PromoCodeAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_display = ("code", "discount_type", "amount", "min_subtotal", "is_active", "valid_until")
-    list_filter = ("discount_type", "is_active")
+    list_filter = (
+        ("discount_type", CleanChoicesDropdownFilter),
+        ("is_active", CleanBooleanDropdownFilter),
+    )
+    list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("code",)
     list_editable = ("is_active",)

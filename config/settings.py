@@ -54,6 +54,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -92,7 +93,12 @@ if IS_VERCEL:
             "NAME": "/tmp/sonyashnyk.sqlite3",
         }
     }
+    # Cookie-сесія: БД ефемерна між інстансами; hash пароля фіксуємо в api/index.py
     SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
 else:
     DATABASES = {
         "default": {
@@ -119,6 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # --- Localization -------------------------------------------------------
 LANGUAGE_CODE = "uk"
+LANGUAGES = [("uk", "Українська")]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "Europe/Kyiv"
 USE_I18N = True
 USE_TZ = True
@@ -173,10 +181,36 @@ def _content_sidebar_items():
     return build_content_sidebar_items()
 
 
+def _static(path: str):
+    from django.templatetags.static import static
+
+    return lambda request: static(path)
+
+
 UNFOLD = {
     "SITE_TITLE": "Соняшник Admin",
     "SITE_HEADER": "Соняшник — Адмінпанель",
     "SITE_SYMBOL": "spa",
+    "SITE_FAVICONS": [
+        {"rel": "icon", "href": _static("img/brand/favicon.ico"), "sizes": "any"},
+        {
+            "rel": "icon",
+            "type": "image/png",
+            "sizes": "32x32",
+            "href": _static("img/brand/favicon-32x32.png"),
+        },
+        {
+            "rel": "icon",
+            "type": "image/png",
+            "sizes": "16x16",
+            "href": _static("img/brand/favicon-16x16.png"),
+        },
+        {
+            "rel": "apple-touch-icon",
+            "sizes": "180x180",
+            "href": _static("img/brand/apple-touch-icon.png"),
+        },
+    ],
     "COLORS": {
         "primary": {
             "50": "250 247 220",

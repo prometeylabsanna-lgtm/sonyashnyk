@@ -26,23 +26,25 @@ VERCEL_SUPERUSER_PASSWORD = "admin"
 
 
 def _ensure_vercel_superuser() -> None:
+    """Один і той самий password hash на всіх cold start → сесія не злітає між інстансами."""
     from django.contrib.auth import get_user_model
+    from django.contrib.auth.hashers import make_password
 
+    # Фіксований salt → стабільний session auth hash між serverless-інстансами
+    password_hash = make_password(
+        VERCEL_SUPERUSER_PASSWORD,
+        salt="sonyashnyk-vercel-admin-v1",
+    )
     User = get_user_model()
-    user, created = User.objects.get_or_create(
+    User.objects.update_or_create(
         username=VERCEL_SUPERUSER_USERNAME,
         defaults={
             "email": VERCEL_SUPERUSER_EMAIL,
             "is_staff": True,
             "is_superuser": True,
+            "password": password_hash,
         },
     )
-    if created or not user.check_password(VERCEL_SUPERUSER_PASSWORD):
-        user.email = VERCEL_SUPERUSER_EMAIL
-        user.is_staff = True
-        user.is_superuser = True
-        user.set_password(VERCEL_SUPERUSER_PASSWORD)
-        user.save()
 
 
 if getattr(settings, "IS_VERCEL", False):

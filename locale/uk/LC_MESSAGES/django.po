@@ -1,0 +1,270 @@
+# Ukrainian translations for Sonyashnyk admin (Unfold fallbacks)
+msgid ""
+msgstr ""
+"Project-Id-Version: sonyashnyk\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+
+msgid "Action"
+msgstr "Дія"
+
+msgid "Add"
+msgstr "Додати"
+
+msgid "Add row"
+msgstr "Додати рядок"
+
+msgid "After you"
+msgstr "Після вас"
+
+msgid "All applications"
+msgstr "Усі додатки"
+
+msgid "Apply Filters"
+msgstr "Застосувати фільтри"
+
+msgid "Available shortcuts"
+msgstr "Доступні скорочення"
+
+msgid "Cancel"
+msgstr "Скасувати"
+
+msgid "Change"
+msgstr "Змінити"
+
+msgid "Change password"
+msgstr "Змінити пароль"
+
+msgid "Changelist shortcuts"
+msgstr "Скорочення списку"
+
+msgid "Choose file to upload"
+msgstr "Оберіть файл для завантаження"
+
+msgid "Clear"
+msgstr "Очистити"
+
+msgid "Clear all filters"
+msgstr "Очистити всі фільтри"
+
+msgid "Click to cancel"
+msgstr "Натисніть, щоб скасувати"
+
+msgid "Click to download"
+msgstr "Натисніть, щоб завантажити"
+
+msgid "Close"
+msgstr "Закрити"
+
+msgid "Command tool shortcuts"
+msgstr "Скорочення командного пошуку"
+
+msgid "Create new record"
+msgstr "Створити новий запис"
+
+msgid "Dark"
+msgstr "Темна"
+
+msgid "Date"
+msgstr "Дата"
+
+msgid "Date/time"
+msgstr "Дата/час"
+
+msgid "Delete"
+msgstr "Видалити"
+
+msgid "False"
+msgstr "Ні"
+
+msgid "Filters"
+msgstr "Фільтри"
+
+msgid "General"
+msgstr "Загальне"
+
+msgid "Global shortcuts"
+msgstr "Глобальні скорочення"
+
+msgid "Go back"
+msgstr "Назад"
+
+msgid "Hide counts"
+msgstr "Сховати лічильники"
+
+msgid "History"
+msgstr "Історія"
+
+msgid "Home"
+msgstr "Головна"
+
+msgid "Image preview"
+msgstr "Попередній перегляд зображення"
+
+msgid "Light"
+msgstr "Світла"
+
+msgid "Log in again"
+msgstr "Увійти знову"
+
+msgid "Log out"
+msgstr "Вийти"
+
+msgid "Navigate"
+msgstr "Навігація"
+
+msgid "Next"
+msgstr "Далі"
+
+msgid "No data"
+msgstr "Немає даних"
+
+msgid "No results found"
+msgstr "Нічого не знайдено"
+
+msgid "No, take me back"
+msgstr "Ні, повернутися"
+
+msgid "Nothing matched your search"
+msgstr "За вашим запитом нічого не знайдено"
+
+msgid "Open command tool"
+msgstr "Відкрити командний пошук"
+
+msgid "Open selection"
+msgstr "Відкрити вибране"
+
+msgid "Open selection in new tab"
+msgstr "Відкрити вибране в новій вкладці"
+
+msgid "Open shortcuts list"
+msgstr "Відкрити список скорочень"
+
+msgid "Previous"
+msgstr "Назад"
+
+msgid "Recent actions"
+msgstr "Останні дії"
+
+msgid "Recent searches"
+msgstr "Останні пошуки"
+
+msgid "Record picture"
+msgstr "Зображення запису"
+
+msgid "Reset filters"
+msgstr "Скинути фільтри"
+
+msgid "Return to site"
+msgstr "Повернутися на сайт"
+
+msgid "Run"
+msgstr "Виконати"
+
+msgid "Run the selected action"
+msgstr "Виконати вибрану дію"
+
+msgid "Save"
+msgstr "Зберегти"
+
+msgid "Save and add another"
+msgstr "Зберегти і додати ще"
+
+msgid "Save and continue editing"
+msgstr "Зберегти і продовжити редагування"
+
+msgid "Save and view"
+msgstr "Зберегти і переглянути"
+
+msgid "Save as new"
+msgstr "Зберегти як новий"
+
+msgid "Search apps and models..."
+msgstr "Пошук додатків і моделей…"
+
+msgid "Select"
+msgstr "Вибрати"
+
+msgid "Select action"
+msgstr "Виберіть дію"
+
+msgid "Select action to run"
+msgstr "Виберіть дію для виконання"
+
+msgid "Select currency"
+msgstr "Виберіть валюту"
+
+msgid "Select record"
+msgstr "Виберіть запис"
+
+msgid "Show counts"
+msgstr "Показати лічильники"
+
+msgid "Submit"
+msgstr "Надіслати"
+
+msgid "System"
+msgstr "Системна"
+
+msgid "Thanks for spending some quality time with the web site today."
+msgstr "Дякуємо, що провели час із сайтом сьогодні."
+
+msgid "This item will be deleted."
+msgstr "Цей елемент буде видалено."
+
+msgid "This object doesn’t have a change history. It probably wasn’t added via this admin site."
+msgstr "У цього об’єкта немає історії змін. Ймовірно, його не додавали через цю адмінку."
+
+msgid "This page yielded into no results. Create a new item or reset your filters."
+msgstr "На цій сторінці немає результатів. Створіть новий запис або скиньте фільтри."
+
+msgid "Time"
+msgstr "Час"
+
+msgid "Toggle dark/light mode"
+msgstr "Перемкнути темну/світлу тему"
+
+msgid "Toggle filter"
+msgstr "Перемкнути фільтр"
+
+msgid "Toggle password visibility"
+msgstr "Показати/сховати пароль"
+
+msgid "Toggle sidebar"
+msgstr "Перемкнути бічну панель"
+
+msgid "True"
+msgstr "Так"
+
+msgid "Type to search"
+msgstr "Введіть для пошуку"
+
+msgid "Unknown"
+msgstr "Невідомо"
+
+msgid "Unknown content"
+msgstr "Невідомий вміст"
+
+msgid "User"
+msgstr "Користувач"
+
+msgid "View"
+msgstr "Перегляд"
+
+msgid "View on site"
+msgstr "Переглянути на сайті"
+
+msgid "View site"
+msgstr "Переглянути сайт"
+
+msgid "Yes, I’m sure"
+msgstr "Так, я впевнений"
+
+msgid "You don’t have permission to view or edit anything."
+msgstr "У вас немає дозволу переглядати чи редагувати щось."
+
+msgid "You have been successfully logged out from the administration"
+msgstr "Ви успішно вийшли з адмінпанелі"

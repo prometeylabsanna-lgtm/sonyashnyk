@@ -1,6 +1,11 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
+from apps.core.admin_filters import (
+    CleanChoicesDropdownFilter,
+    TopDropdownFiltersMixin,
+    horizontal_options_for,
+)
 from apps.core.admin_site_content_proxies import register_site_content_section_admins
 from apps.core.admin_utils import ReadableUnfoldFieldsMixin, SingletonModelAdminMixin
 from apps.core.models import HighlightPoint, Review, SiteSettings
@@ -37,9 +42,12 @@ class SiteSettingsAdmin(ReadableUnfoldFieldsMixin, SingletonModelAdminMixin, Mod
 
 
 @admin.register(HighlightPoint)
-class HighlightPointAdmin(ModelAdmin):
+class HighlightPointAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_display = ("title", "section", "icon", "order", "is_active")
-    list_filter = ("section",)
+    list_filter = (
+        ("section", CleanChoicesDropdownFilter),
+    )
+    list_filter_options = horizontal_options_for(list_filter)
     list_editable = ("order", "is_active")
 
 

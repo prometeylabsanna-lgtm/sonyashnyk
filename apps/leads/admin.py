@@ -1,11 +1,18 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
 from django.utils.html import format_html
+from unfold.admin import ModelAdmin
+
+from apps.core.admin_filters import (
+    CleanChoicesDropdownFilter,
+    CleanDropdownFilter,
+    TopDropdownFiltersMixin,
+    horizontal_options_for,
+)
 
 from .models import Lead
 
 
-class NewLeadsFilter(admin.SimpleListFilter):
+class NewLeadsFilter(CleanDropdownFilter):
     title = "Нові"
     parameter_name = "only_new"
 
@@ -19,9 +26,14 @@ class NewLeadsFilter(admin.SimpleListFilter):
 
 
 @admin.register(Lead)
-class LeadAdmin(ModelAdmin):
+class LeadAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_display = ("created_at", "lead_type", "name", "phone", "status_badge", "product")
-    list_filter = (NewLeadsFilter, "lead_type", "status")
+    list_filter = (
+        NewLeadsFilter,
+        ("lead_type", CleanChoicesDropdownFilter),
+        ("status", CleanChoicesDropdownFilter),
+    )
+    list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("name", "phone", "email")
     fields = (
         "status", "lead_type", "name", "phone", "email", "message",
