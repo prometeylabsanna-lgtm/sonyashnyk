@@ -52,7 +52,10 @@
 
     <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ product.name }}</a>
     {% if product.pack_volume %}
-      <div class="product-card__volume">Обʼєм: {{ product.pack_volume }}</div>
+      <div class="product-card__volume">Фасування: {{ product.pack_volume }}</div>
+    {% endif %}
+    {% if product.power %}
+      <div class="product-card__volume">Потужність: {{ product.power }}</div>
     {% endif %}
 
     <div class="product-card__meta">

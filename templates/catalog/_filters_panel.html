@@ -71,6 +71,18 @@
     </div>
     {% endif %}
 
+    {% if show_power_filter and available_powers %}
+    <div class="filter-group">
+      <div class="filter-group__title">{% block_plain 'catalog' 'filters_power' %}</div>
+      {% for power in available_powers %}
+        <label class="filter-check">
+          <input type="checkbox" name="power" value="{{ power }}" {% if power in selected_powers %}checked{% endif %}>
+          {{ power }}
+        </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="filters__foot">
       <a href="?" class="btn btn--outline btn--block">{% block_plain 'catalog' 'filters_reset' %}</a>
       <button type="submit" class="btn btn--primary btn--block">{% block_plain 'catalog' 'filters_apply' %}</button>

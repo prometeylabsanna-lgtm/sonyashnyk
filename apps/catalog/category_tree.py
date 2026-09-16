@@ -160,8 +160,9 @@ SKIP_ICON_SLUGS = {
     "gazonni-travi",
 }
 
-# Фільтр «Обʼєм / фасування» (§3.3 sitemap): корені + окреме «Вагове насіння»
+# Фільтр «Обʼєм / вага / фасування» (§3.3): мл/л/г/кг
 VOLUME_FILTER_ROOT_SLUGS = frozenset({
+    "nasinnia",
     "dobriva-ta-stimuliatori-rostu",
     "zasobi-zakhistu-roslin",
     "grunti-ta-vse-dlia-posadki",
@@ -170,12 +171,27 @@ VOLUME_FILTER_EXTRA_SLUGS = frozenset({
     "vagove-nasinnia",
 })
 
+# Фільтр «Потужність»: інструмент, полив / оприскувачі
+POWER_FILTER_ROOT_SLUGS = frozenset({
+    "sadovii-instrument",
+    "poliv-ta-opriskuvachi",
+})
 
-def category_allows_volume_filter(category):
-    """Чи показувати фільтр обʼєму для поточної категорії (або її предків)."""
+
+def _category_matches_slugs(category, root_slugs, extra_slugs=frozenset()):
     if category is None:
         return False
     for node in category.breadcrumb_chain():
-        if node.slug in VOLUME_FILTER_ROOT_SLUGS or node.slug in VOLUME_FILTER_EXTRA_SLUGS:
+        if node.slug in root_slugs or node.slug in extra_slugs:
             return True
     return False
+
+
+def category_allows_volume_filter(category):
+    """Чи показувати фільтр обʼєму/ваги для поточної категорії (або її предків)."""
+    return _category_matches_slugs(category, VOLUME_FILTER_ROOT_SLUGS, VOLUME_FILTER_EXTRA_SLUGS)
+
+
+def category_allows_power_filter(category):
+    """Чи показувати фільтр потужності для поточної категорії (або її предків)."""
+    return _category_matches_slugs(category, POWER_FILTER_ROOT_SLUGS)

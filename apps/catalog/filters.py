@@ -1,6 +1,6 @@
 """Допоміжні функції фільтрації та сортування каталогу (§3.3 карти сайту)."""
 
-from .category_tree import category_allows_volume_filter
+from .category_tree import category_allows_power_filter, category_allows_volume_filter
 
 SORT_OPTIONS = {
     "popularity": "-is_hit",
@@ -38,6 +38,10 @@ def filter_products(request, products):
     if volumes:
         products = products.filter(pack_volume__in=volumes)
 
+    powers = get.getlist("power")
+    if powers:
+        products = products.filter(power__in=powers)
+
     return products
 
 
@@ -48,7 +52,7 @@ def apply_sorting(request, products):
 
 
 def build_filter_context(request, products, category=None):
-    """Формує список доступних брендів/країн/обʼємів для чекбоксів фільтра."""
+    """Формує список доступних брендів/країн/обʼємів/потужностей для чекбоксів."""
     brands = (
         products.exclude(brand="").order_by("brand").values_list("brand", flat=True).distinct()
     )
@@ -69,21 +73,34 @@ def build_filter_context(request, products, category=None):
             .distinct()
         )
 
+    show_power_filter = category_allows_power_filter(category)
+    powers = []
+    if show_power_filter:
+        powers = list(
+            products.exclude(power="")
+            .order_by("power")
+            .values_list("power", flat=True)
+            .distinct()
+        )
+
     active_filters = 0
     get = request.GET
     for key in ("price_min", "price_max", "in_stock", "own_production"):
         if get.get(key):
             active_filters += 1
     active_filters += len(get.getlist("brand")) + len(get.getlist("country"))
-    active_filters += len(get.getlist("volume"))
+    active_filters += len(get.getlist("volume")) + len(get.getlist("power"))
 
     return {
         "available_brands": list(brands),
         "available_countries": list(countries),
         "available_volumes": volumes,
+        "available_powers": powers,
         "selected_brands": get.getlist("brand"),
         "selected_countries": get.getlist("country"),
         "selected_volumes": get.getlist("volume"),
+        "selected_powers": get.getlist("power"),
         "show_volume_filter": show_volume_filter,
+        "show_power_filter": show_power_filter,
         "active_filters_count": active_filters,
     }

@@ -99,15 +99,27 @@ class Product(models.Model):
     )
     short_description = models.CharField("Короткий опис", max_length=255, blank=True)
     description = models.TextField("Опис", blank=True)
-    characteristics = models.JSONField("Характеристики", default=dict, blank=True)
+    characteristics = models.JSONField(
+        "Характеристики",
+        default=dict,
+        blank=True,
+        help_text="У адмінці — рядки «назва → значення» (без JSON).",
+    )
 
     brand = models.CharField("Бренд / виробник", max_length=120, blank=True)
     country_of_origin = models.CharField("Країна виробник", max_length=120, blank=True)
     pack_volume = models.CharField(
-        "Обʼєм / фасування",
+        "Обʼєм / вага / фасування",
         max_length=80,
         blank=True,
-        help_text="Наприклад: 6 мл, 100 мл, 1 л, 500 г. Окремі фасування — окремі товари.",
+        help_text="Обʼєм або вага: 6 мл, 100 мл, 1 л, 10 г, 500 г, 5 кг. "
+                  "Окремі фасування краще робити варіантами товару.",
+    )
+    power = models.CharField(
+        "Потужність",
+        max_length=80,
+        blank=True,
+        help_text="Наприклад: 600 Вт, 800 Вт, 1.2 кВт. Для інструменту та оприскувачів.",
     )
 
     base_price = models.DecimalField("Базова ціна", max_digits=10, decimal_places=2)
@@ -160,10 +172,14 @@ class Product(models.Model):
 
 
 class ProductVariant(models.Model):
-    """Варіант фасування / об'єму товару зі своєю ціною й залишком."""
+    """Варіант фасування (обʼєм або вага) зі своєю ціною й залишком."""
 
     product = models.ForeignKey(Product, verbose_name="Товар", on_delete=models.CASCADE, related_name="variants")
-    label = models.CharField("Назва варіанту (напр. «500 мл»)", max_length=80)
+    label = models.CharField(
+        "Назва варіанту",
+        max_length=80,
+        help_text="Фасування: «100 мл», «1 л», «10 г», «500 г» — не розміри одягу.",
+    )
     sku_variant = models.CharField("Код варіанту", max_length=64, blank=True)
     price = models.DecimalField("Ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField("Стара ціна", max_digits=10, decimal_places=2, blank=True, null=True)

@@ -12,6 +12,7 @@ from apps.core.admin_filters import (
 )
 from apps.core.admin_utils import ImagePreviewMixin
 
+from .forms import ProductAdminForm
 from .models import Category, Product, ProductImage, ProductVariant
 
 
@@ -61,14 +62,16 @@ class ProductImageInline(TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
+    form = ProductAdminForm
     list_display = (
-        "name", "sku", "category", "pack_volume", "base_price", "is_own_production",
-        "is_hit", "is_new", "is_sale", "is_active",
+        "name", "sku", "category", "pack_volume", "power", "base_price",
+        "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
     )
     list_filter = (
         ("category", CleanRelatedDropdownFilter),
         ("brand", CleanAllValuesDropdownFilter),
         ("country_of_origin", CleanAllValuesDropdownFilter),
+        ("power", CleanAllValuesDropdownFilter),
         ProductAvailabilityFilter,
         ("is_own_production", CleanBooleanDropdownFilter),
         ("is_hit", CleanBooleanDropdownFilter),
@@ -77,12 +80,12 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         ("is_active", CleanBooleanDropdownFilter),
     )
     list_filter_options = horizontal_options_for(list_filter)
-    search_fields = ("name", "sku", "pack_volume", "brand", "country_of_origin")
+    search_fields = ("name", "sku", "pack_volume", "power", "brand", "country_of_origin")
     inlines = [ProductVariantInline, ProductImageInline]
     fields = (
         "category", "sku", "name", "slug",
         "short_description", "description", "characteristics",
-        "brand", "country_of_origin", "pack_volume",
+        "brand", "country_of_origin", "pack_volume", "power",
         "base_price", "old_price",
         "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
     )

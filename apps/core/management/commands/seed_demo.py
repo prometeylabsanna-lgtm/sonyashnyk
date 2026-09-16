@@ -16,13 +16,19 @@ from apps.orders.models import PromoCode
 # Повне дерево — apps.catalog.category_tree; seed лишає сумісний плоский режим.
 # Для повного sync: python3 manage.py sync_categories
 from apps.catalog.category_tree import CATEGORY_TREE as FULL_CATEGORY_TREE
-from apps.catalog.category_tree import category_allows_volume_filter
+from apps.catalog.category_tree import (
+    category_allows_power_filter,
+    category_allows_volume_filter,
+)
 
 CATEGORY_TREE = FULL_CATEGORY_TREE
 
 BRANDS = ["АгроХім", "БіоСад", "Соняшник", "ЗеленСвіт"]
 COUNTRIES = ["Україна", "Польща", "Нідерланди"]
 VOLUME_SAMPLES = ["6 мл", "100 мл", "1 л", "500 г", "5 кг", "10 л"]
+WEIGHT_VARIANT_LABELS = ["10 г", "50 г", "100 г"]
+VOLUME_VARIANT_LABELS = ["100 мл", "500 мл", "1 л"]
+POWER_SAMPLES = ["600 Вт", "800 Вт", "1.2 кВт", "1500 Вт"]
 
 # Назви без «товар N» — по 3 на підкатегорію
 PRODUCT_NAMES = {
@@ -200,6 +206,54 @@ class Command(BaseCommand):
         call_command("sync_categories")
         self.stdout.write("Категорії синхронізовано через sync_categories.")
 
+    def _pack_volume_for(self, category, counter):
+        if not category_allows_volume_filter(category):
+            return ""
+        return VOLUME_SAMPLES[counter % len(VOLUME_SAMPLES)]
+
+    def _power_for(self, category, counter):
+        if not category_allows_power_filter(category):
+            return ""
+        return POWER_SAMPLES[counter % len(POWER_SAMPLES)]
+
+    def _variant_labels_for(self, pack_volume):
+        if not pack_volume:
+            return ["1 шт"]
+        lower = pack_volume.lower()
+        if any(u in lower for u in ("г", "кг")):
+            return list(WEIGHT_VARIANT_LABELS)
+        if any(u in lower for u in ("мл", "л")):
+            return list(VOLUME_VARIANT_LABELS)
+        return [pack_volume]
+
+    def _sync_variants(self, product, pack_volume):
+        labels = self._variant_labels_for(pack_volume)
+        existing = list(product.variants.order_by("order", "id"))
+        # Замінюємо демо S/M/L і вирівнюємо підписи під фасування
+        stale = {"S", "M", "L"}
+        if existing and all(v.label in stale for v in existing):
+            product.variants.all().delete()
+            existing = []
+        if not existing:
+            for v_order, label in enumerate(labels):
+                ProductVariant.objects.create(
+                    product=product,
+                    label=label,
+                    price=product.base_price + Decimal(v_order * 15),
+                    old_price=(
+                        (product.old_price + Decimal(v_order * 15)) if product.old_price else None
+                    ),
+                    stock_qty=10,
+                    is_default=(v_order == 0),
+                    order=v_order,
+                )
+            return
+        for v_order, (variant, label) in enumerate(zip(existing, labels)):
+            variant.label = label
+            variant.order = v_order
+            variant.is_default = v_order == 0
+            variant.save(update_fields=["label", "order", "is_default"])
+
     def seed_products(self):
         leaf_categories = list(Category.objects.filter(parent__isnull=False))
         if not leaf_categories:
@@ -244,18 +298,15 @@ class Command(BaseCommand):
                     product.name = name
                     product.short_description = short
                     product.description = full
-                    product.pack_volume = (
-                        VOLUME_SAMPLES[counter % len(VOLUME_SAMPLES)]
-                        if category_allows_volume_filter(product.category)
-                        else ""
-                    )
-                    product.save(update_fields=["name", "short_description", "description", "pack_volume"])
+                    product.pack_volume = self._pack_volume_for(product.category, counter)
+                    product.power = self._power_for(product.category, counter)
+                    product.save(update_fields=[
+                        "name", "short_description", "description", "pack_volume", "power",
+                    ])
+                    self._sync_variants(product, product.pack_volume)
                     continue
-                pack_volume = (
-                    VOLUME_SAMPLES[counter % len(VOLUME_SAMPLES)]
-                    if category_allows_volume_filter(category)
-                    else ""
-                )
+                pack_volume = self._pack_volume_for(category, counter)
+                power = self._power_for(category, counter)
                 product = Product.objects.create(
                     category=category,
                     sku=sku,
@@ -265,6 +316,7 @@ class Command(BaseCommand):
                     brand=BRANDS[counter % len(BRANDS)],
                     country_of_origin=COUNTRIES[counter % len(COUNTRIES)],
                     pack_volume=pack_volume,
+                    power=power,
                     base_price=Decimal(str(50 + counter * 3 % 400)),
                     is_own_production=(counter % 4 == 0),
                     is_hit=(counter % 5 == 0),
@@ -275,16 +327,7 @@ class Command(BaseCommand):
                     product.old_price = product.base_price + Decimal("40")
                     product.save(update_fields=["old_price"])
 
-                for v_order, label in enumerate(["S", "M", "L"]):
-                    ProductVariant.objects.create(
-                        product=product,
-                        label=label,
-                        price=product.base_price + Decimal(v_order * 15),
-                        old_price=(product.old_price + Decimal(v_order * 15)) if product.old_price else None,
-                        stock_qty=0 if (counter % 11 == 0 and v_order == 0) else 10,
-                        is_default=(v_order == 0),
-                        order=v_order,
-                    )
+                self._sync_variants(product, pack_volume)
         self.stdout.write(f"Товарів у базі: {Product.objects.count()}.")
 
     def seed_product_images(self):
