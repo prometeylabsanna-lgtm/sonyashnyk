@@ -21,19 +21,137 @@
       agree_required: "Потрібна згода на обробку даних",
       city_required: "Вкажіть місто доставки",
       warehouse_required: "Вкажіть відділення або адресу",
+
+      toast_lead_ok: "Дякуємо! Ваше повідомлення надіслано.",
+      toast_lead_fail: "Перевірте поля форми і спробуйте ще раз.",
+      toast_network: "Сталася помилка мережі.",
+      toast_phone_check: "Перевірте, будь ласка, номер телефону.",
+      toast_generic_error: "Сталася помилка. Спробуйте ще раз.",
+      toast_cart_added: "Додано в кошик",
+      toast_cart_fail: "Не вдалося додати товар.",
+
+      ph_name: "Ваше ім'я",
+      ph_full_name: "Прізвище, ім'я",
+      ph_phone: "+380",
+      ph_email: "email@example.com",
+      ph_city: "Почніть вводити місто",
+      ph_warehouse: "Відділення / поштомат / адреса",
+      ph_warehouse_courier: "Вулиця, будинок, квартира",
+      ph_warehouse_pick: "Почніть вводити або оберіть зі списку",
+      ph_warehouse_manual: "Введіть вручну",
+      ph_comment: "Коментар до замовлення (необов'язково)",
+      ph_promo: "Промокод (якщо є)",
+      ph_promo_cart: "Промокод",
+      ph_message: "Повідомлення",
+      ph_question: "Ваше запитання",
+      ph_email_short: "Ваш email",
+
+      label_full_name: "ПІБ отримувача",
+      label_phone: "Телефон",
+      label_name: "Ім'я",
+      label_email: "Email (необов'язково)",
+      label_city: "Місто",
+      label_warehouse: "Відділення / адреса",
+      label_comment: "Коментар до замовлення",
+      label_promo: "Промокод",
+      label_agree: "Погоджуюсь на обробку персональних даних",
+
+      delivery_city: "Місто",
+      delivery_np_branch: "Відділення Нової Пошти",
+      delivery_np_locker: "Поштомат Нової Пошти",
+      delivery_np_courier: "Адреса доставки",
+      delivery_ukrposhta: "№ відділення Укрпошти",
+      delivery_choice_np_branch: "Нова Пошта — відділення",
+      delivery_choice_np_locker: "Нова Пошта — поштомат",
+      delivery_choice_np_courier: "Нова Пошта — курʼєр",
+      delivery_choice_ukrposhta: "Укрпошта",
+      delivery_choice_pickup: "Самовивіз",
+      payment_choice_liqpay: "Оплата карткою (LiqPay)",
+      payment_choice_cod: "Оплата при отриманні (накладений платіж)",
+      payment_choice_cash: "Оплата при самовивозі",
+
+      checkout_contacts: "Контакти",
+      checkout_delivery: "Доставка",
+      checkout_payment: "Оплата",
+      checkout_extra: "Коментар і промокод",
+      checkout_submit: "Підтвердити замовлення",
+      checkout_np_hint: "API НП ще не підключено — введіть місто вручну.",
+      checkout_summary_items: "Товари",
+      checkout_summary_discount: "Знижка",
+      checkout_summary_total: "Разом",
+      checkout_summary_toggle: "Склад замовлення",
     },
     ru: {
       required: "Это поле обязательно",
-      name_digits: "В имени не может быть цифр",
+      name_digits: "Имя не должно содержать цифры",
       name_invalid: "Только буквы, пробелы, дефис или апостроф",
       phone_required: "Укажите номер телефона",
       phone_short: "Слишком короткий номер телефона",
-      phone_long: "Не больше 13 цифр в номере",
+      phone_long: "В номере не должно быть больше 13 цифр",
       email_required: "Укажите email",
       email_invalid: "Введите корректный email с символом @",
-      agree_required: "Нужно согласие на обработку данных",
+      agree_required: "Необходимо согласие на обработку данных",
       city_required: "Укажите город доставки",
       warehouse_required: "Укажите отделение или адрес",
+
+      toast_lead_ok: "Спасибо! Ваше сообщение отправлено.",
+      toast_lead_fail: "Проверьте поля формы и попробуйте ещё раз.",
+      toast_network: "Произошла ошибка сети.",
+      toast_phone_check: "Проверьте, пожалуйста, номер телефона.",
+      toast_generic_error: "Произошла ошибка. Попробуйте ещё раз.",
+      toast_cart_added: "Добавлено в корзину",
+      toast_cart_fail: "Не удалось добавить товар.",
+
+      ph_name: "Ваше имя",
+      ph_full_name: "Фамилия, имя",
+      ph_phone: "+380",
+      ph_email: "email@example.com",
+      ph_city: "Начните вводить город",
+      ph_warehouse: "Отделение / почтомат / адрес",
+      ph_warehouse_courier: "Улица, дом, квартира",
+      ph_warehouse_pick: "Начните вводить или выберите из списка",
+      ph_warehouse_manual: "Введите вручную",
+      ph_comment: "Комментарий к заказу (необязательно)",
+      ph_promo: "Промокод (если есть)",
+      ph_promo_cart: "Промокод",
+      ph_message: "Сообщение",
+      ph_question: "Ваш вопрос",
+      ph_email_short: "Ваш email",
+
+      label_full_name: "ФИО получателя",
+      label_phone: "Телефон",
+      label_name: "Имя",
+      label_email: "Email (необязательно)",
+      label_city: "Город",
+      label_warehouse: "Отделение / адрес",
+      label_comment: "Комментарий к заказу",
+      label_promo: "Промокод",
+      label_agree: "Соглашаюсь на обработку персональных данных",
+
+      delivery_city: "Город",
+      delivery_np_branch: "Отделение Новой Почты",
+      delivery_np_locker: "Почтомат Новой Почты",
+      delivery_np_courier: "Адрес доставки",
+      delivery_ukrposhta: "№ отделения Укрпочты",
+      delivery_choice_np_branch: "Новая Почта — отделение",
+      delivery_choice_np_locker: "Новая Почта — почтомат",
+      delivery_choice_np_courier: "Новая Почта — курьер",
+      delivery_choice_ukrposhta: "Укрпочта",
+      delivery_choice_pickup: "Самовывоз",
+      payment_choice_liqpay: "Оплата картой (LiqPay)",
+      payment_choice_cod: "Оплата при получении (наложенный платёж)",
+      payment_choice_cash: "Оплата при самовывозе",
+
+      checkout_contacts: "Контакты",
+      checkout_delivery: "Доставка",
+      checkout_payment: "Оплата",
+      checkout_extra: "Комментарий и промокод",
+      checkout_submit: "Подтвердить заказ",
+      checkout_np_hint: "API НП ещё не подключено — введите город вручную.",
+      checkout_summary_items: "Товары",
+      checkout_summary_discount: "Скидка",
+      checkout_summary_total: "Итого",
+      checkout_summary_toggle: "Состав заказа",
     },
   };
 
@@ -233,8 +351,35 @@
     }, true);
   }
 
+  function applyStaticI18n(root) {
+    root = root || document;
+    root.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n");
+      if (!key) return;
+      var text = t(key);
+      if (text) el.textContent = text;
+    });
+    root.querySelectorAll("[data-i18n-ph]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n-ph");
+      if (!key) return;
+      var text = t(key);
+      if (text) el.setAttribute("placeholder", text);
+    });
+    root.querySelectorAll("[data-i18n-label]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n-label");
+      if (!key) return;
+      var text = t(key);
+      if (text) el.textContent = text;
+    });
+  }
+
   document.addEventListener("sonyashnyk:langchange", function () {
     refreshVisibleErrors(document);
+    applyStaticI18n(document);
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    applyStaticI18n(document);
   });
 
   window.SonyashnykFormValidation = {
@@ -248,6 +393,7 @@
     validateForm: validateForm,
     bindSubmitValidation: bindSubmitValidation,
     refreshVisibleErrors: refreshVisibleErrors,
+    applyStaticI18n: applyStaticI18n,
     LANG_KEY: LANG_KEY,
     normalizeLang: normalizeLang,
   };

@@ -1,5 +1,5 @@
 /* ============================================================
-   ОФОРМЛЕННЯ ЗАМОВЛЕННЯ — доставка, НП-пошук, підсумок
+   ОФОРМЛЕННЯ ЗАМОВЛЕННЯ — доставка, НП-пошук, підсумок, uk/ru
    ============================================================ */
 (function () {
   "use strict";
@@ -30,12 +30,34 @@
       };
     };
 
-    var LABELS = {
-      np_branch: { city: "Місто", warehouse: "Відділення Нової Пошти", showWh: true, kind: "branch" },
-      np_locker: { city: "Місто", warehouse: "Поштомат Нової Пошти", showWh: true, kind: "locker" },
-      np_courier: { city: "Місто", warehouse: "Адреса доставки", showWh: true, kind: "courier" },
-      ukrposhta: { city: "Місто", warehouse: "№ відділення Укрпошти", showWh: true, kind: "manual" },
-      pickup: { city: "", warehouse: "", showWh: false, kind: "none" },
+    function tr(key) {
+      return window.SonyashnykFormValidation ? SonyashnykFormValidation.t(key) : key;
+    }
+
+    function deliveryMeta(value) {
+      var map = {
+        np_branch: { cityKey: "delivery_city", warehouseKey: "delivery_np_branch", showWh: true, kind: "branch" },
+        np_locker: { cityKey: "delivery_city", warehouseKey: "delivery_np_locker", showWh: true, kind: "locker" },
+        np_courier: { cityKey: "delivery_city", warehouseKey: "delivery_np_courier", showWh: true, kind: "courier" },
+        ukrposhta: { cityKey: "delivery_city", warehouseKey: "delivery_ukrposhta", showWh: true, kind: "manual" },
+        pickup: { cityKey: "", warehouseKey: "", showWh: false, kind: "none" },
+      };
+      return map[value] || map.np_branch;
+    }
+
+    var CHOICE_I18N = {
+      delivery_method: {
+        np_branch: "delivery_choice_np_branch",
+        np_locker: "delivery_choice_np_locker",
+        np_courier: "delivery_choice_np_courier",
+        ukrposhta: "delivery_choice_ukrposhta",
+        pickup: "delivery_choice_pickup",
+      },
+      payment_method: {
+        liqpay: "payment_choice_liqpay",
+        cod: "payment_choice_cod",
+        cash_pickup: "payment_choice_cash",
+      },
     };
 
     function currentDelivery() {
@@ -43,21 +65,75 @@
       return checked ? checked.value : "np_branch";
     }
 
+    function updateChoiceLabels() {
+      Object.keys(CHOICE_I18N).forEach(function (fieldName) {
+        var keys = CHOICE_I18N[fieldName];
+        document.querySelectorAll('input[name="' + fieldName + '"]').forEach(function (input) {
+          var key = keys[input.value];
+          if (!key) return;
+          var label = input.closest("label");
+          var textEl = label && label.querySelector(".radio-card__label");
+          if (textEl) textEl.textContent = tr(key);
+        });
+      });
+    }
+
+    function updateStaticCheckoutFields() {
+      if (!form) return;
+      var map = [
+        ["full_name", "ph_full_name", "label_full_name"],
+        ["phone", "ph_phone", "label_phone"],
+        ["email", "ph_email", "label_email"],
+        ["city", "ph_city", "label_city"],
+        ["comment", "ph_comment", "label_comment"],
+        ["promo_code", "ph_promo", "label_promo"],
+      ];
+      map.forEach(function (row) {
+        var input = form.querySelector('[name="' + row[0] + '"]');
+        if (input && row[1]) input.setAttribute("placeholder", tr(row[1]));
+        if (input && row[2] && input.id) {
+          var lab = form.querySelector('label[for="' + input.id + '"]');
+          if (lab && !lab.hasAttribute("data-delivery-city-label") && !lab.hasAttribute("data-delivery-warehouse-label")) {
+            lab.textContent = tr(row[2]);
+          }
+        }
+      });
+      var agree = form.querySelector('[name="agreed_to_data_processing"]');
+      if (agree && agree.id) {
+        var agreeLab = form.querySelector('label[for="' + agree.id + '"]');
+        if (agreeLab) agreeLab.textContent = tr("label_agree");
+      }
+      updateChoiceLabels();
+    }
+
     function updateDeliveryUI() {
       if (!fieldsBlock) return;
       var value = currentDelivery();
-      var labels = LABELS[value] || LABELS.np_branch;
+      var meta = deliveryMeta(value);
       var showFields = value !== "pickup";
       fieldsBlock.classList.toggle("is-visible", showFields);
-      if (cityLabel) cityLabel.textContent = labels.city;
-      if (warehouseLabel) warehouseLabel.textContent = labels.warehouse;
+      if (cityLabel && meta.cityKey) cityLabel.textContent = tr(meta.cityKey);
+      if (warehouseLabel && meta.warehouseKey) warehouseLabel.textContent = tr(meta.warehouseKey);
       if (warehouseInput) {
-        warehouseInput.placeholder = labels.kind === "courier"
-          ? "Вулиця, будинок, квартира"
-          : (npEnabled ? "Почніть вводити або оберіть зі списку" : "Введіть вручну");
+        if (meta.kind === "courier") {
+          warehouseInput.placeholder = tr("ph_warehouse_courier");
+        } else if (npEnabled) {
+          warehouseInput.placeholder = tr("ph_warehouse_pick");
+        } else {
+          warehouseInput.placeholder = tr("ph_warehouse_manual");
+        }
       }
+      if (cityInput) cityInput.placeholder = tr("ph_city");
       hideList(cityList);
       hideList(warehouseList);
+    }
+
+    function applyCheckoutI18n() {
+      updateStaticCheckoutFields();
+      updateDeliveryUI();
+      if (window.SonyashnykFormValidation) {
+        SonyashnykFormValidation.applyStaticI18n(form || document);
+      }
     }
 
     function hideList(list) {
@@ -114,7 +190,7 @@
     }
 
     function searchWarehouses(query) {
-      var meta = LABELS[currentDelivery()] || LABELS.np_branch;
+      var meta = deliveryMeta(currentDelivery());
       if (!npEnabled || !warehousesUrl || meta.kind === "courier" || meta.kind === "manual") {
         hideList(warehouseList);
         return;
@@ -149,7 +225,9 @@
       });
       if (radio.checked) updateDeliveryUI();
     });
-    updateDeliveryUI();
+    applyCheckoutI18n();
+
+    document.addEventListener("sonyashnyk:langchange", applyCheckoutI18n);
 
     if (cityInput) {
       cityInput.addEventListener("input", debounce(function () {
@@ -197,7 +275,7 @@
           return currentDelivery() !== "pickup";
         }
         if (name === "warehouse") {
-          var meta = LABELS[currentDelivery()] || LABELS.np_branch;
+          var meta = deliveryMeta(currentDelivery());
           return !!meta.showWh;
         }
         return true;
@@ -232,7 +310,7 @@
           else cityField.removeAttribute("data-validate-required");
         }
         if (warehouseField) {
-          var meta = LABELS[currentDelivery()] || LABELS.np_branch;
+          var meta = deliveryMeta(currentDelivery());
           if (meta.showWh) warehouseField.setAttribute("data-validate-required", "");
           else warehouseField.removeAttribute("data-validate-required");
         }

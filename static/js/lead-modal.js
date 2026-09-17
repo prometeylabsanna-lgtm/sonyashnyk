@@ -105,8 +105,8 @@
             window.setTimeout(close, 2200);
           } else {
             SonyashnykUtils.showToast(
-              (window.SonyashnykFormValidation && SonyashnykFormValidation.getLang() === "ru")
-                ? "Проверьте, пожалуйста, номер телефона."
+              window.SonyashnykFormValidation
+                ? SonyashnykFormValidation.t("toast_phone_check")
                 : "Перевірте, будь ласка, номер телефону."
             );
           }
@@ -114,8 +114,8 @@
         .catch(function () {
           submitBtn.disabled = false;
           SonyashnykUtils.showToast(
-            (window.SonyashnykFormValidation && SonyashnykFormValidation.getLang() === "ru")
-              ? "Произошла ошибка. Попробуйте ещё раз."
+            window.SonyashnykFormValidation
+              ? SonyashnykFormValidation.t("toast_generic_error")
               : "Сталася помилка. Спробуйте ще раз."
           );
         });

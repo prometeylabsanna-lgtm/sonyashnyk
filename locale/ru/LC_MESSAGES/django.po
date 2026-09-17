@@ -1,0 +1,482 @@
+# Russian translations for Sonyashnyk (admin Unfold + storefront UI)
+msgid ""
+msgstr ""
+"Project-Id-Version: sonyashnyk\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+
+# --- Admin / Unfold ---
+
+msgid "Action"
+msgstr "Действие"
+
+msgid "Add"
+msgstr "Добавить"
+
+msgid "Add row"
+msgstr "Добавить строку"
+
+msgid "After you"
+msgstr "После вас"
+
+msgid "All applications"
+msgstr "Все приложения"
+
+msgid "Apply Filters"
+msgstr "Применить фильтры"
+
+msgid "Available shortcuts"
+msgstr "Доступные сокращения"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Change"
+msgstr "Изменить"
+
+msgid "Change password"
+msgstr "Сменить пароль"
+
+msgid "Changelist shortcuts"
+msgstr "Сокращения списка"
+
+msgid "Choose file to upload"
+msgstr "Выберите файл для загрузки"
+
+msgid "Clear"
+msgstr "Очистить"
+
+msgid "Clear all filters"
+msgstr "Очистить все фильтры"
+
+msgid "Click to cancel"
+msgstr "Нажмите, чтобы отменить"
+
+msgid "Click to download"
+msgstr "Нажмите, чтобы скачать"
+
+msgid "Close"
+msgstr "Закрыть"
+
+msgid "Command tool shortcuts"
+msgstr "Сокращения командного поиска"
+
+msgid "Create new record"
+msgstr "Создать новую запись"
+
+msgid "Dark"
+msgstr "Тёмная"
+
+msgid "Date"
+msgstr "Дата"
+
+msgid "Date/time"
+msgstr "Дата/время"
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "False"
+msgstr "Нет"
+
+msgid "Filters"
+msgstr "Фильтры"
+
+msgid "General"
+msgstr "Общее"
+
+msgid "Global shortcuts"
+msgstr "Глобальные сокращения"
+
+msgid "Go back"
+msgstr "Назад"
+
+msgid "Hide counts"
+msgstr "Скрыть счётчики"
+
+msgid "History"
+msgstr "История"
+
+msgid "Home"
+msgstr "Главная"
+
+msgid "Image preview"
+msgstr "Предпросмотр изображения"
+
+msgid "Light"
+msgstr "Светлая"
+
+msgid "Log in again"
+msgstr "Войти снова"
+
+msgid "Log out"
+msgstr "Выйти"
+
+msgid "Navigate"
+msgstr "Навигация"
+
+msgid "Next"
+msgstr "Далее"
+
+msgid "No data"
+msgstr "Нет данных"
+
+msgid "No results found"
+msgstr "Ничего не найдено"
+
+msgid "No, take me back"
+msgstr "Нет, вернуться"
+
+msgid "Nothing matched your search"
+msgstr "По вашему запросу ничего не найдено"
+
+msgid "Open command tool"
+msgstr "Открыть командный поиск"
+
+msgid "Open selection"
+msgstr "Открыть выбранное"
+
+msgid "Open selection in new tab"
+msgstr "Открыть выбранное в новой вкладке"
+
+msgid "Open shortcuts list"
+msgstr "Открыть список сокращений"
+
+msgid "Previous"
+msgstr "Назад"
+
+msgid "Recent actions"
+msgstr "Последние действия"
+
+msgid "Recent searches"
+msgstr "Последние поиски"
+
+msgid "Record picture"
+msgstr "Изображение записи"
+
+msgid "Reset filters"
+msgstr "Сбросить фильтры"
+
+msgid "Return to site"
+msgstr "Вернуться на сайт"
+
+msgid "Run"
+msgstr "Выполнить"
+
+msgid "Run the selected action"
+msgstr "Выполнить выбранное действие"
+
+msgid "Save"
+msgstr "Сохранить"
+
+msgid "Save and add another"
+msgstr "Сохранить и добавить ещё"
+
+msgid "Save and continue editing"
+msgstr "Сохранить и продолжить редактирование"
+
+msgid "Save and view"
+msgstr "Сохранить и просмотреть"
+
+msgid "Save as new"
+msgstr "Сохранить как новый"
+
+msgid "Search apps and models..."
+msgstr "Поиск приложений и моделей…"
+
+msgid "Select"
+msgstr "Выбрать"
+
+msgid "Select action"
+msgstr "Выберите действие"
+
+msgid "Select action to run"
+msgstr "Выберите действие для выполнения"
+
+msgid "Select currency"
+msgstr "Выберите валюту"
+
+msgid "Select record"
+msgstr "Выберите запись"
+
+msgid "Show counts"
+msgstr "Показать счётчики"
+
+msgid "Submit"
+msgstr "Отправить"
+
+msgid "System"
+msgstr "Системная"
+
+msgid "Thanks for spending some quality time with the web site today."
+msgstr "Спасибо, что провели время с сайтом сегодня."
+
+msgid "This item will be deleted."
+msgstr "Этот элемент будет удалён."
+
+msgid "This object doesn’t have a change history. It probably wasn’t added via this admin site."
+msgstr "У этого объекта нет истории изменений. Вероятно, его не добавляли через эту админку."
+
+msgid "This page yielded into no results. Create a new item or reset your filters."
+msgstr "На этой странице нет результатов. Создайте новую запись или сбросьте фильтры."
+
+msgid "Time"
+msgstr "Время"
+
+msgid "Toggle dark/light mode"
+msgstr "Переключить тёмную/светлую тему"
+
+msgid "Toggle filter"
+msgstr "Переключить фильтр"
+
+msgid "Toggle password visibility"
+msgstr "Показать/скрыть пароль"
+
+msgid "Toggle sidebar"
+msgstr "Переключить боковую панель"
+
+msgid "True"
+msgstr "Да"
+
+msgid "Type to search"
+msgstr "Введите для поиска"
+
+msgid "Unknown"
+msgstr "Неизвестно"
+
+msgid "Unknown content"
+msgstr "Неизвестное содержимое"
+
+msgid "User"
+msgstr "Пользователь"
+
+msgid "View"
+msgstr "Просмотр"
+
+msgid "View on site"
+msgstr "Посмотреть на сайте"
+
+msgid "View site"
+msgstr "Посмотреть сайт"
+
+msgid "Yes, I’m sure"
+msgstr "Да, я уверен"
+
+msgid "You don’t have permission to view or edit anything."
+msgstr "У вас нет разрешения просматривать или редактировать что-либо."
+
+msgid "You have been successfully logged out from the administration"
+msgstr "Вы успешно вышли из панели администратора"
+
+# --- Storefront (forms, checkout, toasts) ---
+
+msgid "Це поле обов'язкове"
+msgstr "Это поле обязательно"
+
+msgid "В імені не може бути цифр"
+msgstr "Имя не должно содержать цифры"
+
+msgid "Лише літери, пробіли, дефіс або апостроф"
+msgstr "Только буквы, пробелы, дефис или апостроф"
+
+msgid "Вкажіть номер телефону"
+msgstr "Укажите номер телефона"
+
+msgid "Занадто короткий номер телефону"
+msgstr "Слишком короткий номер телефона"
+
+msgid "Не більше ніж 13 цифр у номері"
+msgstr "В номере не должно быть больше 13 цифр"
+
+msgid "Вкажіть email"
+msgstr "Укажите email"
+
+msgid "Введіть коректний email з символом @"
+msgstr "Введите корректный email с символом @"
+
+msgid "Потрібна згода на обробку даних"
+msgstr "Необходимо согласие на обработку данных"
+
+msgid "Вкажіть місто доставки"
+msgstr "Укажите город доставки"
+
+msgid "Вкажіть відділення або адресу"
+msgstr "Укажите отделение или адрес"
+
+msgid "Дякуємо! Ваше повідомлення надіслано."
+msgstr "Спасибо! Ваше сообщение отправлено."
+
+msgid "Перевірте поля форми і спробуйте ще раз."
+msgstr "Проверьте поля формы и попробуйте ещё раз."
+
+msgid "Сталася помилка мережі."
+msgstr "Произошла ошибка сети."
+
+msgid "Перевірте, будь ласка, номер телефону."
+msgstr "Проверьте, пожалуйста, номер телефона."
+
+msgid "Сталася помилка. Спробуйте ще раз."
+msgstr "Произошла ошибка. Попробуйте ещё раз."
+
+msgid "Додано в кошик"
+msgstr "Добавлено в корзину"
+
+msgid "Не вдалося додати товар."
+msgstr "Не удалось добавить товар."
+
+msgid "Ваше ім'я"
+msgstr "Ваше имя"
+
+msgid "Прізвище, ім'я"
+msgstr "Фамилия, имя"
+
+msgid "Почніть вводити місто"
+msgstr "Начните вводить город"
+
+msgid "Відділення / поштомат / адреса"
+msgstr "Отделение / почтомат / адрес"
+
+msgid "Вулиця, будинок, квартира"
+msgstr "Улица, дом, квартира"
+
+msgid "Почніть вводити або оберіть зі списку"
+msgstr "Начните вводить или выберите из списка"
+
+msgid "Введіть вручну"
+msgstr "Введите вручную"
+
+msgid "Коментар до замовлення (необов'язково)"
+msgstr "Комментарий к заказу (необязательно)"
+
+msgid "Промокод (якщо є)"
+msgstr "Промокод (если есть)"
+
+msgid "Промокод"
+msgstr "Промокод"
+
+msgid "Повідомлення"
+msgstr "Сообщение"
+
+msgid "Ваше запитання"
+msgstr "Ваш вопрос"
+
+msgid "Ваш email"
+msgstr "Ваш email"
+
+msgid "ПІБ отримувача"
+msgstr "ФИО получателя"
+
+msgid "Телефон"
+msgstr "Телефон"
+
+msgid "Ім'я"
+msgstr "Имя"
+
+msgid "Email (необов'язково)"
+msgstr "Email (необязательно)"
+
+msgid "Місто"
+msgstr "Город"
+
+msgid "Відділення / адреса"
+msgstr "Отделение / адрес"
+
+msgid "Коментар до замовлення"
+msgstr "Комментарий к заказу"
+
+msgid "Погоджуюсь на обробку персональних даних"
+msgstr "Соглашаюсь на обработку персональных данных"
+
+msgid "Відділення Нової Пошти"
+msgstr "Отделение Новой Почты"
+
+msgid "Поштомат Нової Пошти"
+msgstr "Почтомат Новой Почты"
+
+msgid "Адреса доставки"
+msgstr "Адрес доставки"
+
+msgid "№ відділення Укрпошти"
+msgstr "№ отделения Укрпочты"
+
+msgid "Нова Пошта — відділення"
+msgstr "Новая Почта — отделение"
+
+msgid "Нова Пошта — поштомат"
+msgstr "Новая Почта — почтомат"
+
+msgid "Нова Пошта — курʼєр"
+msgstr "Новая Почта — курьер"
+
+msgid "Укрпошта"
+msgstr "Укрпочта"
+
+msgid "Самовивіз"
+msgstr "Самовывоз"
+
+msgid "Оплата карткою (LiqPay)"
+msgstr "Оплата картой (LiqPay)"
+
+msgid "Оплата при отриманні (накладений платіж)"
+msgstr "Оплата при получении (наложенный платёж)"
+
+msgid "Оплата при самовивозі"
+msgstr "Оплата при самовывозе"
+
+msgid "Контакти"
+msgstr "Контакты"
+
+msgid "Доставка"
+msgstr "Доставка"
+
+msgid "Оплата"
+msgstr "Оплата"
+
+msgid "Коментар і промокод"
+msgstr "Комментарий и промокод"
+
+msgid "Підтвердити замовлення"
+msgstr "Подтвердить заказ"
+
+msgid "API НП ще не підключено — введіть місто вручну."
+msgstr "API НП ещё не подключено — введите город вручную."
+
+msgid "Товари"
+msgstr "Товары"
+
+msgid "Знижка"
+msgstr "Скидка"
+
+msgid "Разом"
+msgstr "Итого"
+
+msgid "Склад замовлення"
+msgstr "Состав заказа"
+
+msgid "Вкажіть відділення або поштомат"
+msgstr "Укажите отделение или почтомат"
+
+msgid "Вкажіть адресу доставки"
+msgstr "Укажите адрес доставки"
+
+msgid "Оберіть місто зі списку підказок"
+msgstr "Выберите город из списка подсказок"
+
+msgid "Оберіть відділення зі списку підказок"
+msgstr "Выберите отделение из списка подсказок"
+
+msgid "Оплата при самовивозі доступна лише для самовивозу"
+msgstr "Оплата при самовывозе доступна только для самовывоза"
+
+msgid "Потрібна згода на обробку персональних даних"
+msgstr "Необходимо согласие на обработку персональных данных"
+
+msgid "Введіть телефон у форматі +380XXXXXXXXX"
+msgstr "Введите телефон в формате +380XXXXXXXXX"
+
+msgid "Введіть промокод."
+msgstr "Введите промокод."

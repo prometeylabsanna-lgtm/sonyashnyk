@@ -30,11 +30,11 @@
       <p class="modal__lead" data-lead-lead>{% block_plain 'site' 'lead_modal_lead' %}</p>
 
       <div class="field">
-        <label class="modal__field-label" for="lead-modal-name">Ім'я</label>
-        <input type="text" id="lead-modal-name" name="name" placeholder="Ваше ім'я" autocomplete="name" data-validate="name">
+        <label class="modal__field-label" for="lead-modal-name" data-i18n="label_name">Ім'я</label>
+        <input type="text" id="lead-modal-name" name="name" placeholder="Ваше ім'я" data-i18n-ph="ph_name" autocomplete="name" data-validate="name">
       </div>
       <div class="field">
-        <label class="modal__field-label" for="lead-modal-phone">Телефон</label>
+        <label class="modal__field-label" for="lead-modal-phone" data-i18n="label_phone">Телефон</label>
         <input type="tel" id="lead-modal-phone" name="phone" placeholder="+380" required data-phone-mask data-validate="phone" autocomplete="tel">
       </div>
       <div class="field field--checkbox">

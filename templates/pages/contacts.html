@@ -49,7 +49,7 @@
 
         <div class="field">
           <label class="visually-hidden" for="contact-name">Ім'я</label>
-          <input type="text" id="contact-name" name="name" placeholder="Ваше ім'я" autocomplete="name" data-validate="name">
+          <input type="text" id="contact-name" name="name" placeholder="Ваше ім'я" data-i18n-ph="ph_name" autocomplete="name" data-validate="name">
         </div>
         <div class="field">
           <label class="visually-hidden" for="contact-phone">Телефон</label>
@@ -57,11 +57,11 @@
         </div>
         <div class="field">
           <label class="visually-hidden" for="contact-email">Email</label>
-          <input type="email" id="contact-email" name="email" placeholder="email@example.com" autocomplete="email" data-validate="email" data-validate-optional>
+          <input type="email" id="contact-email" name="email" placeholder="email@example.com" data-i18n-ph="ph_email" autocomplete="email" data-validate="email" data-validate-optional>
         </div>
         <div class="field">
-          <label class="visually-hidden" for="contact-message">Повідомлення</label>
-          <textarea id="contact-message" name="message" rows="5" placeholder="Ваше запитання"></textarea>
+          <label class="visually-hidden" for="contact-message" data-i18n="ph_message">Повідомлення</label>
+          <textarea id="contact-message" name="message" rows="5" placeholder="Ваше запитання" data-i18n-ph="ph_question"></textarea>
         </div>
         <button type="submit" class="btn btn--primary btn--block contacts-form__submit">{% block_plain 'contacts' 'form_cta' %}</button>
       </form>

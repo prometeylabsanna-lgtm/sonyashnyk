@@ -19,7 +19,7 @@
       <div class="checkout-main">
 
         <div class="checkout-block">
-          <div class="checkout-block__title"><span class="checkout-block__num">1</span> Контакти</div>
+          <div class="checkout-block__title"><span class="checkout-block__num">1</span> <span data-i18n="checkout_contacts">Контакти</span></div>
           <div class="field {% if form.full_name.errors %}field--error{% endif %}">
             <label for="{{ form.full_name.id_for_label }}">{{ form.full_name.label }}</label>
             {{ form.full_name }}
@@ -37,7 +37,7 @@
         </div>
 
         <div class="checkout-block">
-          <div class="checkout-block__title"><span class="checkout-block__num">2</span> Доставка</div>
+          <div class="checkout-block__title"><span class="checkout-block__num">2</span> <span data-i18n="checkout_delivery">Доставка</span></div>
           {% for radio in form.delivery_method %}
             <label class="radio-card">
               {{ radio.tag }}
@@ -57,7 +57,7 @@
               </div>
               {% for e in form.city.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
               {% if not np_api_enabled %}
-                <span class="field__hint">API НП ще не підключено — введіть місто вручну.</span>
+                <span class="field__hint" data-i18n="checkout_np_hint">API НП ще не підключено — введіть місто вручну.</span>
               {% endif %}
             </div>
             <div class="field {% if form.warehouse.errors %}field--error{% endif %}" data-warehouse-field>
@@ -73,7 +73,7 @@
         </div>
 
         <div class="checkout-block">
-          <div class="checkout-block__title"><span class="checkout-block__num">3</span> Оплата</div>
+          <div class="checkout-block__title"><span class="checkout-block__num">3</span> <span data-i18n="checkout_payment">Оплата</span></div>
           {% for radio in form.payment_method %}
             <label class="radio-card">
               {{ radio.tag }}
@@ -86,7 +86,7 @@
         </div>
 
         <div class="checkout-block">
-          <div class="checkout-block__title"><span class="checkout-block__num">4</span> Коментар і промокод</div>
+          <div class="checkout-block__title"><span class="checkout-block__num">4</span> <span data-i18n="checkout_extra">Коментар і промокод</span></div>
           <div class="field">
             <label for="{{ form.comment.id_for_label }}">{{ form.comment.label }}</label>
             {{ form.comment }}
@@ -105,12 +105,12 @@
         </div>
         {% for e in form.agreed_to_data_processing.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
 
-        <button type="submit" class="btn btn--primary btn--block" style="margin-top:10px">Підтвердити замовлення</button>
+        <button type="submit" class="btn btn--primary btn--block" style="margin-top:10px" data-i18n="checkout_submit">Підтвердити замовлення</button>
       </div>
 
       <aside class="checkout-summary">
         <button type="button" class="checkout-toggle-btn" data-summary-toggle aria-expanded="true" data-mobile>
-          <span>Склад замовлення ({{ cart_items|length }})</span>
+          <span><span data-i18n="checkout_summary_toggle">Склад замовлення</span> ({{ cart_items|length }})</span>
           <span>{{ cart_total }} ₴</span>
         </button>
         <div data-summary-body>
@@ -123,11 +123,11 @@
             {% endfor %}
           </div>
           <div class="cart-summary">
-            <div class="cart-summary__row"><span>Товари</span><span>{{ cart_subtotal }} ₴</span></div>
+            <div class="cart-summary__row"><span data-i18n="checkout_summary_items">Товари</span><span>{{ cart_subtotal }} ₴</span></div>
             {% if cart_discount %}
-              <div class="cart-summary__row"><span>Знижка{% if promo_code %} ({{ promo_code }}){% endif %}</span><span>−{{ cart_discount }} ₴</span></div>
+              <div class="cart-summary__row"><span><span data-i18n="checkout_summary_discount">Знижка</span>{% if promo_code %} ({{ promo_code }}){% endif %}</span><span>−{{ cart_discount }} ₴</span></div>
             {% endif %}
-            <div class="cart-summary__row cart-summary__row--total"><span>Разом</span><span>{{ cart_total }} ₴</span></div>
+            <div class="cart-summary__row cart-summary__row--total"><span data-i18n="checkout_summary_total">Разом</span><span>{{ cart_total }} ₴</span></div>
           </div>
         </div>
       </aside>

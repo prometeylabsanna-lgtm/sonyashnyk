@@ -123,16 +123,27 @@
           setCartCount(result.data.cart_count);
           button.setAttribute("data-added", "1");
           window.setTimeout(function () { button.removeAttribute("data-added"); }, 1600);
-          SonyashnykUtils.showToast("Додано в кошик");
+          SonyashnykUtils.showToast(
+            window.SonyashnykFormValidation
+              ? SonyashnykFormValidation.t("toast_cart_added")
+              : "Додано в кошик"
+          );
           refreshDrawer(false);
         } else {
-          var msg = (result.data && result.data.error) || "Не вдалося додати товар.";
+          var msg = (result.data && result.data.error)
+            || (window.SonyashnykFormValidation
+              ? SonyashnykFormValidation.t("toast_cart_fail")
+              : "Не вдалося додати товар.");
           SonyashnykUtils.showToast(msg);
         }
       })
       .catch(function () {
         button.disabled = false;
-        SonyashnykUtils.showToast("Сталася помилка мережі.");
+        SonyashnykUtils.showToast(
+          window.SonyashnykFormValidation
+            ? SonyashnykFormValidation.t("toast_network")
+            : "Сталася помилка мережі."
+        );
       });
   }
 

@@ -125,7 +125,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # --- Localization -------------------------------------------------------
 LANGUAGE_CODE = "uk"
-LANGUAGES = [("uk", "Українська")]
+LANGUAGES = [
+    ("uk", "Українська"),
+    ("ru", "Русский"),
+]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "Europe/Kyiv"
 USE_I18N = True
