@@ -169,3 +169,23 @@ class ProductAttribute(models.Model):
 
     def __str__(self):
         return f"{self.product_id}: {self.catalog_filter.slug}={self.value}"
+
+
+def sync_legacy_product_attrs(product) -> None:
+    """Записує brand/country/volume/power з CharField у ProductAttribute."""
+    for slug, field in LEGACY_PRODUCT_FIELDS.items():
+        value = (getattr(product, field, "") or "").strip()
+        cf = CatalogFilter.objects.filter(slug=slug, is_active=True).first()
+        if not cf:
+            continue
+        if value:
+            ProductAttribute.objects.update_or_create(
+                product=product,
+                catalog_filter=cf,
+                defaults={"value": value},
+            )
+        else:
+            ProductAttribute.objects.filter(
+                product=product,
+                catalog_filter=cf,
+            ).delete()

@@ -9,6 +9,7 @@ from pathlib import Path
 from django.core.files import File
 from django.core.management.base import BaseCommand
 
+from apps.catalog.filter_models import sync_legacy_product_attrs
 from apps.catalog.models import Category, Product, ProductImage, ProductVariant
 from apps.core.models import HeroSlide, HighlightPoint, Review
 from apps.orders.models import PromoCode
@@ -319,6 +320,7 @@ class Command(BaseCommand):
                         "name", "short_description", "description", "pack_volume", "power",
                     ])
                     self._sync_variants(product, product.pack_volume)
+                    sync_legacy_product_attrs(product)
                     apply_product_ru(product)
                     continue
                 pack_volume = self._pack_volume_for(category, counter)
@@ -344,6 +346,7 @@ class Command(BaseCommand):
                     product.save(update_fields=["old_price"])
 
                 self._sync_variants(product, pack_volume)
+                sync_legacy_product_attrs(product)
                 apply_product_ru(product)
         self.stdout.write(f"Товарів у базі: {Product.objects.count()}.")
 
