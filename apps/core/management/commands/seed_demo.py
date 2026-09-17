@@ -13,6 +13,14 @@ from apps.catalog.models import Category, Product, ProductImage, ProductVariant
 from apps.core.models import HeroSlide, HighlightPoint, Review
 from apps.orders.models import PromoCode
 
+from .seed_demo_ru import (
+    apply_category_ru,
+    apply_highlight_ru,
+    apply_product_ru,
+    apply_review_ru,
+    log_ru_summary,
+)
+
 # Повне дерево — apps.catalog.category_tree; seed лишає сумісний плоский режим.
 # Для повного sync: python3 manage.py sync_categories
 from apps.catalog.category_tree import CATEGORY_TREE as FULL_CATEGORY_TREE
@@ -199,12 +207,19 @@ class Command(BaseCommand):
             self.seed_product_images()
         self.seed_home_content()
         self.seed_promos()
+        log_ru_summary(self.stdout)
         self.stdout.write(self.style.SUCCESS("Демо-дані успішно створено."))
 
     def seed_categories(self):
         from django.core.management import call_command
         call_command("sync_categories")
-        self.stdout.write("Категорії синхронізовано через sync_categories.")
+        updated = 0
+        for category in Category.objects.all():
+            if apply_category_ru(category):
+                updated += 1
+        self.stdout.write(
+            f"Категорії синхронізовано через sync_categories. RU: {updated} оновлено."
+        )
 
     def _pack_volume_for(self, category, counter):
         if not category_allows_volume_filter(category):
@@ -304,6 +319,7 @@ class Command(BaseCommand):
                         "name", "short_description", "description", "pack_volume", "power",
                     ])
                     self._sync_variants(product, product.pack_volume)
+                    apply_product_ru(product)
                     continue
                 pack_volume = self._pack_volume_for(category, counter)
                 power = self._power_for(category, counter)
@@ -328,6 +344,7 @@ class Command(BaseCommand):
                     product.save(update_fields=["old_price"])
 
                 self._sync_variants(product, pack_volume)
+                apply_product_ru(product)
         self.stdout.write(f"Товарів у базі: {Product.objects.count()}.")
 
     def seed_product_images(self):
@@ -396,10 +413,11 @@ class Command(BaseCommand):
             title="Консультація агронома",
         ).update(title="Професійна консультація", icon="chat")
         for order, (icon, title, text) in enumerate(trust_data):
-            HighlightPoint.objects.update_or_create(
+            hp, _ = HighlightPoint.objects.update_or_create(
                 section=HighlightPoint.Section.TRUST, title=title,
                 defaults={"icon": icon, "text": text, "order": order, "is_active": True},
             )
+            apply_highlight_ru(hp)
 
         info_data = [
             ("truck", "Доставка НП / Укрпоштою", "По всій Україні"),
@@ -417,10 +435,11 @@ class Command(BaseCommand):
             title="Тільки оригінальна продукція",
         ).update(title="Оригінальна продукція")
         for order, (icon, title, text) in enumerate(info_data):
-            HighlightPoint.objects.update_or_create(
+            hp, _ = HighlightPoint.objects.update_or_create(
                 section=HighlightPoint.Section.INFO, title=title,
                 defaults={"icon": icon, "text": text, "order": order, "is_active": True},
             )
+            apply_highlight_ru(hp)
 
         reviews_data = [
             ("Олена К.", "Кропивницький", "Замовляла насіння томатів — усе зійшло чудово, якість супер!", 5),
@@ -433,7 +452,7 @@ class Command(BaseCommand):
             ("Тарас Б.", "Полтава", "Сертифікати на власну продукцію додають довіри. Буду замовляти ще.", 5),
         ]
         for order, (name, city, text, rating) in enumerate(reviews_data):
-            Review.objects.update_or_create(
+            review, _ = Review.objects.update_or_create(
                 name=name,
                 defaults={
                     "city": city,
@@ -443,6 +462,7 @@ class Command(BaseCommand):
                     "is_active": True,
                 },
             )
+            apply_review_ru(review)
         self.stdout.write("Контент головної сторінки створено.")
 
     def seed_promos(self):

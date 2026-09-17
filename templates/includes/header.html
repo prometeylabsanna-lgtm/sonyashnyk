@@ -4,7 +4,7 @@
   {% if show_announce %}
   <div class="announce">
     <div class="announce__row container">
-      <span>Безкоштовна доставка від {{ free_shipping_threshold }} ₴ · Відправка наступного дня</span>
+      <span>{% block_format 'site' 'header_announce_text' threshold=free_shipping_threshold %}</span>
       <div class="announce__meta">
         <a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a>
         <span class="announce__hours">{{ site_working_hours }}</span>
@@ -63,10 +63,12 @@
 
       {% section_visible 'site' 'header_lang_visible' as show_lang %}
       {% if show_lang %}
-      <span class="logobar__lang" role="group" aria-label="Мова інтерфейсу">
-        <button type="button" class="is-active" data-lang="ua">UA</button>
-        <button type="button" data-lang="ru">RU</button>
-      </span>
+      <form class="logobar__lang" action="{% url 'set_language' %}" method="post" role="group" aria-label="Мова інтерфейсу">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" name="language" value="uk" class="{% if LANGUAGE_CODE == 'uk' or LANGUAGE_CODE == 'uk-ua' %}is-active{% endif %}" data-lang="ua">UA</button>
+        <button type="submit" name="language" value="ru" class="{% if LANGUAGE_CODE == 'ru' or LANGUAGE_CODE == 'ru-ru' %}is-active{% endif %}" data-lang="ru">RU</button>
+      </form>
       {% endif %}
 
       {% section_visible 'site' 'header_wishlist_visible' as show_wish %}
@@ -108,12 +110,12 @@
             {% elif cat.nav_icon_url %}
               <span class="nav-item__icon" style="--nav-icon: url('{{ cat.nav_icon_url }}')" aria-hidden="true"></span>
             {% endif %}
-            <span class="nav-item__label">{{ cat.name }}</span>
+            <span class="nav-item__label">{{ cat|loc_field:'name' }}</span>
           </a>
           {% if cat.children.all %}
             <div class="nav-drop">
               {% for sub in cat.children.all %}
-                {% if sub.is_active %}<a href="{{ sub.get_absolute_url }}">{{ sub.name }}</a>{% endif %}
+                {% if sub.is_active %}<a href="{{ sub.get_absolute_url }}">{{ sub|loc_field:'name' }}</a>{% endif %}
               {% endfor %}
             </div>
           {% endif %}

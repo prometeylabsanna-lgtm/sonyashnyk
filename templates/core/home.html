@@ -53,8 +53,8 @@
         <div class="trust-item">
           {% include "includes/trust_sprout.html" %}
           <span class="trust-item__copy">
-            <span class="trust-item__title">{{ point.title }}</span>
-            <span class="trust-item__text">{{ point.text }}</span>
+            <span class="trust-item__title">{{ point|loc_field:'title' }}</span>
+            <span class="trust-item__text">{{ point|loc_field:'text' }}</span>
           </span>
         </div>
       {% empty %}
@@ -113,7 +113,7 @@
               decoding="async"
             >
           </div>
-          <span class="cat-tile__name">{{ cat.name }}</span>
+          <span class="cat-tile__name">{{ cat|loc_field:'name' }}</span>
         </a>
       {% endfor %}
     </div>
@@ -222,14 +222,14 @@
         <article class="ticket" data-reveal>
           <div class="ticket__top">
             <span class="ticket__icon">{% include "includes/ticket_icon.html" with icon=point.icon %}</span>
-            <h3 class="ticket__title">{{ point.title }}</h3>
+            <h3 class="ticket__title">{{ point|loc_field:'title' }}</h3>
           </div>
           <div class="ticket__mid" aria-hidden="true">
             <span class="ticket__notch ticket__notch--l"></span>
             <span class="ticket__dash"></span>
             <span class="ticket__notch ticket__notch--r"></span>
           </div>
-          <p class="ticket__text">{{ point.text }}</p>
+          <p class="ticket__text">{{ point|loc_field:'text' }}</p>
         </article>
       {% empty %}
         <article class="ticket" data-reveal>
@@ -337,9 +337,9 @@
       {% if featured_review %}
         <article class="reviews-featured">
           <span class="reviews-stars" aria-label="Оцінка {{ featured_review.rating }} з 5">{% for i in "12345" %}{% if forloop.counter <= featured_review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
-          <p class="reviews-featured__text">«{{ featured_review.text }}»</p>
+          <p class="reviews-featured__text">«{{ featured_review|loc_field:'text' }}»</p>
           <p class="reviews-featured__meta">
-            {{ featured_review.name }}{% if featured_review.city %} · {{ featured_review.city }}{% endif %}
+            {{ featured_review.name }}{% with c=featured_review|loc_field:'city' %}{% if c %} · {{ c }}{% endif %}{% endwith %}
           </p>
         </article>
 
@@ -347,9 +347,9 @@
           {% for review in side_reviews %}
             <article class="reviews-card" role="listitem">
               <span class="reviews-stars" aria-label="Оцінка {{ review.rating }} з 5">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
-              <p class="reviews-card__text">«{{ review.text }}»</p>
+              <p class="reviews-card__text">«{{ review|loc_field:'text' }}»</p>
               <p class="reviews-card__meta">
-                {{ review.name }}{% if review.city %} · {{ review.city }}{% endif %}
+                {{ review.name }}{% with c=review|loc_field:'city' %}{% if c %} · {{ c }}{% endif %}{% endwith %}
               </p>
             </article>
           {% endfor %}

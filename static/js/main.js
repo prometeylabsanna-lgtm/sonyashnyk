@@ -5,48 +5,27 @@
   "use strict";
 
   document.addEventListener("DOMContentLoaded", function () {
-    // Перемикач мови в logobar (зберігає ua/ru для клієнтських підказок форм)
+    // Синхронізація клієнтської мови форм з серверною (cookie Django)
     var langGroup = document.querySelector(".logobar__lang");
+    var htmlLang = (document.documentElement.lang || "uk").toLowerCase();
+    var serverLang = htmlLang.indexOf("ru") === 0 ? "ru" : "uk";
+    var langKey =
+      (window.SonyashnykFormValidation && SonyashnykFormValidation.LANG_KEY) || "sonyashnyk_lang";
+
+    try {
+      window.localStorage.setItem(langKey, serverLang === "ru" ? "ru" : "ua");
+    } catch (e) { /* ignore */ }
+
     if (langGroup) {
-      var storedLang = "";
-      try {
-        storedLang = window.localStorage.getItem(
-          (window.SonyashnykFormValidation && SonyashnykFormValidation.LANG_KEY) || "sonyashnyk_lang"
-        ) || "";
-      } catch (e) { /* ignore */ }
-
-      if (storedLang) {
-        var normalized = window.SonyashnykFormValidation
-          ? SonyashnykFormValidation.normalizeLang(storedLang)
-          : (storedLang === "ru" ? "ru" : "uk");
-        langGroup.querySelectorAll("button[data-lang]").forEach(function (b) {
-          var code = (b.getAttribute("data-lang") || "").toLowerCase();
-          var isActive = normalized === "ru" ? code === "ru" : code === "ua" || code === "uk";
-          b.classList.toggle("is-active", isActive);
-        });
-        document.documentElement.lang = normalized === "ru" ? "ru" : "uk";
-      }
-
-      langGroup.querySelectorAll("button[data-lang]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          langGroup.querySelectorAll("button").forEach(function (b) {
-            b.classList.remove("is-active");
-          });
-          btn.classList.add("is-active");
-          var raw = btn.getAttribute("data-lang") || "ua";
-          var lang = window.SonyashnykFormValidation
-            ? SonyashnykFormValidation.normalizeLang(raw)
-            : (raw === "ru" ? "ru" : "uk");
-          try {
-            window.localStorage.setItem(
-              (window.SonyashnykFormValidation && SonyashnykFormValidation.LANG_KEY) || "sonyashnyk_lang",
-              lang === "ru" ? "ru" : "ua"
-            );
-          } catch (e) { /* ignore */ }
-          document.documentElement.lang = lang === "ru" ? "ru" : "uk";
-          document.dispatchEvent(new CustomEvent("sonyashnyk:langchange", { detail: { lang: lang } }));
-        });
+      langGroup.querySelectorAll("button[data-lang]").forEach(function (b) {
+        var code = (b.getAttribute("data-lang") || "").toLowerCase();
+        var isActive = serverLang === "ru" ? code === "ru" : code === "ua" || code === "uk";
+        b.classList.toggle("is-active", isActive);
       });
+    }
+
+    if (window.SonyashnykFormValidation) {
+      SonyashnykFormValidation.applyStaticI18n(document);
     }
 
     // Тінь sticky-шапки (announce не стискається — лише від’їжджає)

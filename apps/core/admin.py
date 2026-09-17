@@ -25,9 +25,12 @@ class SiteSettingsAdmin(ReadableUnfoldFieldsMixin, SingletonModelAdminMixin, Mod
                     "phone_raw",
                     "email",
                     "address",
+                    "address_ru",
                     "work_hours",
+                    "work_hours_ru",
                     "free_shipping_threshold",
                     "meta_description",
+                    "meta_description_ru",
                 ),
             },
         ),
@@ -49,12 +52,14 @@ class HighlightPointAdmin(TopDropdownFiltersMixin, ModelAdmin):
     )
     list_filter_options = horizontal_options_for(list_filter)
     list_editable = ("order", "is_active")
+    fields = ("section", "icon", "title", "title_ru", "text", "text_ru", "order", "is_active")
 
 
 @admin.register(Review)
 class ReviewAdmin(ModelAdmin):
     list_display = ("name", "city", "rating", "order", "is_active")
     list_editable = ("order", "is_active")
+    fields = ("name", "city", "city_ru", "text", "text_ru", "rating", "order", "is_active")
 
 
 register_site_content_section_admins()

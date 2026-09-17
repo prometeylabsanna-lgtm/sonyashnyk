@@ -2,6 +2,7 @@ from django.conf import settings
 
 from apps.core.admin_site_content import SITE_BLOCKS_CACHE_KEY
 from apps.core.db_safe import database_reachable
+from apps.core.i18n_utils import pick
 from apps.core.models import SiteSettings
 
 
@@ -35,10 +36,10 @@ def site_settings(request):
         site_name = solo.site_name or site_name
         site_phone = solo.phone or site_phone
         site_phone_raw = solo.phone_raw or site_phone_raw
-        site_working_hours = solo.work_hours or site_working_hours
+        site_working_hours = pick(solo.work_hours, getattr(solo, "work_hours_ru", "")) or site_working_hours
         free_shipping_threshold = solo.free_shipping_threshold or free_shipping_threshold
         site_email = solo.email
-        site_address = solo.address
+        site_address = pick(solo.address, getattr(solo, "address_ru", ""))
         instagram_url = solo.instagram_url
         tiktok_url = solo.tiktok_url
         telegram_url = solo.telegram_url

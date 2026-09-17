@@ -14,6 +14,7 @@ class Category(models.Model):
     """
 
     name = models.CharField("Назва на сайті", max_length=160)
+    name_ru = models.CharField("Назва на сайті (RU)", max_length=160, blank=True, default="")
     erp_name = models.CharField(
         "Назва в обліковій системі", max_length=160, blank=True,
         help_text="Заповнюється, якщо назва на сайті відрізняється від довідника.",
@@ -38,6 +39,7 @@ class Category(models.Model):
         ),
     )
     description = models.TextField("Опис", blank=True)
+    description_ru = models.TextField("Опис (RU)", blank=True, default="")
     order = models.PositiveIntegerField("Порядок сортування", default=0)
     is_active = models.BooleanField("Активна", default=True)
 
@@ -95,17 +97,26 @@ class Product(models.Model):
     )
     sku = models.CharField("Код товару (SKU)", max_length=64, unique=True)
     name = models.CharField("Назва на сайті", max_length=255)
+    name_ru = models.CharField("Назва на сайті (RU)", max_length=255, blank=True, default="")
     slug = models.SlugField(
         "URL-адреса (slug)", max_length=255, unique=True, blank=True,
         help_text="Залиште порожнім — згенерується автоматично з назви (кирилиця транслітерується).",
     )
     short_description = models.CharField("Короткий опис", max_length=255, blank=True)
+    short_description_ru = models.CharField("Короткий опис (RU)", max_length=255, blank=True, default="")
     description = models.TextField("Опис", blank=True)
+    description_ru = models.TextField("Опис (RU)", blank=True, default="")
     characteristics = models.JSONField(
         "Характеристики",
         default=dict,
         blank=True,
         help_text="У адмінці — рядки «назва → значення» (без JSON).",
+    )
+    characteristics_ru = models.JSONField(
+        "Характеристики (RU)",
+        default=dict,
+        blank=True,
+        help_text="Російські підписи характеристик (ті самі ключі або повний словник).",
     )
 
     brand = models.CharField("Бренд / виробник", max_length=120, blank=True)
@@ -172,6 +183,23 @@ class Product(models.Model):
     def in_stock(self):
         return self.variants.filter(stock_qty__gt=0).exists() or not self.variants.exists()
 
+    def get_characteristics(self):
+        from apps.core.i18n_utils import is_ru
+
+        base = self.characteristics or {}
+        if not is_ru():
+            return base
+        ru = self.characteristics_ru or {}
+        if not ru:
+            return base
+        # Якщо RU — повний словник з іншими ключами
+        if set(ru.keys()) != set(base.keys()) and all(isinstance(v, str) for v in ru.values()):
+            # значення під українськими ключами або повна заміна
+            if any(k in base for k in ru):
+                return {k: ru.get(k, v) for k, v in base.items()}
+            return ru
+        return {k: ru.get(k, v) for k, v in base.items()}
+
 
 class ProductVariant(models.Model):
     """Варіант фасування (обʼєм або вага) зі своєю ціною й залишком."""
@@ -182,6 +210,7 @@ class ProductVariant(models.Model):
         max_length=80,
         help_text="Фасування: «100 мл», «1 л», «10 г», «500 г» — не розміри одягу.",
     )
+    label_ru = models.CharField("Назва варіанту (RU)", max_length=80, blank=True, default="")
     sku_variant = models.CharField("Код варіанту", max_length=64, blank=True)
     price = models.DecimalField("Ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField("Стара ціна", max_digits=10, decimal_places=2, blank=True, null=True)
@@ -204,6 +233,7 @@ class ProductImage(models.Model):
     product = models.ForeignKey(Product, verbose_name="Товар", on_delete=models.CASCADE, related_name="images")
     image = WebPImageField("Зображення", upload_to="products/", blank=True, null=True)
     alt = models.CharField("Alt-текст", max_length=255, blank=True)
+    alt_ru = models.CharField("Alt-текст (RU)", max_length=255, blank=True, default="")
     order = models.PositiveIntegerField("Порядок", default=0)
 
     class Meta:

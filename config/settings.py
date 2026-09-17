@@ -72,6 +72,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.site_settings",
@@ -133,6 +134,10 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "Europe/Kyiv"
 USE_I18N = True
 USE_TZ = True
+LANGUAGE_COOKIE_NAME = "sonyashnyk_lang"
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
+LANGUAGE_COOKIE_HTTPONLY = False
+LANGUAGE_COOKIE_SAMESITE = "Lax"
 
 # --- Static & media files -------------------------------------------------
 STATIC_URL = "static/"

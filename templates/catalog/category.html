@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static site_content %}
 
-{% block title %}{% if category %}{{ category.name }}{% elif is_catalog_root %}{% block_text "catalog" "page_title" %}{% else %}{% block_text "catalog" "sale_title" %}{% endif %} — {{ site_name }}{% endblock %}
+{% block title %}{% if category %}{{ category|loc_field:'name' }}{% elif is_catalog_root %}{% block_text "catalog" "page_title" %}{% else %}{% block_text "catalog" "sale_title" %}{% endif %} — {{ site_name }}{% endblock %}
 
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=13"><link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
 
@@ -22,7 +22,7 @@
 {% endif %}
 
 <div class="container section--tight">
-  <h1 class="h1">{% if category %}{{ category.name }}{% elif is_catalog_root %}{% block_plain 'catalog' 'page_title' %}{% else %}{% block_plain 'catalog' 'sale_title' %}{% endif %}</h1>
+  <h1 class="h1">{% if category %}{{ category|loc_field:'name' }}{% elif is_catalog_root %}{% block_plain 'catalog' 'page_title' %}{% else %}{% block_plain 'catalog' 'sale_title' %}{% endif %}</h1>
 
   {% if subcategories and not is_catalog_root %}
     <div class="subcats hscroll">
@@ -39,7 +39,7 @@
               decoding="async"
             >
           </span>
-          <span class="subcat-tile__name">{{ sub.name }}</span>
+          <span class="subcat-tile__name">{{ sub|loc_field:'name' }}</span>
         </a>
       {% endfor %}
     </div>

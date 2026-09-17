@@ -30,7 +30,7 @@
         <div class="cert-card" data-cert-card data-series="{{ cert.series }}">
           {% include "includes/media_placeholder.html" with ratio="3x4" %}
           <div class="cert-card__body">
-            <div class="cert-card__title">{{ cert.title }}</div>
+            <div class="cert-card__title">{{ cert|loc_field:'title' }}</div>
             {% if cert.file %}<a href="{{ cert.file.url }}" target="_blank" rel="noopener" class="link-accent">Завантажити PDF</a>{% endif %}
           </div>
         </div>

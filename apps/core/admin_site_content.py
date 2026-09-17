@@ -34,6 +34,12 @@ def load_section_blocks(page: str, keys: list[str]) -> dict[str, SiteBlock]:
             "content_type": get_block_content_type(page, key),
             "text_html": get_block_default(page, key),
         }
+        try:
+            from apps.core.block_defaults_ru import get_block_default_ru
+
+            defaults["text_html_ru"] = get_block_default_ru(page, key)
+        except Exception:
+            pass
         block, _ = SiteBlock.objects.get_or_create(page=page, key=key, defaults=defaults)
         result[key] = block
     return result
@@ -107,6 +113,19 @@ class SitePageContentForm(forms.Form):
                 help_text=help_text,
                 widget=widget,
             )
+            if pair in INLINE_KEYS:
+                ru_widget = CmsAdminTextInputWidget()
+            elif pair in MULTILINE_KEYS:
+                ru_widget = CmsAdminTextareaWidget(attrs={"rows": 6})
+            else:
+                ru_widget = CmsAdminTextareaWidget(attrs={"rows": 2})
+            self.fields[f"block__{page}__{key}__text_html_ru"] = forms.CharField(
+                required=False,
+                initial=getattr(block, "text_html_ru", "") or "",
+                label=f"{label} (RU)",
+                help_text="Російська версія. Порожнє = український текст.",
+                widget=ru_widget,
+            )
 
     def save(self):
         section = self.section
@@ -131,6 +150,9 @@ class SitePageContentForm(forms.Form):
             elif suffix == "text_html":
                 block.text_html = value or ""
                 block.save(update_fields=["text_html"])
+            elif suffix == "text_html_ru":
+                block.text_html_ru = value or ""
+                block.save(update_fields=["text_html_ru"])
             elif suffix == "image":
                 if value:
                     block.image = value

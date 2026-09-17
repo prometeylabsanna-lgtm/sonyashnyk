@@ -167,6 +167,7 @@
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
+  margin: 0;
 }
 .logobar__lang button {
   border: 0;

@@ -9,7 +9,9 @@ class Certificate(models.Model):
     """Сертифікат власного виробництва (PDF/зображення)."""
 
     title = models.CharField("Назва", max_length=200)
+    title_ru = models.CharField("Назва (RU)", max_length=200, blank=True, default="")
     series = models.CharField("Серія / продукт", max_length=120, blank=True)
+    series_ru = models.CharField("Серія / продукт (RU)", max_length=120, blank=True, default="")
     file = models.FileField(
         "Файл (PDF/зображення)",
         upload_to="certificates/",

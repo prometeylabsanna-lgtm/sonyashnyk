@@ -17,12 +17,15 @@ class SiteSettings(models.Model):
     )
     email = models.EmailField("Email", blank=True, default="")
     address = models.CharField("Адреса / точка видачі", max_length=255, blank=True, default="м. Київ, Хрещатик 1")
+    address_ru = models.CharField("Адреса (RU)", max_length=255, blank=True, default="")
     work_hours = models.CharField("Графік роботи", max_length=120, blank=True, default="Пн–Сб 9:00–18:00")
+    work_hours_ru = models.CharField("Графік роботи (RU)", max_length=120, blank=True, default="")
     free_shipping_threshold = models.PositiveIntegerField(
         "Безкоштовна доставка від (₴)",
         default=1500,
     )
     meta_description = models.CharField("Meta description (за замовчуванням)", max_length=300, blank=True, default="")
+    meta_description_ru = models.CharField("Meta description (RU)", max_length=300, blank=True, default="")
 
     instagram_url = models.URLField("Instagram", blank=True, default="")
     tiktok_url = models.URLField("TikTok", blank=True, default="")
@@ -89,9 +92,11 @@ class SiteBlock(models.Model):
         default=ContentType.TEXT,
     )
     text_html = models.TextField("Текст / HTML", blank=True, default="")
+    text_html_ru = models.TextField("Текст / HTML (RU)", blank=True, default="")
     image = WebPImageField("Зображення", upload_to="blocks/", blank=True, null=True)
     link_url = models.CharField("URL посилання", max_length=512, blank=True, default="")
     link_label = models.CharField("Текст посилання", max_length=128, blank=True, default="")
+    link_label_ru = models.CharField("Текст посилання (RU)", max_length=128, blank=True, default="")
     video_embed_url = models.URLField("Embed URL відео", blank=True, default="")
     video_file = models.FileField("Файл відео", upload_to="blocks/video/", blank=True, null=True)
     sort_order = models.PositiveSmallIntegerField("Порядок", default=0)
@@ -117,13 +122,19 @@ class HeroSlide(models.Model):
     """Слайд головного банера на головній сторінці (CollectionMedia)."""
 
     eyebrow = models.CharField("Надпис над заголовком", max_length=120, blank=True)
+    eyebrow_ru = models.CharField("Надпис (RU)", max_length=120, blank=True, default="")
     title = models.CharField("Заголовок", max_length=200)
+    title_ru = models.CharField("Заголовок (RU)", max_length=200, blank=True, default="")
     lead = models.TextField("Підпис", blank=True)
+    lead_ru = models.TextField("Підпис (RU)", blank=True, default="")
     image = WebPImageField("Зображення", upload_to="banners/", blank=True, null=True)
     alt_text = models.CharField("Alt зображення", max_length=200, blank=True, default="")
+    alt_text_ru = models.CharField("Alt (RU)", max_length=200, blank=True, default="")
     cta1_text = models.CharField("Текст кнопки 1", max_length=60, default="Дивитись каталог")
+    cta1_text_ru = models.CharField("Текст кнопки 1 (RU)", max_length=60, blank=True, default="")
     cta1_url = models.CharField("Посилання кнопки 1", max_length=255, default="/katalog/")
     cta2_text = models.CharField("Текст кнопки 2", max_length=60, blank=True, default="До акцій")
+    cta2_text_ru = models.CharField("Текст кнопки 2 (RU)", max_length=60, blank=True, default="")
     cta2_url = models.CharField("Посилання кнопки 2", max_length=255, blank=True, default="/katalog/aktsiyi/")
     order = models.PositiveIntegerField("Порядок", default=0)
     is_active = models.BooleanField("Активний", default=True)
@@ -152,7 +163,9 @@ class HighlightPoint(models.Model):
         help_text="Ключ іконки: leaf, truck, shield, card, chat, phone, seed, years",
     )
     title = models.CharField("Заголовок", max_length=120)
+    title_ru = models.CharField("Заголовок (RU)", max_length=120, blank=True, default="")
     text = models.CharField("Текст", max_length=200, blank=True)
+    text_ru = models.CharField("Текст (RU)", max_length=200, blank=True, default="")
     order = models.PositiveIntegerField("Порядок", default=0)
     is_active = models.BooleanField("Активний", default=True)
 
@@ -170,7 +183,9 @@ class Review(models.Model):
 
     name = models.CharField("Ім'я", max_length=120)
     city = models.CharField("Місто", max_length=80, blank=True)
+    city_ru = models.CharField("Місто (RU)", max_length=80, blank=True, default="")
     text = models.TextField("Текст відгуку")
+    text_ru = models.TextField("Текст відгуку (RU)", blank=True, default="")
     rating = models.PositiveSmallIntegerField("Оцінка (1–5)", default=5)
     order = models.PositiveIntegerField("Порядок", default=0)
     is_active = models.BooleanField("Активний", default=True)

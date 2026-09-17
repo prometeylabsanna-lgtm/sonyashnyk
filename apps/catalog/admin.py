@@ -88,8 +88,8 @@ class RootCategoryAdmin(CategoryLevelAdmin):
     list_display = ("name", "erp_name", "order", "is_active", "icon_thumb")
     fields = (
         "level_hint",
-        "name", "erp_name", "slug",
-        "image_preview", "image", "description", "order", "is_active",
+        "name", "name_ru", "erp_name", "slug",
+        "image_preview", "image", "description", "description_ru", "order", "is_active",
     )
 
     def get_queryset(self, request):
@@ -107,8 +107,8 @@ class SubCategoryAdmin(CategoryLevelAdmin):
     list_filter_options = horizontal_options_for(list_filter)
     fields = (
         "level_hint",
-        "parent", "name", "erp_name", "slug",
-        "image_preview", "image", "description", "order", "is_active",
+        "parent", "name", "name_ru", "erp_name", "slug",
+        "image_preview", "image", "description", "description_ru", "order", "is_active",
     )
 
     def get_queryset(self, request):
@@ -135,8 +135,8 @@ class SubSubCategoryAdmin(CategoryLevelAdmin):
     list_filter_options = horizontal_options_for(list_filter)
     fields = (
         "level_hint",
-        "parent", "name", "erp_name", "slug",
-        "image_preview", "image", "description", "order", "is_active",
+        "parent", "name", "name_ru", "erp_name", "slug",
+        "image_preview", "image", "description", "description_ru", "order", "is_active",
     )
 
     def get_queryset(self, request):
@@ -194,8 +194,9 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
     search_fields = ("name", "sku", "pack_volume", "power", "brand", "country_of_origin")
     inlines = [ProductVariantInline, ProductImageInline]
     fields = (
-        "category", "sku", "name", "slug",
-        "short_description", "description", "characteristics",
+        "category", "sku", "name", "name_ru", "slug",
+        "short_description", "short_description_ru",
+        "description", "description_ru", "characteristics", "characteristics_ru",
         "brand", "country_of_origin", "pack_volume", "power",
         "base_price", "old_price",
         "is_own_production", "is_hit", "is_new", "is_sale", "is_active",

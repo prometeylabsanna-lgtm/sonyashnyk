@@ -1,16 +1,17 @@
 {% comment %} Параметр: product {% endcomment %}
-{% with variant=product.default_variant img=product.images.first %}
+{% load site_content %}
+{% with variant=product.default_variant img=product.images.first pname=product|loc_field:'name' %}
 <article class="product-card" data-reveal>
   <div class="product-card__media">
     <a href="{{ product.get_absolute_url }}" class="product-card__media-link">
       {% if img and img.image %}
-        <img class="product-card__img" src="{{ img.image.url }}" alt="{{ img.alt|default:product.name }}" width="640" height="640" loading="lazy" decoding="async">
+        <img class="product-card__img" src="{{ img.image.url }}" alt="{% firstof img|loc_field:'alt' pname %}" width="640" height="640" loading="lazy" decoding="async">
       {% else %}
         {% include "includes/media_placeholder.html" with ratio="1x1" %}
       {% endif %}
     </a>
 
-    <button type="button" class="product-card__wish" aria-label="В обране" aria-pressed="false" data-wishlist-toggle data-product-id="{{ product.id }}" data-label-off="В обране" data-label-on="В обраному">
+    <button type="button" class="product-card__wish" aria-label="{% if LANGUAGE_CODE == 'ru' %}В избранное{% else %}В обране{% endif %}" aria-pressed="false" data-wishlist-toggle data-product-id="{{ product.id }}" data-label-off="{% if LANGUAGE_CODE == 'ru' %}В избранное{% else %}В обране{% endif %}" data-label-on="{% if LANGUAGE_CODE == 'ru' %}В избранном{% else %}В обраному{% endif %}">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
       </svg>
@@ -18,16 +19,16 @@
 
     <div class="product-card__actions">
       <div class="product-card__qty" {% if not product.in_stock %}aria-disabled="true"{% endif %}>
-        <button type="button" class="product-card__qty-btn" data-qty-decrement aria-label="Зменшити кількість" {% if not product.in_stock %}disabled{% endif %}>−</button>
-        <input type="number" class="product-card__qty-input" value="1" min="1" max="99" data-qty-input aria-label="Кількість" {% if not product.in_stock %}disabled{% endif %}>
-        <button type="button" class="product-card__qty-btn" data-qty-increment aria-label="Збільшити кількість" {% if not product.in_stock %}disabled{% endif %}>+</button>
+        <button type="button" class="product-card__qty-btn" data-qty-decrement aria-label="{% if LANGUAGE_CODE == 'ru' %}Уменьшить количество{% else %}Зменшити кількість{% endif %}" {% if not product.in_stock %}disabled{% endif %}>−</button>
+        <input type="number" class="product-card__qty-input" value="1" min="1" max="99" data-qty-input aria-label="{% if LANGUAGE_CODE == 'ru' %}Количество{% else %}Кількість{% endif %}" {% if not product.in_stock %}disabled{% endif %}>
+        <button type="button" class="product-card__qty-btn" data-qty-increment aria-label="{% if LANGUAGE_CODE == 'ru' %}Увеличить количество{% else %}Збільшити кількість{% endif %}" {% if not product.in_stock %}disabled{% endif %}>+</button>
       </div>
       <button
         type="button"
         class="product-card__cart"
         data-add-to-cart
         data-variant-id="{{ variant.id }}"
-        aria-label="До кошика"
+        aria-label="{% if LANGUAGE_CODE == 'ru' %}В корзину{% else %}До кошика{% endif %}"
         {% if not product.in_stock or not variant %}disabled{% endif %}
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -42,20 +43,20 @@
   <div class="product-card__body">
     <div class="product-card__tags">
       {% if product.category %}
-        <span class="product-card__tag">#{{ product.category.name|cut:" "|lower }}</span>
+        <span class="product-card__tag">#{{ product.category|loc_field:'name'|cut:" "|lower }}</span>
       {% endif %}
-      {% if product.is_hit %}<span class="product-card__tag">#хіт</span>{% endif %}
-      {% if product.is_new %}<span class="product-card__tag">#новинка</span>{% endif %}
-      {% if product.is_sale %}<span class="product-card__tag">#акція</span>{% endif %}
-      {% if product.is_own_production %}<span class="product-card__tag">#власне</span>{% endif %}
+      {% if product.is_hit %}<span class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#хит{% else %}#хіт{% endif %}</span>{% endif %}
+      {% if product.is_new %}<span class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#новинка{% else %}#новинка{% endif %}</span>{% endif %}
+      {% if product.is_sale %}<span class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#акция{% else %}#акція{% endif %}</span>{% endif %}
+      {% if product.is_own_production %}<span class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#своё{% else %}#власне{% endif %}</span>{% endif %}
     </div>
 
-    <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ product.name }}</a>
+    <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ pname }}</a>
     {% if product.pack_volume %}
-      <div class="product-card__volume">Фасування: {{ product.pack_volume }}</div>
+      <div class="product-card__volume">{% if LANGUAGE_CODE == 'ru' %}Фасовка{% else %}Фасування{% endif %}: {{ product.pack_volume }}</div>
     {% endif %}
     {% if product.power %}
-      <div class="product-card__volume">Потужність: {{ product.power }}</div>
+      <div class="product-card__volume">{% if LANGUAGE_CODE == 'ru' %}Мощность{% else %}Потужність{% endif %}: {{ product.power }}</div>
     {% endif %}
 
     <div class="product-card__meta">
@@ -66,9 +67,9 @@
         <span class="price product-card__price">{{ product.display_price }} ₴</span>
       </div>
       {% if product.in_stock %}
-        <span class="product-card__stock">В наявності</span>
+        <span class="product-card__stock">{% if LANGUAGE_CODE == 'ru' %}В наличии{% else %}В наявності{% endif %}</span>
       {% else %}
-        <span class="product-card__stock is-out">Немає в наявності</span>
+        <span class="product-card__stock is-out">{% if LANGUAGE_CODE == 'ru' %}Нет в наличии{% else %}Немає в наявності{% endif %}</span>
       {% endif %}
     </div>
   </div>

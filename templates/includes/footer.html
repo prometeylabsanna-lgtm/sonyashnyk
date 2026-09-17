@@ -48,7 +48,7 @@
           <div class="footer-col__title">{% block_plain 'site' 'footer_col_cats_title' %}</div>
           <ul>
             {% for cat in nav_categories|slice:":4" %}
-              <li><a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a></li>
+              <li><a href="{{ cat.get_absolute_url }}">{{ cat|loc_field:'name' }}</a></li>
             {% endfor %}
           </ul>
         </div>

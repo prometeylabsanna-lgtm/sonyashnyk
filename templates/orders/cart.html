@@ -54,8 +54,8 @@
 
               <div class="cart-card__body">
                 <div class="cart-card__info">
-                  <a href="{{ item.product.get_absolute_url }}" class="cart-card__name">{{ item.product.name }}</a>
-                  <span class="cart-card__meta">{{ item.variant.label }} · {{ item.price }} ₴/шт</span>
+                  <a href="{{ item.product.get_absolute_url }}" class="cart-card__name">{{ item.product|loc_field:'name' }}</a>
+                  <span class="cart-card__meta">{{ item.variant|loc_field:'label' }} · {{ item.price }} ₴/шт</span>
                 </div>
 
                 <div class="cart-card__controls">
@@ -87,7 +87,7 @@
             <ul class="cart-receipt__lines">
               {% for item in cart_items %}
                 <li class="cart-receipt__line">
-                  <span class="cart-receipt__item">{{ item.product.name }} ×{{ item.quantity }}</span>
+                  <span class="cart-receipt__item">{{ item.product|loc_field:'name' }} ×{{ item.quantity }}</span>
                   <span class="cart-receipt__item-price">{{ item.line_total }} ₴</span>
                 </li>
               {% endfor %}

@@ -1,3 +1,4 @@
+{% load site_content %}
 <div class="mobile-menu" id="mobile-menu" data-mobile-menu>
   <div class="mobile-menu__overlay" data-mobile-menu-close></div>
   <div class="mobile-menu__panel" role="dialog" aria-modal="true" aria-label="Меню категорій">
@@ -12,16 +13,16 @@
         <li class="mobile-menu__item">
           {% if cat.children.all %}
             <button type="button" data-accordion-toggle>
-              {{ cat.name }}
+              {{ cat|loc_field:'name' }}
               <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
             </button>
             <ul class="mobile-menu__sub">
               {% for sub in cat.children.all %}
-                {% if sub.is_active %}<li><a href="{{ sub.get_absolute_url }}">{{ sub.name }}</a></li>{% endif %}
+                {% if sub.is_active %}<li><a href="{{ sub.get_absolute_url }}">{{ sub|loc_field:'name' }}</a></li>{% endif %}
               {% endfor %}
             </ul>
           {% else %}
-            <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+            <a href="{{ cat.get_absolute_url }}">{{ cat|loc_field:'name' }}</a>
           {% endif %}
         </li>
       {% endfor %}

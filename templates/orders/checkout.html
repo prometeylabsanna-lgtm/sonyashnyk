@@ -117,7 +117,7 @@
           <div class="checkout-summary__items">
             {% for item in cart_items %}
               <div class="checkout-summary__item">
-                <span>{{ item.product.name }} ({{ item.variant.label }}) × {{ item.quantity }}</span>
+                <span>{{ item.product|loc_field:'name' }} ({{ item.variant|loc_field:'label' }}) × {{ item.quantity }}</span>
                 <span>{{ item.line_total }} ₴</span>
               </div>
             {% endfor %}

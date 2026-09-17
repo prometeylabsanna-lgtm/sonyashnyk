@@ -20,3 +20,4 @@ class CertificateAdmin(TopDropdownFiltersMixin, ModelAdmin):
     )
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("title", "series")
+    fields = ("title", "title_ru", "series", "series_ru", "file", "product", "is_active", "order")

@@ -1,3 +1,4 @@
+{% load site_content %}
 {% comment %}
   Параметри: breadcrumbs (список категорій від кореня), current_label (необов'язково,
   напр. назва товару на PDP — тоді усі categories стають посиланнями),
@@ -14,9 +15,9 @@
   {% for cat in breadcrumbs %}
     <span aria-hidden="true">/</span>
     {% if forloop.last and not current_label %}
-      <span class="is-current">{{ cat.name }}</span>
+      <span class="is-current">{{ cat|loc_field:'name' }}</span>
     {% else %}
-      <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+      <a href="{{ cat.get_absolute_url }}">{{ cat|loc_field:'name' }}</a>
     {% endif %}
   {% endfor %}
   {% if current_label %}

@@ -9,6 +9,7 @@ from django import template
 from django.utils.safestring import mark_safe
 
 from apps.core.block_defaults import STATIC_FALLBACKS, get_block_default
+from apps.core.i18n_utils import is_ru, loc, pick
 
 register = template.Library()
 
@@ -24,19 +25,51 @@ def _get_block(context, page, key):
     return blocks.get(f"{page}.{key}")
 
 
+def _default_for_lang(page: str, key: str) -> str:
+    if is_ru():
+        try:
+            from apps.core.block_defaults_ru import get_block_default_ru
+
+            ru = get_block_default_ru(page, key)
+            if ru:
+                return ru
+        except Exception:
+            pass
+    return get_block_default(page, key)
+
+
 def get_block_text(page, key, site_blocks=None, fallback=None):
     if site_blocks is None:
         site_blocks = {}
     block = site_blocks.get(f"{page}.{key}")
-    if block is not None and block.text_html not in (None, ""):
-        return block.text_html
+    if block is not None:
+        if is_ru():
+            ru = getattr(block, "text_html_ru", "") or ""
+            if str(ru).strip():
+                return ru
+        if block.text_html not in (None, ""):
+            return block.text_html
     if fallback is not None:
+        if is_ru() and not (fallback or "").strip():
+            return _default_for_lang(page, key)
+        if is_ru():
+            # fallback переданий як UK — спробувати RU дефолт
+            ru_def = _default_for_lang(page, key)
+            if ru_def and ru_def != get_block_default(page, key):
+                return ru_def
         return fallback
-    return get_block_default(page, key)
+    return _default_for_lang(page, key)
 
 
 def is_section_visible(page, visibility_key, site_blocks=None) -> bool:
-    value = get_block_text(page, visibility_key, site_blocks=site_blocks, fallback="1")
+    # видимість не залежить від мови — беремо UK/основне поле
+    if site_blocks is None:
+        site_blocks = {}
+    block = site_blocks.get(f"{page}.{visibility_key}")
+    if block is not None and block.text_html not in (None, ""):
+        value = block.text_html
+    else:
+        value = get_block_default(page, visibility_key) or "1"
     return value not in {"0", "false", "False", ""}
 
 
@@ -92,8 +125,10 @@ def block_url(context, page, key, fallback=None):
 @register.simple_tag(takes_context=True)
 def block_url_label(context, page, key, fallback=None):
     block = _get_block(context, page, key)
-    if block is not None and block.link_label:
-        return block.link_label
+    if block is not None:
+        label = pick(block.link_label, getattr(block, "link_label_ru", ""))
+        if label:
+            return label
     if key.endswith("_link"):
         label_key = f"{key}_label"
         text = get_block_text(page, label_key, site_blocks=_blocks(context), fallback=None)
@@ -140,3 +175,11 @@ def cms_lines(value):
 @register.filter
 def cms_splitlines(value):
     return [line.strip() for line in html_to_plain(value or "").split("\n") if line.strip()]
+
+
+@register.filter
+def loc_field(obj, field_name):
+    """{{ product|loc_field:'name' }}"""
+    if obj is None:
+        return ""
+    return loc(obj, field_name)

@@ -29,8 +29,8 @@
               {% endwith %}
             </div>
             <div class="cart-line__body">
-              <span class="cart-line__name">{{ item.product.name }}</span>
-              <span class="cart-line__variant">{{ item.variant.label }}</span>
+              <span class="cart-line__name">{{ item.product|loc_field:'name' }}</span>
+              <span class="cart-line__variant">{{ item.variant|loc_field:'label' }}</span>
               <div class="cart-line__row">
                 <span class="price">{{ item.price }} ₴ × {{ item.quantity }}</span>
                 <button type="button" class="cart-line__remove" data-cart-remove data-variant-id="{{ item.variant.id }}">{% block_plain 'site' 'cart_drawer_remove' %}</button>

@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from django.views.generic import TemplateView
+from django.views.i18n import set_language
 
 from apps.catalog import views as catalog_views
 from apps.core import views as core_views
@@ -15,6 +16,7 @@ sitemaps = {"products": ProductSitemap, "categories": CategorySitemap}
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("i18n/setlang/", set_language, name="set_language"),
 
     path("", core_views.home, name="home"),
 
