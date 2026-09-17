@@ -1,37 +1,16 @@
 from django.core.cache import cache
-from django.templatetags.static import static
 
 from apps.core.db_safe import database_reachable
 
 from .category_tree import HOME_ROOT_SLUGS
+from .icons import NAV_SALE_ICON, category_icon_is_custom, category_icon_url
 from .models import Category
-
-# Іконки desktop main-nav (WebP з прозорим фоном) — fallback, якщо немає Category.image
-NAV_CATEGORY_ICONS = {
-    "nasinnia": "img/header/categories/nasinnia.webp",
-    "dobriva-ta-stimuliatori-rostu": "img/header/categories/dobryva.webp",
-    "zasobi-zakhistu-roslin": "img/header/categories/zakhyst.webp",
-    "sadovii-instrument": "img/header/categories/instrument.webp",
-    "poliv-ta-opriskuvachi": "img/header/categories/polyv.webp",
-    "posadkovii-material": "img/header/categories/posadkovyi.webp",
-    "gorshchiki": "img/header/categories/gorshchyky.webp",
-    "grunti-ta-vse-dlia-posadki": "img/header/categories/grunty.webp",
-}
-NAV_SALE_ICON = "img/header/categories/aktsiyi.webp"
 
 
 def _attach_nav_icon(cat):
     """Пріоритет: Category.image → статичний fallback за slug."""
-    if cat.image:
-        try:
-            cat.nav_icon_url = cat.image.url
-            cat.nav_icon_custom = True
-            return
-        except Exception:
-            pass
-    path = NAV_CATEGORY_ICONS.get(cat.slug)
-    cat.nav_icon_url = static(path) if path else None
-    cat.nav_icon_custom = False
+    cat.nav_icon_url = category_icon_url(cat, for_nav=True)
+    cat.nav_icon_custom = category_icon_is_custom(cat)
 
 
 def nav_categories(request):

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
 
 from apps.core.admin_filters import (
@@ -13,6 +14,7 @@ from apps.core.admin_filters import (
 from apps.core.admin_utils import ImagePreviewMixin
 
 from .forms import ProductAdminForm
+from .icons import category_icon_is_custom, category_icon_url
 from .models import Category, Product, ProductImage, ProductVariant
 
 
@@ -34,20 +36,42 @@ class CategoryAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
     preview_max_height = 96
     preview_max_width = 96
 
+    def _icon_img_html(self, obj, *, size=40, show_caption=False):
+        url = category_icon_url(obj)
+        if not url:
+            return "—"
+        caption = ""
+        if show_caption:
+            if category_icon_is_custom(obj):
+                caption = mark_safe(
+                    '<div style="margin-top:6px;color:#6b7280;font-size:12px">'
+                    "Завантажена іконка</div>"
+                )
+            else:
+                caption = mark_safe(
+                    '<div style="margin-top:6px;color:#6b7280;font-size:12px">'
+                    "Статична іконка (поки файл не завантажено)</div>"
+                )
+        return format_html(
+            '<img src="{}" alt="" width="{}" height="{}" '
+            'style="width:{}px;height:{}px;object-fit:contain;'
+            'border-radius:4px;background:#f3f4f6;padding:2px">'
+            "{}",
+            url,
+            size,
+            size,
+            size,
+            size,
+            caption,
+        )
+
+    @admin.display(description="Превʼю")
+    def image_preview(self, obj):
+        return self._icon_img_html(obj, size=self.preview_max_height, show_caption=True)
+
     @admin.display(description="Іконка")
     def icon_thumb(self, obj):
-        if not obj.image:
-            return "—"
-        try:
-            url = obj.image.url
-        except Exception:
-            return "—"
-        return format_html(
-            '<img src="{}" alt="" width="40" height="40" '
-            'style="width:40px;height:40px;object-fit:contain;'
-            'border-radius:4px;background:#f3f4f6;padding:2px">',
-            url,
-        )
+        return self._icon_img_html(obj, size=40, show_caption=False)
 
 
 class ProductVariantInline(TabularInline):
