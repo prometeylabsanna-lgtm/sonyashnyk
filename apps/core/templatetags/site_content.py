@@ -183,3 +183,10 @@ def loc_field(obj, field_name):
     if obj is None:
         return ""
     return loc(obj, field_name)
+
+
+@register.filter
+def country_name(value):
+    from apps.core.i18n_utils import country_label
+
+    return country_label(value or "")

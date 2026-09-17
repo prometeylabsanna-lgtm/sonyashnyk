@@ -3,7 +3,7 @@
    ============================================================ */
 .subcats {
   display: flex;
-  gap: clamp(8px, 1.2vw, 20px);
+  gap: clamp(14px, 2vw, 28px);
   margin: clamp(20px, 3vw, 28px) 0 clamp(20px, 3vw, 32px);
   padding-bottom: 4px;
   width: 100%;
@@ -21,21 +21,26 @@
     flex: 1 1 0;
     width: auto;
     min-width: 0;
-    max-width: 100px;
+    max-width: 140px;
   }
 
   .subcats .subcat-tile__media {
-    width: clamp(48px, 5vw, 70px);
-    height: clamp(48px, 5vw, 70px);
+    width: clamp(52px, 5.5vw, 76px);
+    height: clamp(52px, 5.5vw, 76px);
   }
 
   .subcats .subcat-tile__name {
-    font-size: clamp(10px, 0.85vw, 13px);
+    font-size: clamp(11px, 0.9vw, 13px);
+    padding-inline: 4px;
+    hyphens: none;
+    -webkit-hyphens: none;
+    word-break: normal;
+    overflow-wrap: normal;
   }
 }
 
 .subcat-tile {
-  width: 100px;
+  width: 112px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -97,6 +102,11 @@
   font-weight: 700;
   color: var(--c-ink);
   line-height: 1.25;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+  padding-inline: 2px;
 }
 
 .catalog-toolbar {
@@ -427,13 +437,13 @@
 @media (max-width: 899px) {
   .subcats.hscroll > .subcat-tile {
     flex: 0 0 auto;
-    width: 88px;
+    width: 100px;
     max-width: none;
   }
 
   .subcat-tile__media {
-    width: 64px;
-    height: 64px;
+    width: 68px;
+    height: 68px;
   }
 
   .subcat-tile__name {
@@ -443,16 +453,16 @@
 
 @media (max-width: 599px) {
   .subcats {
-    gap: 12px;
+    gap: 16px;
   }
 
   .subcats.hscroll > .subcat-tile {
-    width: 80px;
+    width: 92px;
   }
 
   .subcat-tile__media {
-    width: 58px;
-    height: 58px;
+    width: 62px;
+    height: 62px;
   }
 
   .subcat-tile__name {

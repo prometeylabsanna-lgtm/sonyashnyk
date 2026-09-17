@@ -29,6 +29,19 @@
       toast_generic_error: "Сталася помилка. Спробуйте ще раз.",
       toast_cart_added: "Додано в кошик",
       toast_cart_fail: "Не вдалося додати товар.",
+      cart_receipt_brand: "чек",
+      cart_delivery: "Доставка",
+      cart_delivery_free: "безкошт.",
+      cart_delivery_tbd: "уточн.",
+      cart_discount: "Знижка",
+      cart_apply: "Застосувати",
+      cart_cancel: "Скасувати",
+      cart_total: "Разом",
+      cart_checkout: "Оформити замовлення",
+      cart_continue: "Продовжити покупки",
+      cart_empty_receipt: "Поки що тут порожньо",
+      cart_remove: "Видалити",
+      footer_credit: "Розробка від команди",
 
       ph_name: "Ваше ім'я",
       ph_full_name: "Прізвище, ім'я",
@@ -101,6 +114,19 @@
       toast_generic_error: "Произошла ошибка. Попробуйте ещё раз.",
       toast_cart_added: "Добавлено в корзину",
       toast_cart_fail: "Не удалось добавить товар.",
+      cart_receipt_brand: "чек",
+      cart_delivery: "Доставка",
+      cart_delivery_free: "бесплатно",
+      cart_delivery_tbd: "уточн.",
+      cart_discount: "Скидка",
+      cart_apply: "Применить",
+      cart_cancel: "Отменить",
+      cart_total: "Итого",
+      cart_checkout: "Оформить заказ",
+      cart_continue: "Продолжить покупки",
+      cart_empty_receipt: "Пока здесь пусто",
+      cart_remove: "Удалить",
+      footer_credit: "Разработка от команды",
 
       ph_name: "Ваше имя",
       ph_full_name: "Фамилия, имя",
@@ -163,6 +189,8 @@
   }
 
   function getLang() {
+    var htmlLang = normalizeLang(document.documentElement.lang || "");
+    if (htmlLang === "ru") return "ru";
     var stored = "";
     try {
       stored = window.localStorage.getItem(LANG_KEY) || "";
@@ -170,7 +198,7 @@
     if (stored) return normalizeLang(stored);
     var active = document.querySelector(".logobar__lang button.is-active[data-lang]");
     if (active) return normalizeLang(active.getAttribute("data-lang"));
-    return normalizeLang(document.documentElement.lang || "uk");
+    return "uk";
   }
 
   function t(key) {

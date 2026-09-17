@@ -11,7 +11,7 @@ HOME_CATEGORY_ICONS = {
     "nasinnia": "img/home/categories/nasinnya.webp",
     "dobriva-ta-stimuliatori-rostu": "img/home/categories/dobryva.webp",
     "zasobi-zakhistu-roslin": "img/home/categories/zakhyst.webp",
-    "sadovii-instrument": "img/header/categories/instrument.webp",
+    "sadovii-instrument": "img/home/categories/instrument.webp",
     "poliv-ta-opriskuvachi": "img/home/categories/polyv.webp",
     "posadkovii-material": "img/home/categories/posadkovyi.webp",
     "gorshchiki": "img/home/categories/gorshchyky.webp",

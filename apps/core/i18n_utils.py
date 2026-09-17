@@ -40,3 +40,18 @@ def loc(obj, field: str) -> str:
     base = getattr(obj, field, None)
     ru = getattr(obj, f"{field}_ru", None)
     return pick(base if base is not None else "", ru)
+
+
+COUNTRY_LABELS_RU = {
+    "Україна": "Украина",
+    "Польща": "Польша",
+    "Нідерланди": "Нидерланды",
+}
+
+
+def country_label(name: str) -> str:
+    if not name:
+        return ""
+    if is_ru():
+        return COUNTRY_LABELS_RU.get(name, name)
+    return name

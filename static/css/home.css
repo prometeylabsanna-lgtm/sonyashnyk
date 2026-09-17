@@ -333,6 +333,11 @@
   color: var(--c-ink);
   line-height: 1.25;
   padding-inline: 4px;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 @media (max-width: 899px) {
   .cat-tile__name { font-size: 13px; }

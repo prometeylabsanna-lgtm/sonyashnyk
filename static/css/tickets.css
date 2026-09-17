@@ -32,8 +32,8 @@
 .ticket {
   --ticket-pad-x: 14px;
   --ticket-notch: 14px;
-  flex: 0 0 min(240px, 78vw);
-  width: min(240px, 78vw);
+  flex: 0 0 min(280px, 82vw);
+  width: min(280px, 82vw);
   scroll-snap-align: start;
   position: relative;
   display: flex;
@@ -121,7 +121,11 @@
   line-height: 1.25;
   color: var(--c-ink);
   letter-spacing: 0.01em;
-  white-space: nowrap;
+  hyphens: none;
+  -webkit-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-wrap: balance;
 }
 
 .ticket__mid {

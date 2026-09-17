@@ -50,7 +50,7 @@
       <p class="modal__success-text">{% block_plain 'site' 'lead_modal_success_text' %}</p>
     </div>
 
-    <button type="button" class="modal__dismiss" data-modal-close data-lead-dismiss>Закрити</button>
+    <button type="button" class="modal__dismiss" data-modal-close data-lead-dismiss data-lead-close-label>{% if LANGUAGE_CODE == 'ru' %}Закрыть{% else %}Закрити{% endif %}</button>
   </div>
 </div>
 

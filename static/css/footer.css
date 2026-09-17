@@ -269,19 +269,30 @@
   color: #ffffff;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
 }
 
-.footer-social__link:hover {
-  color: var(--c-gold);
-  border-color: color-mix(in srgb, var(--c-gold) 55%, transparent);
-  background: color-mix(in srgb, var(--c-gold) 12%, transparent);
+.footer-social__link:hover,
+.footer-social__link:focus-visible {
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--c-gold) 80%, #ffffff);
+  background: color-mix(in srgb, var(--c-gold) 28%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-gold) 35%, transparent);
   text-decoration: none;
+  transform: translateY(-1px);
 }
 
 .footer-social__link--static {
   cursor: default;
-  pointer-events: none;
+  pointer-events: auto;
+}
+
+.footer-social__link--static:hover,
+.footer-social__link--static:focus-visible {
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--c-gold) 80%, #ffffff);
+  background: color-mix(in srgb, var(--c-gold) 28%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-gold) 35%, transparent);
 }
 
 .footer-social__link svg {

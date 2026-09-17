@@ -1,30 +1,58 @@
 /* ============================================================
-   ЛІД-МОДАЛКА — телефон/знижка, «1 клік», callback (§2.11 карти сайту)
-   Одна модалка, контент і lead_type підлаштовуються під тригер.
+   ЛІД-МОДАЛКА — телефон/знижка, «1 клік», callback
    ============================================================ */
 (function () {
   "use strict";
 
-  var AUTO_OPEN_DELAY = 15000; // мс — за замовчуванням; легко змінити тут
+  var AUTO_OPEN_DELAY = 15000;
   var STORAGE_KEY = "sonyashnyk_lead_modal_shown";
 
   var COPY = {
-    phone_modal: {
-      title: "Не йдіть без подарунка!",
-      lead: "Залиште номер телефону — передзвонимо і підкажемо знижку та найкращі товари під ваш запит.",
-      cta: "Отримати знижку",
+    uk: {
+      phone_modal: {
+        title: "Не йдіть без подарунка!",
+        lead: "Залиште номер телефону — передзвонимо і підкажемо знижку та найкращі товари під ваш запит.",
+        cta: "Отримати знижку",
+      },
+      buy_one_click: {
+        title: "Купити в 1 клік",
+        lead: "Залиште ім'я й телефон — наш менеджер зателефонує для підтвердження замовлення.",
+        cta: "Купити в 1 клік",
+      },
+      callback: {
+        title: "Передзвоніть мені",
+        lead: "Залиште номер — зателефонуємо протягом робочого дня.",
+        cta: "Передзвоніть мені",
+      },
+      close: "Закрити",
     },
-    buy_one_click: {
-      title: "Купити в 1 клік",
-      lead: "Залиште ім'я й телефон — наш менеджер зателефонує для підтвердження замовлення.",
-      cta: "Купити в 1 клік",
-    },
-    callback: {
-      title: "Передзвоніть мені",
-      lead: "Залиште номер — зателефонуємо протягом робочого дня.",
-      cta: "Передзвоніть мені",
+    ru: {
+      phone_modal: {
+        title: "Не уходите без подарка!",
+        lead: "Оставьте номер телефона — перезвоним и подскажем скидку и лучшие товары под ваш запрос.",
+        cta: "Получить скидку",
+      },
+      buy_one_click: {
+        title: "Купить в 1 клик",
+        lead: "Оставьте имя и телефон — наш менеджер позвонит для подтверждения заказа.",
+        cta: "Купить в 1 клик",
+      },
+      callback: {
+        title: "Перезвоните мне",
+        lead: "Оставьте номер — позвоним в течение рабочего дня.",
+        cta: "Перезвоните мне",
+      },
+      close: "Закрыть",
     },
   };
+
+  function lang() {
+    if (window.SonyashnykFormValidation) {
+      return SonyashnykFormValidation.getLang() === "ru" ? "ru" : "uk";
+    }
+    var code = (document.documentElement.lang || "uk").toLowerCase();
+    return code.indexOf("ru") === 0 ? "ru" : "uk";
+  }
 
   document.addEventListener("DOMContentLoaded", function () {
     var modal = document.querySelector("[data-lead-modal]");
@@ -37,12 +65,19 @@
     var productInput = form.querySelector("[data-lead-product-input]");
     var titleEl = modal.querySelector("[data-lead-title]");
     var leadEl = modal.querySelector("[data-lead-lead]");
+    var closeLabel = modal.querySelector("[data-lead-close-label]");
+
+    function pack() {
+      return COPY[lang()] || COPY.uk;
+    }
 
     function applyCopy(leadType) {
-      var copy = COPY[leadType] || COPY.phone_modal;
+      var p = pack();
+      var copy = p[leadType] || p.phone_modal;
       titleEl.textContent = copy.title;
       leadEl.textContent = copy.lead;
       submitBtn.textContent = copy.cta;
+      if (closeLabel) closeLabel.textContent = p.close;
     }
 
     function open(leadType, productId) {
@@ -121,7 +156,6 @@
         });
     });
 
-    // --- Автопоказ один раз за сесію/пристрій, якщо користувач ще не залишав заявку ---
     if (!window.localStorage.getItem(STORAGE_KEY)) {
       window.setTimeout(function () {
         if (!modal.classList.contains("is-open")) open("phone_modal");

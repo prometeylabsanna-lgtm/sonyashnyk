@@ -409,9 +409,11 @@
   overflow: hidden;
   max-width: 100%;
   line-height: 1.25;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  word-break: break-word;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  word-break: normal;
+  overflow-wrap: normal;
   color: #1C3F1A;
   font-weight: 700;
 }
