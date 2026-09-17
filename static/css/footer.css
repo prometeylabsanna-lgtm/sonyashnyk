@@ -94,6 +94,19 @@
   width: 100%;
 }
 
+.footer-cta__field {
+  margin-bottom: 0;
+  gap: 8px;
+}
+
+.footer-cta__field.field--error .footer-cta__row input[type="email"] {
+  box-shadow: inset 0 0 0 1px var(--c-danger);
+}
+
+.footer-cta__field .field__error {
+  color: rgba(255, 220, 200, 0.95);
+}
+
 .footer-cta__row {
   display: flex;
   align-items: stretch;

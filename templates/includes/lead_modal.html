@@ -19,7 +19,7 @@
       <span class="modal__ornament-line"></span>
     </div>
 
-    <form class="modal__form" data-lead-form action="{% url 'leads:create' %}" method="post">
+    <form class="modal__form" data-lead-form action="{% url 'leads:create' %}" method="post" novalidate>
       {% csrf_token %}
       <input type="hidden" name="lead_type" value="phone_modal" data-lead-type-input>
       <input type="hidden" name="product" value="" data-lead-product-input>
@@ -31,14 +31,14 @@
 
       <div class="field">
         <label class="modal__field-label" for="lead-modal-name">Ім'я</label>
-        <input type="text" id="lead-modal-name" name="name" placeholder="Ваше ім'я" autocomplete="name">
+        <input type="text" id="lead-modal-name" name="name" placeholder="Ваше ім'я" autocomplete="name" data-validate="name">
       </div>
       <div class="field">
         <label class="modal__field-label" for="lead-modal-phone">Телефон</label>
-        <input type="tel" id="lead-modal-phone" name="phone" placeholder="+380" required data-phone-mask autocomplete="tel">
+        <input type="tel" id="lead-modal-phone" name="phone" placeholder="+380" required data-phone-mask data-validate="phone" autocomplete="tel">
       </div>
       <div class="field field--checkbox">
-        <input type="checkbox" id="lead-modal-agree" required>
+        <input type="checkbox" id="lead-modal-agree" required data-validate="checkbox">
         <label for="lead-modal-agree" class="modal__agree-label">{% block_plain 'site' 'lead_modal_agree' %}</label>
       </div>
 

@@ -84,8 +84,15 @@
       });
     });
 
+    if (window.SonyashnykFormValidation) {
+      SonyashnykFormValidation.bindSubmitValidation(form);
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      if (window.SonyashnykFormValidation && !SonyashnykFormValidation.validateForm(form)) {
+        return;
+      }
       submitBtn.disabled = true;
       var formData = new FormData(form);
       SonyashnykUtils.postForm(window.SONYASHNYK.leadUrl, formData)
@@ -97,12 +104,20 @@
             window.localStorage.setItem(STORAGE_KEY, "1");
             window.setTimeout(close, 2200);
           } else {
-            SonyashnykUtils.showToast("Перевірте, будь ласка, номер телефону.");
+            SonyashnykUtils.showToast(
+              (window.SonyashnykFormValidation && SonyashnykFormValidation.getLang() === "ru")
+                ? "Проверьте, пожалуйста, номер телефона."
+                : "Перевірте, будь ласка, номер телефону."
+            );
           }
         })
         .catch(function () {
           submitBtn.disabled = false;
-          SonyashnykUtils.showToast("Сталася помилка. Спробуйте ще раз.");
+          SonyashnykUtils.showToast(
+            (window.SonyashnykFormValidation && SonyashnykFormValidation.getLang() === "ru")
+              ? "Произошла ошибка. Попробуйте ещё раз."
+              : "Сталася помилка. Спробуйте ще раз."
+          );
         });
     });
 

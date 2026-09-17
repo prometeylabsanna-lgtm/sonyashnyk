@@ -12,22 +12,26 @@
         data-lead-type="newsletter"
         action="{% url 'leads:create' %}"
         method="post"
+        novalidate
       >
         {% csrf_token %}
         <input type="hidden" name="lead_type" value="newsletter">
         <input type="hidden" name="source_page" value="{{ request.path }}">
         <input type="text" name="honeypot" class="visually-hidden" tabindex="-1" autocomplete="off">
-        <div class="footer-cta__row">
-          <input
-            type="email"
-            name="email"
-            placeholder="Ваш email"
-            required
-            aria-label="Email"
-            autocomplete="email"
-            inputmode="email"
-          >
-          <button type="submit" class="footer-cta__btn">{% block_plain 'site' 'footer_cta_btn' %}</button>
+        <div class="field footer-cta__field">
+          <div class="footer-cta__row">
+            <input
+              type="email"
+              name="email"
+              placeholder="Ваш email"
+              required
+              aria-label="Email"
+              autocomplete="email"
+              inputmode="email"
+              data-validate="email"
+            >
+            <button type="submit" class="footer-cta__btn">{% block_plain 'site' 'footer_cta_btn' %}</button>
+          </div>
         </div>
       </form>
     </div>

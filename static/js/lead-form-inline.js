@@ -9,9 +9,21 @@
     document.querySelectorAll("[data-lead-form-inline]").forEach(initInlineLeadForm);
   });
 
+  function toast(uk, ru) {
+    var isRu = window.SonyashnykFormValidation && SonyashnykFormValidation.getLang() === "ru";
+    SonyashnykUtils.showToast(isRu ? ru : uk);
+  }
+
   function initInlineLeadForm(form) {
+    if (window.SonyashnykFormValidation) {
+      SonyashnykFormValidation.bindSubmitValidation(form);
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      if (window.SonyashnykFormValidation && !SonyashnykFormValidation.validateForm(form)) {
+        return;
+      }
       var button = form.querySelector('button[type="submit"]');
       button.disabled = true;
       var formData = new FormData(form);
@@ -19,15 +31,15 @@
         .then(function (result) {
           button.disabled = false;
           if (result.data && result.data.ok) {
-            SonyashnykUtils.showToast("Дякуємо! Ваше повідомлення надіслано.");
+            toast("Дякуємо! Ваше повідомлення надіслано.", "Спасибо! Ваше сообщение отправлено.");
             form.reset();
           } else {
-            SonyashnykUtils.showToast("Перевірте поля форми і спробуйте ще раз.");
+            toast("Перевірте поля форми і спробуйте ще раз.", "Проверьте поля формы и попробуйте ещё раз.");
           }
         })
         .catch(function () {
           button.disabled = false;
-          SonyashnykUtils.showToast("Сталася помилка мережі.");
+          toast("Сталася помилка мережі.", "Произошла сетевая ошибка.");
         });
     });
   }

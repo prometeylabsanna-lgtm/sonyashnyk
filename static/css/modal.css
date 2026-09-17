@@ -222,10 +222,13 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--arch-btn) 18%, transparent);
 }
 
-.modal--arch .field--checkbox {
-  margin: 14px 0 18px;
-  align-items: flex-start;
-  text-align: left;
+.modal--arch .field--error input[type="text"],
+.modal--arch .field--error input[type="tel"] {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-danger) 16%, transparent);
+}
+.modal--arch .field__error {
+  color: var(--c-danger);
 }
 .modal--arch .field--checkbox input {
   width: 18px;

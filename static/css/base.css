@@ -210,8 +210,10 @@ h3, .h3 {
   outline: none;
 }
 .field--error input, .field--error select, .field--error textarea { border-color: var(--c-danger); }
+.field--error.field--checkbox input { outline: 1px solid var(--c-danger); outline-offset: 2px; }
 .field__error { font-size: 12.5px; color: var(--c-danger); }
-.field--checkbox { flex-direction: row; align-items: flex-start; gap: 10px; }
+.field--checkbox { flex-direction: row; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.field--checkbox .field__error { flex: 1 0 100%; margin-left: 30px; }
 .field--checkbox input { width: 20px; height: 20px; min-height: unset; flex: 0 0 auto; margin-top: 2px; }
 
 .badge {

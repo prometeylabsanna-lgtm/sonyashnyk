@@ -189,5 +189,58 @@
         toggleBtn.setAttribute("aria-expanded", String(!isOpen));
       });
     }
+
+    if (form && window.SonyashnykFormValidation) {
+      function shouldValidateCheckoutField(input) {
+        var name = input.getAttribute("name") || "";
+        if (name === "city") {
+          return currentDelivery() !== "pickup";
+        }
+        if (name === "warehouse") {
+          var meta = LABELS[currentDelivery()] || LABELS.np_branch;
+          return !!meta.showWh;
+        }
+        return true;
+      }
+
+      var cityField = form.querySelector('[name="city"]');
+      var warehouseField = form.querySelector('[name="warehouse"]');
+      var fullNameField = form.querySelector('[name="full_name"]');
+      var phoneField = form.querySelector('[name="phone"]');
+      var emailField = form.querySelector('[name="email"]');
+      var agreeField = form.querySelector('[name="agreed_to_data_processing"]');
+
+      if (fullNameField) {
+        fullNameField.setAttribute("data-validate", "name");
+        fullNameField.setAttribute("data-validate-required", "");
+      }
+      if (phoneField) {
+        phoneField.setAttribute("data-validate", "phone");
+        phoneField.setAttribute("data-validate-required", "");
+      }
+      if (emailField) {
+        emailField.setAttribute("data-validate", "email");
+        emailField.setAttribute("data-validate-optional", "");
+      }
+      if (cityField) cityField.setAttribute("data-validate", "city");
+      if (warehouseField) warehouseField.setAttribute("data-validate", "warehouse");
+      if (agreeField) agreeField.setAttribute("data-validate-required", "");
+
+      form.addEventListener("submit", function (e) {
+        if (cityField) {
+          if (currentDelivery() !== "pickup") cityField.setAttribute("data-validate-required", "");
+          else cityField.removeAttribute("data-validate-required");
+        }
+        if (warehouseField) {
+          var meta = LABELS[currentDelivery()] || LABELS.np_branch;
+          if (meta.showWh) warehouseField.setAttribute("data-validate-required", "");
+          else warehouseField.removeAttribute("data-validate-required");
+        }
+
+        if (!SonyashnykFormValidation.validateForm(form, { shouldValidate: shouldValidateCheckoutField })) {
+          e.preventDefault();
+        }
+      }, true);
+    }
   });
 })();
