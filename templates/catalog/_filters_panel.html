@@ -35,7 +35,7 @@
       </label>
     </div>
 
-    {% if available_brands %}
+    {% if show_brand_filter and available_brands %}
     <div class="filter-group">
       <div class="filter-group__title">{% block_plain 'catalog' 'filters_brand' %}</div>
       {% for brand in available_brands %}
@@ -47,7 +47,7 @@
     </div>
     {% endif %}
 
-    {% if available_countries %}
+    {% if show_country_filter and available_countries %}
     <div class="filter-group">
       <div class="filter-group__title">{% block_plain 'catalog' 'filters_country' %}</div>
       {% for country in available_countries %}

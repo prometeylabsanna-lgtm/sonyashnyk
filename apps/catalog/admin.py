@@ -20,6 +20,9 @@ from .forms import ProductAdminForm
 from .icons import category_icon_caption, category_icon_url
 from .models import Category, Product, ProductImage, ProductVariant
 
+# Реєстрація адмінки фільтрів
+from . import filter_admin  # noqa: E402,F401
+
 
 class CategoryLevelAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
     """Спільна база для рівнів меню."""
@@ -157,6 +160,8 @@ class SubSubCategoryAdmin(CategoryLevelAdmin):
 # Прихована реєстрація Category — для FK у товарів, без пункту в меню
 @admin.register(Category)
 class CategoryAdmin(CategoryLevelAdmin):
+    search_fields = ("name", "erp_name", "slug")
+
     def has_module_permission(self, request):
         return False
 
@@ -175,7 +180,7 @@ class ProductImageInline(TabularInline):
 class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
     form = ProductAdminForm
     list_display = (
-        "image_thumb", "name", "sku", "category", "power", "base_price", "active_flag",
+        "image_thumb", "name", "sku", "category", "base_price", "active_flag",
     )
     list_filter = (
         ("category", CleanRelatedDropdownFilter),
@@ -235,7 +240,8 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
 
     @admin.display(
         description=mark_safe(
-            '<span title="Активний (видимий на сайті)">Акт.</span>'
+            '<span title="Активний (видимий на сайті)" '
+            'style="font-size:11px;line-height:1.2">Активність</span>'
         ),
         boolean=True,
         ordering="is_active",

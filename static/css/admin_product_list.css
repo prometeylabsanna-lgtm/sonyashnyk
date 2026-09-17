@@ -45,11 +45,6 @@
   width: 6.5rem;
 }
 
-#result_list .field-power,
-#result_list th.column-power {
-  width: 5.5rem;
-}
-
 #result_list .field-base_price,
 #result_list th.column-base_price {
   width: 6rem;
@@ -60,11 +55,12 @@
 
 #result_list .field-active_flag,
 #result_list th.column-active_flag {
-  width: 3.5rem;
+  width: 5.25rem;
   text-align: center;
   white-space: nowrap;
   overflow-wrap: normal;
   word-break: normal;
+  font-size: 11px;
 }
 
 #result_list .field-name {
@@ -76,11 +72,6 @@
 }
 
 @media (max-width: 1024px) {
-  #result_list .field-power,
-  #result_list th.column-power {
-    width: 4.5rem;
-  }
-
   #result_list th,
   #result_list td {
     padding-left: 0.4rem;
@@ -91,14 +82,17 @@
 
 @media (max-width: 768px) {
   #result_list .field-sku,
-  #result_list th.column-sku,
-  #result_list .field-power,
-  #result_list th.column-power {
+  #result_list th.column-sku {
     width: 4rem;
   }
 
   #result_list .field-base_price,
   #result_list th.column-base_price {
     width: 5rem;
+  }
+
+  #result_list .field-active_flag,
+  #result_list th.column-active_flag {
+    width: 4.75rem;
   }
 }

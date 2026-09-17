@@ -160,7 +160,9 @@ SKIP_ICON_SLUGS = {
     "gazonni-travi",
 }
 
-# Фільтр «Обʼєм / вага / фасування» (§3.3): мл/л/г/кг
+# Legacy slug-набори — використовуються лише для seed міграції / fallback.
+# Активна логіка: CategoryFilterSetting у БД (адмінка «Фільтри»).
+
 VOLUME_FILTER_ROOT_SLUGS = frozenset({
     "nasinnia",
     "dobriva-ta-stimuliatori-rostu",
@@ -171,7 +173,6 @@ VOLUME_FILTER_EXTRA_SLUGS = frozenset({
     "vagove-nasinnia",
 })
 
-# Фільтр «Потужність»: інструмент, полив / оприскувачі
 POWER_FILTER_ROOT_SLUGS = frozenset({
     "sadovii-instrument",
     "poliv-ta-opriskuvachi",
@@ -187,11 +188,43 @@ def _category_matches_slugs(category, root_slugs, extra_slugs=frozenset()):
     return False
 
 
+def category_allows_filter(category, filter_type):
+    """Чи показувати тип фільтра для категорії (найближче налаштування в ланцюгу)."""
+    from .filter_models import CategoryFilterSetting
+
+    if category is None:
+        return CategoryFilterSetting.objects.filter(
+            filter_type=filter_type,
+            is_enabled=True,
+        ).exists()
+
+    chain_ids = [node.pk for node in category.breadcrumb_chain()]
+    if not chain_ids:
+        return False
+
+    settings_map = {
+        row.category_id: row.is_enabled
+        for row in CategoryFilterSetting.objects.filter(
+            category_id__in=chain_ids,
+            filter_type=filter_type,
+        )
+    }
+    # Від листа до кореня — перше явне налаштування перемагає
+    for node in reversed(category.breadcrumb_chain()):
+        if node.pk in settings_map:
+            return settings_map[node.pk]
+    return False
+
+
 def category_allows_volume_filter(category):
-    """Чи показувати фільтр обʼєму/ваги для поточної категорії (або її предків)."""
-    return _category_matches_slugs(category, VOLUME_FILTER_ROOT_SLUGS, VOLUME_FILTER_EXTRA_SLUGS)
+    """Сумісність: делегує до CategoryFilterSetting."""
+    from .filter_models import FilterType
+
+    return category_allows_filter(category, FilterType.VOLUME)
 
 
 def category_allows_power_filter(category):
-    """Чи показувати фільтр потужності для поточної категорії (або її предків)."""
-    return _category_matches_slugs(category, POWER_FILTER_ROOT_SLUGS)
+    """Сумісність: делегує до CategoryFilterSetting."""
+    from .filter_models import FilterType
+
+    return category_allows_filter(category, FilterType.POWER)

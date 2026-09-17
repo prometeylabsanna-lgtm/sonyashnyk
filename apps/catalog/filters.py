@@ -1,6 +1,7 @@
 """Допоміжні функції фільтрації та сортування каталогу (§3.3 карти сайту)."""
 
-from .category_tree import category_allows_power_filter, category_allows_volume_filter
+from .category_tree import category_allows_filter
+from .filter_models import FILTER_PRODUCT_FIELDS, FilterOption, FilterType
 
 SORT_OPTIONS = {
     "popularity": "-is_hit",
@@ -51,37 +52,42 @@ def apply_sorting(request, products):
     return products.order_by(order_field, "-id")
 
 
-def build_filter_context(request, products, category=None):
-    """Формує список доступних брендів/країн/обʼємів/потужностей для чекбоксів."""
-    brands = (
-        products.exclude(brand="").order_by("brand").values_list("brand", flat=True).distinct()
+def _ordered_filter_values(filter_type, products):
+    """Значення з довідника (порядок) ∩ товари + «сирі» значення поза довідником."""
+    field = FILTER_PRODUCT_FIELDS[filter_type]
+    dict_ordered = list(
+        FilterOption.objects.filter(filter_type=filter_type, is_active=True)
+        .order_by("order", "value")
+        .values_list("value", flat=True)
     )
-    countries = (
-        products.exclude(country_of_origin="")
-        .order_by("country_of_origin")
-        .values_list("country_of_origin", flat=True)
+    product_vals = set(
+        products.exclude(**{field: ""})
+        .order_by(field)
+        .values_list(field, flat=True)
         .distinct()
     )
+    result = [v for v in dict_ordered if v in product_vals]
+    orphans = sorted(v for v in product_vals if v not in set(dict_ordered))
+    return result + orphans
 
-    show_volume_filter = category_allows_volume_filter(category)
-    volumes = []
-    if show_volume_filter:
-        volumes = list(
-            products.exclude(pack_volume="")
-            .order_by("pack_volume")
-            .values_list("pack_volume", flat=True)
-            .distinct()
-        )
 
-    show_power_filter = category_allows_power_filter(category)
-    powers = []
-    if show_power_filter:
-        powers = list(
-            products.exclude(power="")
-            .order_by("power")
-            .values_list("power", flat=True)
-            .distinct()
-        )
+def build_filter_context(request, products, category=None):
+    """Формує список доступних брендів/країн/обʼємів/потужностей для чекбоксів."""
+    show_brand = category_allows_filter(category, FilterType.BRAND)
+    show_country = category_allows_filter(category, FilterType.COUNTRY)
+    show_volume_filter = category_allows_filter(category, FilterType.VOLUME)
+    show_power_filter = category_allows_filter(category, FilterType.POWER)
+
+    brands = _ordered_filter_values(FilterType.BRAND, products) if show_brand else []
+    countries = (
+        _ordered_filter_values(FilterType.COUNTRY, products) if show_country else []
+    )
+    volumes = (
+        _ordered_filter_values(FilterType.VOLUME, products) if show_volume_filter else []
+    )
+    powers = (
+        _ordered_filter_values(FilterType.POWER, products) if show_power_filter else []
+    )
 
     active_filters = 0
     get = request.GET
@@ -92,14 +98,16 @@ def build_filter_context(request, products, category=None):
     active_filters += len(get.getlist("volume")) + len(get.getlist("power"))
 
     return {
-        "available_brands": list(brands),
-        "available_countries": list(countries),
+        "available_brands": brands,
+        "available_countries": countries,
         "available_volumes": volumes,
         "available_powers": powers,
         "selected_brands": get.getlist("brand"),
         "selected_countries": get.getlist("country"),
         "selected_volumes": get.getlist("volume"),
         "selected_powers": get.getlist("power"),
+        "show_brand_filter": show_brand,
+        "show_country_filter": show_country,
         "show_volume_filter": show_volume_filter,
         "show_power_filter": show_power_filter,
         "active_filters_count": active_filters,

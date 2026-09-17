@@ -279,6 +279,29 @@ UNFOLD = {
                 ],
             },
             {
+                "title": "Фільтри",
+                "separator": True,
+                "items": [
+                    {"title": "Бренди", "icon": "sell", "link": "/admin/catalog/brandfilteroption/"},
+                    {"title": "Країни", "icon": "public", "link": "/admin/catalog/countryfilteroption/"},
+                    {
+                        "title": "Обʼєм / вага",
+                        "icon": "scale",
+                        "link": "/admin/catalog/volumefilteroption/",
+                    },
+                    {
+                        "title": "Потужність",
+                        "icon": "bolt",
+                        "link": "/admin/catalog/powerfilteroption/",
+                    },
+                    {
+                        "title": "Привʼязка до категорій",
+                        "icon": "tune",
+                        "link": "/admin/catalog/categoryfiltersetting/",
+                    },
+                ],
+            },
+            {
                 "title": "Продажі",
                 "separator": True,
                 "items": [

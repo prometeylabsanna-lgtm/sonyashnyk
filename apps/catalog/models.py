@@ -243,3 +243,15 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Фото {self.product.name} #{self.order}"
+
+
+# Довідник фільтрів (окремий модуль, реєстрація через models)
+from .filter_models import (  # noqa: E402,F401
+    BrandFilterOption,
+    CategoryFilterSetting,
+    CountryFilterOption,
+    FilterOption,
+    FilterType,
+    PowerFilterOption,
+    VolumeFilterOption,
+)
