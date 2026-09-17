@@ -19,7 +19,7 @@ app = get_wsgi_application()
 from django.conf import settings
 
 # Зміна рядка = повний re-seed на наступному cold start
-SEED_PROFILE = "half-with-images-v4-schema-guard"
+SEED_PROFILE = "half-with-images-v5-fix-0015"
 
 VERCEL_SUPERUSER_USERNAME = "admin"
 VERCEL_SUPERUSER_EMAIL = "admin@sonyashnyk.com"

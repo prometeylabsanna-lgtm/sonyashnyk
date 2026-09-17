@@ -10,14 +10,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="categoryfiltersetting",
-            name="category",
-        ),
-        migrations.DeleteModel(name="FilterOption"),
+        # Без RemoveField: на SQLite RemoveField(FK) ламає migrate
+        # («NewCategoryFilterSetting has no field named category»).
         migrations.DeleteModel(name="BrandFilterOption"),
         migrations.DeleteModel(name="CountryFilterOption"),
         migrations.DeleteModel(name="PowerFilterOption"),
         migrations.DeleteModel(name="VolumeFilterOption"),
+        migrations.DeleteModel(name="FilterOption"),
         migrations.DeleteModel(name="CategoryFilterSetting"),
     ]
