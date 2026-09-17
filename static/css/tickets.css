@@ -1,6 +1,7 @@
 /* ============================================================
    КАРТКИ-«КВИТКИ» — блок переваг (перфорація, mobile-first)
-   Горизонтальний скрол; ширина ~280–300px (не вужче референсу)
+   Mobile/tablet: горизонтальний скрол
+   Desktop ≥1200: усі 5 в один ряд без скролу
    ============================================================ */
 
 .section--tickets {
@@ -9,7 +10,8 @@
 }
 
 .ticket-grid {
-  --ticket-gap: 12px;
+  --ticket-gap: 10px;
+  --ticket-count: 5;
   display: flex;
   gap: var(--ticket-gap);
   overflow-x: auto;
@@ -29,12 +31,11 @@
 }
 
 .ticket {
-  --ticket-pad-x: 14px;
-  --ticket-notch: 14px;
+  --ticket-pad-x: 12px;
+  --ticket-notch: 12px;
   flex: 0 0 auto;
-  /* Компактніше за колишні 320–400px; підлога ≈ як на референсі (~280px) */
-  width: max(280px, min(300px, 86vw));
-  min-width: 280px;
+  width: max(240px, min(260px, 78vw));
+  min-width: 240px;
   scroll-snap-align: start;
   position: relative;
   display: flex;
@@ -43,8 +44,8 @@
   gap: 0;
   background: var(--c-surface);
   border-radius: 14px;
-  box-shadow: var(--shadow-card);
-  padding: 16px var(--ticket-pad-x) 14px;
+  box-shadow: none;
+  padding: 14px var(--ticket-pad-x) 12px;
   box-sizing: border-box;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
@@ -55,29 +56,73 @@
 
 @media (min-width: 768px) {
   .ticket-grid {
-    --ticket-gap: 14px;
+    --ticket-gap: 12px;
   }
 
   .ticket {
-    --ticket-pad-x: 16px;
+    --ticket-pad-x: 12px;
     --ticket-notch: 12px;
-    width: 300px;
-    min-width: 280px;
-    flex-basis: 300px;
-    padding: 16px var(--ticket-pad-x) 14px;
+    width: 250px;
+    min-width: 250px;
+    flex-basis: 250px;
   }
 }
 
+/* Усі 5 на екран — без горизонтального скролу */
 @media (min-width: 1200px) {
   .ticket-grid {
-    --ticket-gap: 16px;
+    --ticket-gap: 10px;
+    overflow-x: visible;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    touch-action: auto;
+    padding-bottom: 0;
   }
 
   .ticket {
-    --ticket-pad-x: 16px;
-    width: 300px;
-    min-width: 280px;
-    flex: 0 0 300px;
+    --ticket-pad-x: 8px;
+    --ticket-notch: 10px;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    flex-basis: 0;
+    scroll-snap-align: none;
+    padding: 12px var(--ticket-pad-x) 10px;
+  }
+
+  .ticket__title {
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+
+  .ticket__text {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .ticket__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ticket__icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .ticket-grid {
+    --ticket-gap: 12px;
+  }
+
+  .ticket {
+    --ticket-pad-x: 10px;
+  }
+
+  .ticket__title {
+    font-size: 12.5px;
   }
 }
 
@@ -85,7 +130,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   padding-bottom: 2px;
 }
@@ -107,9 +152,9 @@
 .ticket__title {
   margin: 0;
   font-family: var(--f-accent);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.2;
   color: var(--c-ink);
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -124,7 +169,7 @@
 .ticket__mid {
   position: relative;
   width: calc(100% + 2 * var(--ticket-pad-x));
-  margin: 10px calc(var(--ticket-pad-x) * -1);
+  margin: 8px calc(var(--ticket-pad-x) * -1);
   height: var(--ticket-notch);
   display: flex;
   align-items: center;
@@ -167,9 +212,9 @@
 .ticket__text {
   margin: 2px 0 0;
   font-family: var(--f-body);
-  font-size: clamp(11px, 1vw, 13px);
+  font-size: clamp(11px, 1vw, 12px);
   font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.35;
   color: var(--c-muted);
   text-align: center;
 }
@@ -177,9 +222,9 @@
 @media (hover: hover) and (pointer: fine) {
   .ticket:hover {
     z-index: 2;
-    -webkit-transform: translateZ(0) scale(1.03);
-    transform: translateZ(0) scale(1.03);
-    box-shadow: 0 16px 36px color-mix(in srgb, var(--c-ink) 16%, transparent);
+    -webkit-transform: translateZ(0) scale(1.02);
+    transform: translateZ(0) scale(1.02);
+    box-shadow: none;
   }
 }
 
@@ -202,5 +247,11 @@
   .ticket {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+  }
+
+  @media (min-width: 1200px) {
+    .ticket-grid {
+      scroll-snap-type: none;
+    }
   }
 }
