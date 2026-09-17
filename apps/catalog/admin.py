@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
@@ -14,7 +15,7 @@ from apps.core.admin_filters import (
 from apps.core.admin_utils import ImagePreviewMixin
 
 from .forms import ProductAdminForm
-from .icons import category_icon_is_custom, category_icon_url
+from .icons import category_icon_caption, category_icon_url
 from .models import Category, Product, ProductImage, ProductVariant
 
 
@@ -36,22 +37,30 @@ class CategoryAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
     preview_max_height = 96
     preview_max_width = 96
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request).select_related("parent")
+        # Спочатку корені, далі за батьківською → менше плутанини в списку
+        return qs.order_by(
+            models.F("parent_id").asc(nulls_first=True),
+            "parent__name",
+            "order",
+            "name",
+        )
+
+    def _preview_for_nav(self, obj):
+        return bool(obj and obj.parent_id is None)
+
     def _icon_img_html(self, obj, *, size=40, show_caption=False):
-        url = category_icon_url(obj)
+        for_nav = self._preview_for_nav(obj)
+        url = category_icon_url(obj, for_nav=for_nav)
         if not url:
             return "—"
         caption = ""
         if show_caption:
-            if category_icon_is_custom(obj):
-                caption = mark_safe(
-                    '<div style="margin-top:6px;color:#6b7280;font-size:12px">'
-                    "Завантажена іконка</div>"
-                )
-            else:
-                caption = mark_safe(
-                    '<div style="margin-top:6px;color:#6b7280;font-size:12px">'
-                    "Статична іконка (поки файл не завантажено)</div>"
-                )
+            caption = mark_safe(
+                f'<div style="margin-top:6px;color:#6b7280;font-size:12px">'
+                f"{category_icon_caption(obj, for_nav=for_nav)}</div>"
+            )
         return format_html(
             '<img src="{}" alt="" width="{}" height="{}" '
             'style="width:{}px;height:{}px;object-fit:contain;'

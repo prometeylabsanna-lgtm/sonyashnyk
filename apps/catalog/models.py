@@ -31,8 +31,8 @@ class Category(models.Model):
         blank=True,
         null=True,
         help_text=(
-            "PNG або WebP. Для кореневих — шапка/головна; для підкатегорій — плитки в каталозі. "
-            "Якщо порожньо — статична іконка (корені) або соняшник за замовчуванням (підкатегорії)."
+            "PNG або WebP. Якщо порожньо — береться static-іконка: "
+            "корені з шапки/головної, підкатегорії з static/img/catalog/subcats/{slug}.png."
         ),
     )
     description = models.TextField("Опис", blank=True)

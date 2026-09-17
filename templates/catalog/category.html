@@ -29,27 +29,15 @@
       {% for sub in subcategories %}
         <a href="{{ sub.get_absolute_url }}" class="subcat-tile">
           <span class="subcat-tile__media">
-            {% if sub.image %}
-              <img
-                class="subcat-tile__icon"
-                src="{{ sub.image.url }}"
-                alt=""
-                width="128"
-                height="128"
-                loading="lazy"
-                decoding="async"
-              >
-            {% else %}
-              <img
-                class="subcat-tile__icon"
-                src="{% static 'img/catalog/subcats/default.png' %}?v=3"
-                alt=""
-                width="128"
-                height="128"
-                loading="lazy"
-                decoding="async"
-              >
-            {% endif %}
+            <img
+              class="subcat-tile__icon"
+              src="{{ sub.icon_url }}"
+              alt=""
+              width="128"
+              height="128"
+              loading="lazy"
+              decoding="async"
+            >
           </span>
           <span class="subcat-tile__name">{{ sub.name }}</span>
         </a>

@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render
 
 from .category_tree import HOME_ROOT_SLUGS
 from .filters import apply_sorting, build_filter_context, filter_products
+from .icons import attach_category_icons
 from .models import Category, Product
 
 PRODUCTS_PER_PAGE = 12
@@ -24,6 +25,7 @@ def catalog_index(request):
         )
     }
     root_categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
+    attach_category_icons(root_categories)
     products = Product.objects.filter(is_active=True).prefetch_related("variants", "images")
     products = filter_products(request, products)
     products = apply_sorting(request, products)
@@ -44,7 +46,10 @@ def catalog_index(request):
 def category(request, slug):
     """Сторінка категорії: плитки підкатегорій (якщо є) + сітка товарів + фільтри."""
     current_category = get_object_or_404(Category, slug=slug, is_active=True)
-    subcategories = current_category.children.filter(is_active=True).order_by("order", "name")
+    subcategories = list(
+        current_category.children.filter(is_active=True).order_by("order", "name")
+    )
+    attach_category_icons(subcategories)
 
     descendant_ids = current_category.get_descendant_ids()
     products = Product.objects.filter(category_id__in=descendant_ids, is_active=True).prefetch_related(
