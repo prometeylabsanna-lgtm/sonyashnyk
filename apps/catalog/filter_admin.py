@@ -1,87 +1,57 @@
-"""Адмінка довідника фільтрів каталогу."""
+"""Адмінка динамічних фільтрів каталогу."""
 
 from django.contrib import admin
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 
 from apps.core.admin_filters import (
-    CleanAllValuesDropdownFilter,
     CleanBooleanDropdownFilter,
-    CleanRelatedDropdownFilter,
     TopDropdownFiltersMixin,
     horizontal_options_for,
 )
 
-from .filter_models import (
-    BrandFilterOption,
-    CategoryFilterSetting,
-    CountryFilterOption,
-    FilterType,
-    PowerFilterOption,
-    VolumeFilterOption,
-)
+from .filter_models import CatalogFilter, CatalogFilterCategory, CatalogFilterValue
 
 
-class _FilterOptionAdmin(TopDropdownFiltersMixin, ModelAdmin):
-    """База для proxy-значень фільтра."""
+class CatalogFilterValueInline(TabularInline):
+    model = CatalogFilterValue
+    extra = 1
+    fields = ("value", "order", "is_active")
+    ordering = ("order", "value")
 
-    filter_type = None
-    list_display = ("value", "order", "is_active")
+
+class CatalogFilterCategoryInline(TabularInline):
+    model = CatalogFilterCategory
+    extra = 1
+    autocomplete_fields = ("category",)
+    fields = ("category", "is_enabled")
+    ordering = ("category__order", "category__name")
+
+
+@admin.register(CatalogFilter)
+class CatalogFilterAdmin(TopDropdownFiltersMixin, ModelAdmin):
+    list_display = ("name", "slug", "order", "is_active", "values_count", "bindings_count")
     list_editable = ("order", "is_active")
     list_filter = (("is_active", CleanBooleanDropdownFilter),)
     list_filter_options = horizontal_options_for(list_filter)
-    search_fields = ("value",)
-    ordering = ("order", "value")
-    fields = ("value", "order", "is_active")
+    search_fields = ("name", "name_ru", "slug")
+    ordering = ("order", "name")
+    prepopulated_fields = {"slug": ("name",)}
+    fields = (
+        "name", "name_ru", "slug", "order", "is_active", "use_country_labels",
+    )
+    inlines = [CatalogFilterValueInline, CatalogFilterCategoryInline]
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if self.filter_type:
-            return qs.filter(filter_type=self.filter_type)
-        return qs
+        return (
+            super()
+            .get_queryset(request)
+            .prefetch_related("values", "category_bindings")
+        )
 
-    def save_model(self, request, obj, form, change):
-        if self.filter_type:
-            obj.filter_type = self.filter_type
-        super().save_model(request, obj, form, change)
+    @admin.display(description="Значень")
+    def values_count(self, obj):
+        return obj.values.count()
 
-    def get_changeform_initial_data(self, request):
-        data = super().get_changeform_initial_data(request)
-        if self.filter_type:
-            data["filter_type"] = self.filter_type
-        return data
-
-
-@admin.register(BrandFilterOption)
-class BrandFilterOptionAdmin(_FilterOptionAdmin):
-    filter_type = FilterType.BRAND
-
-
-@admin.register(CountryFilterOption)
-class CountryFilterOptionAdmin(_FilterOptionAdmin):
-    filter_type = FilterType.COUNTRY
-
-
-@admin.register(VolumeFilterOption)
-class VolumeFilterOptionAdmin(_FilterOptionAdmin):
-    filter_type = FilterType.VOLUME
-
-
-@admin.register(PowerFilterOption)
-class PowerFilterOptionAdmin(_FilterOptionAdmin):
-    filter_type = FilterType.POWER
-
-
-@admin.register(CategoryFilterSetting)
-class CategoryFilterSettingAdmin(TopDropdownFiltersMixin, ModelAdmin):
-    list_display = ("category", "filter_type", "is_enabled")
-    list_editable = ("is_enabled",)
-    list_filter = (
-        ("filter_type", CleanAllValuesDropdownFilter),
-        ("is_enabled", CleanBooleanDropdownFilter),
-        ("category", CleanRelatedDropdownFilter),
-    )
-    list_filter_options = horizontal_options_for(list_filter)
-    search_fields = ("category__name", "category__slug")
-    autocomplete_fields = ("category",)
-    ordering = ("category__order", "category__name", "filter_type")
-    fields = ("category", "filter_type", "is_enabled")
+    @admin.display(description="Категорій")
+    def bindings_count(self, obj):
+        return obj.category_bindings.filter(is_enabled=True).count()

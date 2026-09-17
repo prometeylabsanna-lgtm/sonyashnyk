@@ -160,8 +160,8 @@ SKIP_ICON_SLUGS = {
     "gazonni-travi",
 }
 
-# Legacy slug-набори — використовуються лише для seed міграції / fallback.
-# Активна логіка: CategoryFilterSetting у БД (адмінка «Фільтри»).
+# Legacy slug-набори — лише для seed міграцій.
+# Активна логіка: CatalogFilter.category_bindings у БД.
 
 VOLUME_FILTER_ROOT_SLUGS = frozenset({
     "nasinnia",
@@ -179,52 +179,41 @@ POWER_FILTER_ROOT_SLUGS = frozenset({
 })
 
 
-def _category_matches_slugs(category, root_slugs, extra_slugs=frozenset()):
-    if category is None:
-        return False
-    for node in category.breadcrumb_chain():
-        if node.slug in root_slugs or node.slug in extra_slugs:
-            return True
-    return False
-
-
-def category_allows_filter(category, filter_type):
-    """Чи показувати тип фільтра для категорії (найближче налаштування в ланцюгу)."""
-    from .filter_models import CategoryFilterSetting
-
-    if category is None:
-        return CategoryFilterSetting.objects.filter(
-            filter_type=filter_type,
-            is_enabled=True,
-        ).exists()
-
-    chain_ids = [node.pk for node in category.breadcrumb_chain()]
-    if not chain_ids:
-        return False
-
-    settings_map = {
-        row.category_id: row.is_enabled
-        for row in CategoryFilterSetting.objects.filter(
-            category_id__in=chain_ids,
-            filter_type=filter_type,
-        )
+def category_allows_catalog_filter(category, catalog_filter):
+    """Чи показувати фільтр для категорії (найближче налаштування в ланцюгу)."""
+    bindings = {
+        b.category_id: b.is_enabled
+        for b in catalog_filter.category_bindings.all()
     }
+    # Якщо привʼязок немає взагалі — показувати скрізь (у т.ч. корінь каталогу)
+    if not bindings:
+        return True
+
+    if category is None:
+        return any(bindings.values())
+
     # Від листа до кореня — перше явне налаштування перемагає
     for node in reversed(category.breadcrumb_chain()):
-        if node.pk in settings_map:
-            return settings_map[node.pk]
+        if node.pk in bindings:
+            return bindings[node.pk]
     return False
 
 
 def category_allows_volume_filter(category):
-    """Сумісність: делегує до CategoryFilterSetting."""
-    from .filter_models import FilterType
+    """Сумісність зі старим API."""
+    from .filter_models import CatalogFilter
 
-    return category_allows_filter(category, FilterType.VOLUME)
+    cf = CatalogFilter.objects.filter(slug="volume", is_active=True).first()
+    if not cf:
+        return False
+    return category_allows_catalog_filter(category, cf)
 
 
 def category_allows_power_filter(category):
-    """Сумісність: делегує до CategoryFilterSetting."""
-    from .filter_models import FilterType
+    """Сумісність зі старим API."""
+    from .filter_models import CatalogFilter
 
-    return category_allows_filter(category, FilterType.POWER)
+    cf = CatalogFilter.objects.filter(slug="power", is_active=True).first()
+    if not cf:
+        return False
+    return category_allows_catalog_filter(category, cf)

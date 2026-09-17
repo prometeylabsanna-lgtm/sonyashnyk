@@ -64,11 +64,17 @@ _reg("product", "badge_own", "Власне виробництво", label="Бе�
 _reg("product", "sku_label", "Код:", label="Підпис коду", inline=True)
 _reg("product", "volume_label", "Фасування:", label="Підпис фасування", inline=True)
 _reg("product", "power_label", "Потужність:", label="Підпис потужності", inline=True)
-_reg("product", "in_stock", "В наявності", label="В наявності", inline=True)
-_reg("product", "out_of_stock", "Немає в наявності", label="Немає в наявності", inline=True)
+_reg("product", "in_stock", "В наявності", label="Статус: товар є", inline=True)
+_reg("product", "out_of_stock", "Немає в наявності", label="Статус: товару немає", inline=True)
 _reg("product", "add_cart", "До кошика", label="Кнопка кошика", inline=True)
-_reg("product", "one_click", "Купити в 1 клік", label="Кнопка 1 клік", inline=True)
-_reg("product", "wish_off", "В обране", label="Обране: вимк", inline=True)
-_reg("product", "wish_on", "В обраному", label="Обране: увімк", inline=True)
+_reg(
+    "product",
+    "one_click",
+    "Купити в 1 клік",
+    label="Кнопка «Купити в один клік»",
+    inline=True,
+)
+_reg("product", "wish_off", "В обране", label="Сердечко: додати в обране", inline=True)
+_reg("product", "wish_on", "В обраному", label="Сердечко: вже в обраному", inline=True)
 _reg("product", "desc_title", "Опис", label="Заголовок опису", inline=True)
 _reg("product", "related_title", "Схожі товари", label="Схожі товари", inline=True)

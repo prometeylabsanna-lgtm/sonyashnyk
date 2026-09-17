@@ -35,53 +35,18 @@
       </label>
     </div>
 
-    {% if show_brand_filter and available_brands %}
+    {% for group in dynamic_filters %}
     <div class="filter-group">
-      <div class="filter-group__title">{% block_plain 'catalog' 'filters_brand' %}</div>
-      {% for brand in available_brands %}
+      <div class="filter-group__title">{{ group.name }}</div>
+      {% for value in group.values %}
         <label class="filter-check">
-          <input type="checkbox" name="brand" value="{{ brand }}" {% if brand in selected_brands %}checked{% endif %}>
-          {{ brand }}
+          <input type="checkbox" name="{{ group.slug }}" value="{{ value }}"
+            {% if value in group.selected %}checked{% endif %}>
+          {% if group.use_country_labels %}{{ value|country_name }}{% else %}{{ value }}{% endif %}
         </label>
       {% endfor %}
     </div>
-    {% endif %}
-
-    {% if show_country_filter and available_countries %}
-    <div class="filter-group">
-      <div class="filter-group__title">{% block_plain 'catalog' 'filters_country' %}</div>
-      {% for country in available_countries %}
-        <label class="filter-check">
-          <input type="checkbox" name="country" value="{{ country }}" {% if country in selected_countries %}checked{% endif %}>
-          {{ country|country_name }}
-        </label>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if show_volume_filter and available_volumes %}
-    <div class="filter-group">
-      <div class="filter-group__title">{% block_plain 'catalog' 'filters_volume' %}</div>
-      {% for volume in available_volumes %}
-        <label class="filter-check">
-          <input type="checkbox" name="volume" value="{{ volume }}" {% if volume in selected_volumes %}checked{% endif %}>
-          {{ volume }}
-        </label>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if show_power_filter and available_powers %}
-    <div class="filter-group">
-      <div class="filter-group__title">{% block_plain 'catalog' 'filters_power' %}</div>
-      {% for power in available_powers %}
-        <label class="filter-check">
-          <input type="checkbox" name="power" value="{{ power }}" {% if power in selected_powers %}checked{% endif %}>
-          {{ power }}
-        </label>
-      {% endfor %}
-    </div>
-    {% endif %}
+    {% endfor %}
 
     <div class="filters__foot">
       <a href="?" class="btn btn--outline btn--block">{% block_plain 'catalog' 'filters_reset' %}</a>

@@ -1,32 +1,68 @@
-"""Довідник значень фільтрів каталогу та привʼязка до категорій."""
+"""Динамічні фільтри каталогу: визначення → значення → привʼязка → атрибути товару."""
 
 from django.db import models, transaction
 
-
-class FilterType(models.TextChoices):
-    BRAND = "brand", "Бренд"
-    COUNTRY = "country", "Країна"
-    VOLUME = "volume", "Обʼєм / вага"
-    POWER = "power", "Потужність"
+from apps.core.utils import make_unique_slug
 
 
-# Поле Product ↔ тип фільтра
-FILTER_PRODUCT_FIELDS = {
-    FilterType.BRAND: "brand",
-    FilterType.COUNTRY: "country_of_origin",
-    FilterType.VOLUME: "pack_volume",
-    FilterType.POWER: "power",
+# Сумісність зі старими CharField на Product (PDP / картки / seed)
+LEGACY_PRODUCT_FIELDS = {
+    "brand": "brand",
+    "country": "country_of_origin",
+    "volume": "pack_volume",
+    "power": "power",
 }
 
 
-class FilterOption(models.Model):
-    """Дозволене значення фільтра (бренд, країна, обʼєм, потужність)."""
+class CatalogFilter(models.Model):
+    """Фільтр каталогу (можна додавати / видаляти в адмінці)."""
 
-    filter_type = models.CharField(
-        "Тип фільтра",
-        max_length=20,
-        choices=FilterType.choices,
-        db_index=True,
+    name = models.CharField("Назва", max_length=120)
+    name_ru = models.CharField("Назва (RU)", max_length=120, blank=True, default="")
+    slug = models.SlugField(
+        "Ключ (slug)",
+        max_length=64,
+        unique=True,
+        blank=True,
+        help_text="Параметр у URL (?brand=…). Залиште порожнім — згенерується з назви.",
+    )
+    order = models.PositiveIntegerField("Порядок", default=0)
+    is_active = models.BooleanField("Активний", default=True)
+    use_country_labels = models.BooleanField(
+        "Показувати як назви країн",
+        default=False,
+        help_text="Для фільтра країни — підставляти локалізовані назви.",
+    )
+
+    class Meta:
+        verbose_name = "Фільтр"
+        verbose_name_plural = "Фільтри"
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = make_unique_slug(CatalogFilter, self.name, instance_pk=self.pk)
+        super().save(*args, **kwargs)
+
+    def display_name(self):
+        from apps.core.i18n_utils import is_ru
+
+        if is_ru() and self.name_ru:
+            return self.name_ru
+        return self.name
+
+
+class CatalogFilterValue(models.Model):
+    """Дозволене значення фільтра."""
+
+    catalog_filter = models.ForeignKey(
+        CatalogFilter,
+        verbose_name="Фільтр",
+        on_delete=models.CASCADE,
+        related_name="values",
     )
     value = models.CharField("Значення", max_length=120)
     order = models.PositiveIntegerField("Порядок", default=0)
@@ -34,96 +70,102 @@ class FilterOption(models.Model):
 
     class Meta:
         verbose_name = "Значення фільтра"
-        verbose_name_plural = "Значення фільтрів"
-        ordering = ["filter_type", "order", "value"]
+        verbose_name_plural = "Значення фільтра"
+        ordering = ["order", "value"]
         constraints = [
             models.UniqueConstraint(
-                fields=["filter_type", "value"],
-                name="catalog_filteroption_type_value_uniq",
+                fields=["catalog_filter", "value"],
+                name="catalog_filtervalue_filter_value_uniq",
             ),
         ]
 
     def __str__(self):
-        return f"{self.get_filter_type_display()}: {self.value}"
+        return f"{self.catalog_filter.name}: {self.value}"
 
     def save(self, *args, **kwargs):
         old_value = None
         if self.pk:
             old_value = (
-                FilterOption.objects.filter(pk=self.pk)
+                CatalogFilterValue.objects.filter(pk=self.pk)
                 .values_list("value", flat=True)
                 .first()
             )
         super().save(*args, **kwargs)
         if old_value and old_value != self.value:
-            self._sync_products(old_value, self.value)
+            self._sync_attributes(old_value, self.value)
 
-    def _sync_products(self, old_value, new_value):
-        from .models import Product
-
-        field = FILTER_PRODUCT_FIELDS.get(self.filter_type)
-        if not field:
-            return
+    def _sync_attributes(self, old_value, new_value):
         with transaction.atomic():
-            Product.objects.filter(**{field: old_value}).update(**{field: new_value})
+            ProductAttribute.objects.filter(
+                catalog_filter_id=self.catalog_filter_id,
+                value=old_value,
+            ).update(value=new_value)
+            legacy = LEGACY_PRODUCT_FIELDS.get(self.catalog_filter.slug)
+            if legacy:
+                from .models import Product
+
+                Product.objects.filter(**{legacy: old_value}).update(**{legacy: new_value})
 
 
-class CategoryFilterSetting(models.Model):
-    """Де показувати який тип фільтра (категорія + нащадки через ланцюг)."""
+class CatalogFilterCategory(models.Model):
+    """Привʼязка фільтра до категорії (показувати на цій гілці каталогу)."""
 
+    catalog_filter = models.ForeignKey(
+        CatalogFilter,
+        verbose_name="Фільтр",
+        on_delete=models.CASCADE,
+        related_name="category_bindings",
+    )
     category = models.ForeignKey(
         "catalog.Category",
         verbose_name="Категорія",
         on_delete=models.CASCADE,
-        related_name="filter_settings",
-    )
-    filter_type = models.CharField(
-        "Тип фільтра",
-        max_length=20,
-        choices=FilterType.choices,
-        db_index=True,
+        related_name="catalog_filter_bindings",
     )
     is_enabled = models.BooleanField("Увімкнено", default=True)
 
     class Meta:
-        verbose_name = "Привʼязка фільтра до категорії"
-        verbose_name_plural = "Привʼязки фільтрів до категорій"
-        ordering = ["category__order", "category__name", "filter_type"]
+        verbose_name = "Привʼязка до категорії"
+        verbose_name_plural = "Привʼязки до категорій"
+        ordering = ["category__order", "category__name"]
         constraints = [
             models.UniqueConstraint(
-                fields=["category", "filter_type"],
-                name="catalog_catfilter_cat_type_uniq",
+                fields=["catalog_filter", "category"],
+                name="catalog_filtercat_filter_cat_uniq",
             ),
         ]
 
     def __str__(self):
         state = "увімкнено" if self.is_enabled else "вимкнено"
-        return f"{self.category} · {self.get_filter_type_display()} ({state})"
+        return f"{self.catalog_filter} · {self.category} ({state})"
 
 
-class BrandFilterOption(FilterOption):
+class ProductAttribute(models.Model):
+    """Значення фільтра на товарі (довільний ключ через CatalogFilter)."""
+
+    product = models.ForeignKey(
+        "catalog.Product",
+        verbose_name="Товар",
+        on_delete=models.CASCADE,
+        related_name="filter_attrs",
+    )
+    catalog_filter = models.ForeignKey(
+        CatalogFilter,
+        verbose_name="Фільтр",
+        on_delete=models.CASCADE,
+        related_name="product_attrs",
+    )
+    value = models.CharField("Значення", max_length=120)
+
     class Meta:
-        proxy = True
-        verbose_name = "Бренд"
-        verbose_name_plural = "Бренди"
+        verbose_name = "Атрибут товару"
+        verbose_name_plural = "Атрибути товарів"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product", "catalog_filter"],
+                name="catalog_productattr_product_filter_uniq",
+            ),
+        ]
 
-
-class CountryFilterOption(FilterOption):
-    class Meta:
-        proxy = True
-        verbose_name = "Країна"
-        verbose_name_plural = "Країни"
-
-
-class VolumeFilterOption(FilterOption):
-    class Meta:
-        proxy = True
-        verbose_name = "Обʼєм / вага"
-        verbose_name_plural = "Обʼєм / вага"
-
-
-class PowerFilterOption(FilterOption):
-    class Meta:
-        proxy = True
-        verbose_name = "Потужність"
-        verbose_name_plural = "Потужність"
+    def __str__(self):
+        return f"{self.product_id}: {self.catalog_filter.slug}={self.value}"

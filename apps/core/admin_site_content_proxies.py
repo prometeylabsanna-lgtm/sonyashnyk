@@ -32,7 +32,6 @@ _SECTION_MODELS = (
     (cms_proxies.OfferPageSettings, "offer", "page"),
     (cms_proxies.PrivacyPageSettings, "privacy", "page"),
     (cms_proxies.CatalogPageSettings, "catalog", "page"),
-    (cms_proxies.CatalogFiltersSettings, "catalog", "filters"),
     (cms_proxies.SearchPageSettings, "search", "page"),
     (cms_proxies.CartPageSettings, "cart", "page"),
     (cms_proxies.SiteCartDrawerSettings, "site", "cart_drawer"),

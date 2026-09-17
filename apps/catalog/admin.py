@@ -19,6 +19,7 @@ from .category_proxies import RootCategory, SubCategory, SubSubCategory
 from .forms import ProductAdminForm
 from .icons import category_icon_caption, category_icon_url
 from .models import Category, Product, ProductImage, ProductVariant
+from .filter_models import CatalogFilter
 
 # Реєстрація адмінки фільтрів
 from . import filter_admin  # noqa: E402,F401
@@ -197,14 +198,28 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("name", "sku", "pack_volume", "power", "brand", "country_of_origin")
     inlines = [ProductVariantInline, ProductImageInline]
-    fields = (
-        "category", "sku", "name", "name_ru", "slug",
-        "short_description", "short_description_ru",
-        "description", "description_ru", "characteristics", "characteristics_ru",
-        "brand", "country_of_origin", "pack_volume", "power",
-        "base_price", "old_price",
-        "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
-    )
+
+    def get_fields(self, request, obj=None):
+        attr_fields = [
+            f"attr_{slug}"
+            for slug in CatalogFilter.objects.filter(is_active=True)
+            .order_by("order", "name")
+            .values_list("slug", flat=True)
+        ]
+        return (
+            "category", "sku", "name", "name_ru", "slug",
+            "short_description", "short_description_ru",
+            "description", "description_ru", "characteristics", "characteristics_ru",
+            *attr_fields,
+            "brand", "country_of_origin", "pack_volume", "power",
+            "base_price", "old_price",
+            "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
+        )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if hasattr(form, "_save_attributes"):
+            form._save_attributes(obj)
 
     class Media:
         css = {"all": ("css/admin_product_list.css",)}

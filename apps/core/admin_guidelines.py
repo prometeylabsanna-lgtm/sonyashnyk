@@ -123,7 +123,7 @@ SECTION_HINTS: dict[tuple[str, str], str] = {
         "Обране. Заголовок — до ~30 символів, порожній стан — 1–2 речення."
     ),
     ("product", "page"): (
-        "Картка товару: підписи кнопок і бейджів. "
+        "Картка товару: тексти статусу наявності, кнопок купівлі, сердечка і бейджів. "
         "Кожен підпис — до ~25 символів."
     ),
 }
@@ -218,7 +218,9 @@ def help_for_key(key: str, page: str = "") -> str:
         return TEXT_HINTS["announce"]
     if key.endswith("_placeholder") or key.endswith("_ph"):
         return TEXT_HINTS["placeholder"]
-    if key.endswith("_btn") or "cta" in key or key.endswith("_label"):
+    if key.endswith("_label"):
+        return TEXT_HINTS["label"]
+    if key.endswith("_btn") or "cta" in key:
         return TEXT_HINTS["cta"]
     if key.endswith("_title") or key.endswith("_name") or key.endswith("_crumb"):
         return TEXT_HINTS["title"]

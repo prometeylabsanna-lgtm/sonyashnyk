@@ -247,11 +247,8 @@ class ProductImage(models.Model):
 
 # Довідник фільтрів (окремий модуль, реєстрація через models)
 from .filter_models import (  # noqa: E402,F401
-    BrandFilterOption,
-    CategoryFilterSetting,
-    CountryFilterOption,
-    FilterOption,
-    FilterType,
-    PowerFilterOption,
-    VolumeFilterOption,
+    CatalogFilter,
+    CatalogFilterCategory,
+    CatalogFilterValue,
+    ProductAttribute,
 )
