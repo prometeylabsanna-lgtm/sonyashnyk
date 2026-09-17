@@ -6,8 +6,14 @@ from django.db.utils import InterfaceError, OperationalError, ProgrammingError
 # False після першого фейлу в процесі (Vercel cold start)
 _db_reachable = None
 
-# Мінімальна таблиця для головної — якщо її немає, міграції не пройшли
-_REQUIRED_TABLE = "core_review"
+# Таблиці, без яких головна / каталог не можуть працювати з БД
+_REQUIRED_TABLES = frozenset({
+    "django_migrations",
+    "core_review",
+    "core_heroslide",
+    "catalog_category",
+    "catalog_product",
+})
 
 
 def database_reachable() -> bool:
@@ -18,8 +24,9 @@ def database_reachable() -> bool:
         connection.ensure_connection()
         with connection.cursor() as cursor:
             tables = set(connection.introspection.table_names(cursor))
-            if _REQUIRED_TABLE not in tables:
-                raise OperationalError(f"missing table {_REQUIRED_TABLE}")
+        missing = _REQUIRED_TABLES - tables
+        if missing:
+            raise OperationalError(f"missing tables: {sorted(missing)}")
         _db_reachable = True
     except (OperationalError, InterfaceError, ProgrammingError):
         _db_reachable = False

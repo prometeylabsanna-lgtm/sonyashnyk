@@ -114,56 +114,7 @@ def _fallback_for(slide: HeroSlide, idx: int) -> dict | None:
     return None
 
 
-def get_hero_slides(lang: str | None = None) -> list[HeroSlideView]:
-    from apps.core.i18n_utils import current_lang
-
-    lang = normalize_lang(lang or current_lang())
-    qs = list(HeroSlide.objects.filter(is_active=True).order_by("order", "id"))
-    if qs:
-        result: list[HeroSlideView] = []
-        for idx, slide in enumerate(qs):
-            fallback = _fallback_for(slide, idx)
-            static = None
-            if not slide.image and fallback:
-                static = fallback["static_image"]
-            image_url = None
-            if slide.image:
-                try:
-                    image_url = slide.image.url
-                except Exception:
-                    image_url = None
-
-            title_ru = (slide.title_ru or "").strip() or (
-                fallback.get("title_ru", "") if fallback else ""
-            )
-            lead_ru = (slide.lead_ru or "").strip() or (
-                fallback.get("lead_ru", "") if fallback else ""
-            )
-            cta1_ru = (slide.cta1_text_ru or "").strip() or (
-                fallback.get("cta1_text_ru", "") if fallback else ""
-            )
-            cta2_ru = (slide.cta2_text_ru or "").strip() or (
-                fallback.get("cta2_text_ru", "") if fallback else ""
-            )
-            alt_ru = (slide.alt_text_ru or "").strip() or title_ru
-
-            title = _pick(lang, slide.title, title_ru)
-            result.append(
-                HeroSlideView(
-                    title=title,
-                    lead=_pick(lang, slide.lead, lead_ru),
-                    eyebrow=_pick(lang, slide.eyebrow, slide.eyebrow_ru),
-                    cta1_text=_pick(lang, slide.cta1_text, cta1_ru),
-                    cta1_url=slide.cta1_url,
-                    cta2_text=_pick(lang, slide.cta2_text, cta2_ru),
-                    cta2_url=slide.cta2_url,
-                    image_url=image_url,
-                    static_image=static,
-                    alt_text=_pick(lang, slide.alt_text, alt_ru) or title,
-                )
-            )
-        return result
-
+def _static_slides(lang: str) -> list[HeroSlideView]:
     return [
         HeroSlideView(
             title=_pick(lang, item["title"], item.get("title_ru")),
@@ -179,6 +130,70 @@ def get_hero_slides(lang: str | None = None) -> list[HeroSlideView]:
         )
         for item in DEFAULT_HERO_SLIDES
     ]
+
+
+def get_hero_slides(lang: str | None = None) -> list[HeroSlideView]:
+    from django.db.utils import OperationalError, ProgrammingError
+
+    from apps.core.db_safe import database_reachable, reset_database_reachable_cache
+    from apps.core.i18n_utils import current_lang
+
+    lang = normalize_lang(lang or current_lang())
+    if not database_reachable():
+        return _static_slides(lang)
+
+    try:
+        qs = list(HeroSlide.objects.filter(is_active=True).order_by("order", "id"))
+    except (OperationalError, ProgrammingError):
+        reset_database_reachable_cache()
+        return _static_slides(lang)
+
+    if not qs:
+        return _static_slides(lang)
+
+    result: list[HeroSlideView] = []
+    for idx, slide in enumerate(qs):
+        fallback = _fallback_for(slide, idx)
+        static = None
+        if not slide.image and fallback:
+            static = fallback["static_image"]
+        image_url = None
+        if slide.image:
+            try:
+                image_url = slide.image.url
+            except Exception:
+                image_url = None
+
+        title_ru = (slide.title_ru or "").strip() or (
+            fallback.get("title_ru", "") if fallback else ""
+        )
+        lead_ru = (slide.lead_ru or "").strip() or (
+            fallback.get("lead_ru", "") if fallback else ""
+        )
+        cta1_ru = (slide.cta1_text_ru or "").strip() or (
+            fallback.get("cta1_text_ru", "") if fallback else ""
+        )
+        cta2_ru = (slide.cta2_text_ru or "").strip() or (
+            fallback.get("cta2_text_ru", "") if fallback else ""
+        )
+        alt_ru = (slide.alt_text_ru or "").strip() or title_ru
+
+        title = _pick(lang, slide.title, title_ru)
+        result.append(
+            HeroSlideView(
+                title=title,
+                lead=_pick(lang, slide.lead, lead_ru),
+                eyebrow=_pick(lang, slide.eyebrow, slide.eyebrow_ru),
+                cta1_text=_pick(lang, slide.cta1_text, cta1_ru),
+                cta1_url=slide.cta1_url,
+                cta2_text=_pick(lang, slide.cta2_text, cta2_ru),
+                cta2_url=slide.cta2_url,
+                image_url=image_url,
+                static_image=static,
+                alt_text=_pick(lang, slide.alt_text, alt_ru) or title,
+            )
+        )
+    return result
 
 
 def static_url(path: str) -> str:

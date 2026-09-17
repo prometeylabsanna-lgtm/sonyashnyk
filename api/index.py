@@ -1,12 +1,13 @@
 """
 Vercel Python entrypoint (WSGI → Django).
 
-На Vercel: SQLite у /tmp → migrate + seed_demo (якщо БД порожня / застарів профіль)
-+ тестовий суперюзер admin/admin (БД ефемерна).
+На Vercel: SQLite у /tmp → migrate (+ seed_demo якщо потрібно).
+Bootstrap не повинен валити cold start; головна вміє static-fallback.
 """
 
 import os
 import shutil
+import sys
 from pathlib import Path
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -18,15 +19,22 @@ app = get_wsgi_application()
 from django.conf import settings
 
 # Зміна рядка = повний re-seed на наступному cold start
-SEED_PROFILE = "half-with-images-v3-dynamic-filters"
+SEED_PROFILE = "half-with-images-v4-schema-guard"
 
 VERCEL_SUPERUSER_USERNAME = "admin"
 VERCEL_SUPERUSER_EMAIL = "admin@sonyashnyk.com"
 VERCEL_SUPERUSER_PASSWORD = "admin"
 
+_REQUIRED_TABLES = frozenset({
+    "django_migrations",
+    "core_review",
+    "core_heroslide",
+    "catalog_category",
+    "catalog_product",
+})
+
 
 def _ensure_vercel_superuser() -> None:
-    """Один і той самий password hash на всіх cold start → сесія не злітає між інстансами."""
     from django.contrib.auth import get_user_model
     from django.contrib.auth.hashers import make_password
 
@@ -46,15 +54,21 @@ def _ensure_vercel_superuser() -> None:
     )
 
 
-def _schema_ready() -> bool:
+def _existing_tables() -> set[str]:
     from django.db import connection
 
     with connection.cursor() as cursor:
-        tables = set(connection.introspection.table_names(cursor))
-    return "core_review" in tables and "django_migrations" in tables
+        return set(connection.introspection.table_names(cursor))
+
+
+def _schema_ready() -> bool:
+    return _REQUIRED_TABLES.issubset(_existing_tables())
 
 
 def _reset_sqlite() -> None:
+    from django.db import connection
+
+    connection.close()
     db_path = Path(settings.DATABASES["default"]["NAME"])
     if db_path.exists():
         db_path.unlink()
@@ -63,33 +77,42 @@ def _reset_sqlite() -> None:
         shutil.rmtree(media_root, ignore_errors=True)
 
 
+def _migrate() -> None:
+    from django.core.management import call_command
+    from django.db import connection
+
+    from apps.core.db_safe import reset_database_reachable_cache
+
+    call_command("migrate", interactive=False, verbosity=1)
+    connection.close()
+    reset_database_reachable_cache()
+
+
 if getattr(settings, "IS_VERCEL", False):
     try:
-        from django.core.management import call_command
-        from django.db import connection
-
         from apps.catalog.models import Category, ProductImage
-        from apps.core.db_safe import reset_database_reachable_cache
 
         profile_path = Path("/tmp/sonyashnyk_seed_profile")
-        profile_ok = profile_path.exists() and profile_path.read_text() == SEED_PROFILE
+        profile_ok = (
+            profile_path.exists() and profile_path.read_text().strip() == SEED_PROFILE
+        )
 
-        if not profile_ok:
+        # Якщо профіль застарів або схеми немає — чистий SQLite + migrate
+        if not profile_ok or not _schema_ready():
+            print("[vercel] resetting sqlite + migrate", file=sys.stderr)
             _reset_sqlite()
-
-        call_command("migrate", interactive=False, run_syncdb=False)
-        connection.close()
-        reset_database_reachable_cache()
+            _migrate()
+        elif not _schema_ready():
+            _migrate()
 
         if not _schema_ready():
-            # Пошкоджена / порожня схема — повний reset і ще раз migrate
+            print("[vercel] schema still incomplete, force reset", file=sys.stderr)
             _reset_sqlite()
-            call_command("migrate", interactive=False, run_syncdb=False)
-            connection.close()
-            reset_database_reachable_cache()
+            _migrate()
 
         if not _schema_ready():
-            raise RuntimeError("migrate finished but core_review is missing")
+            missing = sorted(_REQUIRED_TABLES - _existing_tables())
+            raise RuntimeError(f"migrate ok but missing tables: {missing}")
 
         _ensure_vercel_superuser()
 
@@ -99,12 +122,17 @@ if getattr(settings, "IS_VERCEL", False):
             or not ProductImage.objects.exists()
         )
         if need_seed:
+            from django.core.management import call_command
+
+            print("[vercel] seed_demo starting", file=sys.stderr)
             call_command("seed_demo")
             profile_path.write_text(SEED_PROFILE)
             _ensure_vercel_superuser()
+            print("[vercel] seed_demo done", file=sys.stderr)
+        else:
+            print("[vercel] bootstrap ok (cached profile)", file=sys.stderr)
     except Exception as exc:
-        # Не валимо cold start — home віддасть порожній контент через database_reachable()
-        print(f"[vercel] bootstrap failed: {exc}")
+        print(f"[vercel] bootstrap failed: {exc}", file=sys.stderr)
         try:
             from apps.core.db_safe import reset_database_reachable_cache
 
