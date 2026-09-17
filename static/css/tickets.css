@@ -1,7 +1,7 @@
 /* ============================================================
    КАРТКИ-«КВИТКИ» — блок переваг (перфорація, mobile-first)
-   mobile/tablet: горизонтальний скрол
-   desktop ≥1200: 5 в 1 ряд
+   Горизонтальний скрол на всіх брейкпоінтах:
+   ширина фіксована, щоб RU-заголовок був в 1 рядок
    ============================================================ */
 
 .section--tickets {
@@ -30,63 +30,54 @@
 }
 
 .ticket {
-  --ticket-pad-x: 14px;
+  --ticket-pad-x: 16px;
   --ticket-notch: 14px;
-  flex: 0 0 min(280px, 82vw);
-  width: min(280px, 82vw);
+  flex: 0 0 auto;
+  width: max(320px, min(360px, 88vw));
+  min-width: 320px;
   scroll-snap-align: start;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
   gap: 0;
-  padding: 16px var(--ticket-pad-x) 14px;
   background: var(--c-surface);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
+  padding: 16px var(--ticket-pad-x) 14px;
+  box-sizing: border-box;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  min-width: 0;
   transition:
     box-shadow var(--t-med) var(--ease),
     transform var(--t-med) var(--ease);
 }
 
-/* Планшет: 4 видимі + скрол до 5-ї */
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) {
   .ticket-grid {
     --ticket-gap: 14px;
   }
 
   .ticket {
-    --ticket-pad-x: 12px;
+    --ticket-pad-x: 18px;
     --ticket-notch: 12px;
-    flex-basis: calc((100% - 3 * var(--ticket-gap)) / 4);
-    width: calc((100% - 3 * var(--ticket-gap)) / 4);
-    padding: 14px var(--ticket-pad-x) 12px;
+    width: 380px;
+    min-width: 380px;
+    flex-basis: 380px;
+    padding: 16px var(--ticket-pad-x) 14px;
   }
 }
 
-/* Десктоп: 5 в 1 ряд, без скролу */
 @media (min-width: 1200px) {
   .ticket-grid {
-    --ticket-gap: 14px;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    overflow: visible;
-    scroll-snap-type: none;
-    padding-bottom: 0;
-    touch-action: auto;
+    --ticket-gap: 16px;
   }
 
   .ticket {
-    --ticket-pad-x: 12px;
-    --ticket-notch: 12px;
-    flex: unset;
-    width: auto;
-    scroll-snap-align: unset;
-    padding: 16px var(--ticket-pad-x) 14px;
+    --ticket-pad-x: 20px;
+    width: 400px;
+    min-width: 400px;
+    flex: 0 0 400px;
   }
 }
 
@@ -116,16 +107,18 @@
 .ticket__title {
   margin: 0;
   font-family: var(--f-accent);
-  font-size: clamp(13px, 1.15vw, 15px);
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
   color: var(--c-ink);
   letter-spacing: 0.01em;
+  white-space: nowrap;
   hyphens: none;
   -webkit-hyphens: none;
   word-break: normal;
   overflow-wrap: normal;
-  text-wrap: balance;
+  text-align: center;
+  max-width: 100%;
 }
 
 .ticket__mid {
@@ -178,9 +171,9 @@
   font-weight: 400;
   line-height: 1.4;
   color: var(--c-muted);
+  text-align: center;
 }
 
-/* --- Desktop hover --- */
 @media (hover: hover) and (pointer: fine) {
   .ticket:hover {
     z-index: 2;
@@ -209,11 +202,5 @@
   .ticket {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-  }
-
-  @media (min-width: 1200px) {
-    .ticket-grid {
-      scroll-snap-type: none;
-    }
   }
 }

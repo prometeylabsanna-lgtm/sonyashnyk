@@ -368,39 +368,49 @@ class Command(BaseCommand):
         self.stdout.write(f"Додано фото товарів: {created}.")
 
     def seed_home_content(self):
+        from apps.core.hero_slides import DEFAULT_HERO_SLIDES
+
         hero_slides = [
             {
-                "title": "Якісне насіння для багатого врожаю",
-                "lead": "Овочеве, квіткове та вагове насіння з перевіреною схожістю — для саду, городу й розсади.",
-                "cta1_text": "До каталогу",
-                "cta1_url": "/katalog/nasinnia/",
-                "cta2_text": "До акцій",
-                "cta2_url": "/katalog/aktsiyi/",
-                "order": 0,
-            },
-            {
-                "title": "Овочі з вашої ділянки",
-                "lead": "Насіння овочевих культур для свіжих салатів, консервації та сімейного столу весь сезон.",
-                "cta1_text": "Обрати насіння",
-                "cta1_url": "/katalog/nasinnia/",
-                "cta2_text": "До акцій",
-                "cta2_url": "/katalog/aktsiyi/",
-                "order": 1,
-            },
-            {
-                "title": "Добрива для сильного росту",
-                "lead": "Органічні та мінеральні підживлення з перевіреною якістю — для здорових рослин і високого врожаю.",
-                "cta1_text": "До добрив",
-                "cta1_url": "/katalog/dobriva-ta-stimuliatori-rostu/",
-                "cta2_text": "До акцій",
-                "cta2_url": "/katalog/aktsiyi/",
-                "order": 2,
-            },
+                "title": item["title"],
+                "title_ru": item.get("title_ru", ""),
+                "lead": item["lead"],
+                "lead_ru": item.get("lead_ru", ""),
+                "cta1_text": item["cta1_text"],
+                "cta1_text_ru": item.get("cta1_text_ru", ""),
+                "cta1_url": item["cta1_url"],
+                "cta2_text": item["cta2_text"],
+                "cta2_text_ru": item.get("cta2_text_ru", ""),
+                "cta2_url": item["cta2_url"],
+                "alt_text": item["title"],
+                "alt_text_ru": item.get("title_ru", ""),
+                "order": item["order"],
+            }
+            for item in DEFAULT_HERO_SLIDES
         ]
         if HeroSlide.objects.count() != len(hero_slides):
             HeroSlide.objects.all().delete()
             for slide in hero_slides:
                 HeroSlide.objects.create(eyebrow="", **slide)
+        else:
+            # Дозаповнити RU на існуючих слайдах (seed_demo раніше створював лише UK)
+            for idx, slide in enumerate(HeroSlide.objects.order_by("order", "id")):
+                if idx >= len(hero_slides):
+                    break
+                src = hero_slides[idx]
+                fields = []
+                for key in (
+                    "title_ru",
+                    "lead_ru",
+                    "cta1_text_ru",
+                    "cta2_text_ru",
+                    "alt_text_ru",
+                ):
+                    if not (getattr(slide, key, "") or "").strip() and src.get(key):
+                        setattr(slide, key, src[key])
+                        fields.append(key)
+                if fields:
+                    slide.save(update_fields=fields)
 
         trust_data = [
             ("truck", "Швидка доставка", "Нова Пошта / Укрпошта"),

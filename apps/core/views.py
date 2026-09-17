@@ -10,12 +10,15 @@ from apps.core.models import HighlightPoint, Review
 
 
 def home(request):
+    from apps.core.i18n_utils import normalize_lang
+
+    lang = normalize_lang(getattr(request, "LANGUAGE_CODE", None))
     if not database_reachable():
         return render(
             request,
             "core/home.html",
             {
-                "slides": get_hero_slides(),
+                "slides": get_hero_slides(lang=lang),
                 "trust_points": [],
                 "info_points": [],
                 "top_categories": [],
@@ -44,7 +47,7 @@ def home(request):
     side_reviews = reviews_qs[1:5] if reviews_qs else []
 
     context = {
-        "slides": get_hero_slides(),
+        "slides": get_hero_slides(lang=lang),
         "trust_points": HighlightPoint.objects.filter(
             is_active=True, section=HighlightPoint.Section.TRUST
         ),
