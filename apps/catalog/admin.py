@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
@@ -14,52 +13,38 @@ from apps.core.admin_filters import (
 )
 from apps.core.admin_utils import ImagePreviewMixin
 
+from .category_forms import RootCategoryForm, SubCategoryForm, SubSubCategoryForm
+from .category_proxies import RootCategory, SubCategory, SubSubCategory
 from .forms import ProductAdminForm
 from .icons import category_icon_caption, category_icon_url
 from .models import Category, Product, ProductImage, ProductVariant
 
 
-@admin.register(Category)
-class CategoryAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
+class CategoryLevelAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
+    """Спільна база для рівнів меню."""
+
     list_display = ("name", "erp_name", "parent", "order", "is_active", "icon_thumb")
-    list_filter = (
-        ("is_active", CleanBooleanDropdownFilter),
-        ("parent", CleanRelatedDropdownFilter),
-    )
+    list_filter = (("is_active", CleanBooleanDropdownFilter),)
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("name", "erp_name", "slug")
     ordering = ("order", "name")
     readonly_fields = ("image_preview",)
-    fields = (
-        "name", "erp_name", "slug", "parent",
-        "image_preview", "image", "description", "order", "is_active",
-    )
     preview_max_height = 96
     preview_max_width = 96
+    for_nav_preview = False
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request).select_related("parent")
-        # Спочатку корені, далі за батьківською → менше плутанини в списку
-        return qs.order_by(
-            models.F("parent_id").asc(nulls_first=True),
-            "parent__name",
-            "order",
-            "name",
-        )
-
-    def _preview_for_nav(self, obj):
-        return bool(obj and obj.parent_id is None)
+        return super().get_queryset(request).select_related("parent", "parent__parent")
 
     def _icon_img_html(self, obj, *, size=40, show_caption=False):
-        for_nav = self._preview_for_nav(obj)
-        url = category_icon_url(obj, for_nav=for_nav)
+        url = category_icon_url(obj, for_nav=self.for_nav_preview)
         if not url:
             return "—"
         caption = ""
         if show_caption:
             caption = mark_safe(
-                f'<div style="margin-top:6px;color:#6b7280;font-size:12px">'
-                f"{category_icon_caption(obj, for_nav=for_nav)}</div>"
+                '<div style="margin-top:6px;color:#6b7280;font-size:12px">'
+                f"{category_icon_caption(obj, for_nav=self.for_nav_preview)}</div>"
             )
         return format_html(
             '<img src="{}" alt="" width="{}" height="{}" '
@@ -81,6 +66,81 @@ class CategoryAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
     @admin.display(description="Іконка")
     def icon_thumb(self, obj):
         return self._icon_img_html(obj, size=40, show_caption=False)
+
+
+@admin.register(RootCategory)
+class RootCategoryAdmin(CategoryLevelAdmin):
+    form = RootCategoryForm
+    for_nav_preview = True
+    list_display = ("name", "erp_name", "order", "is_active", "icon_thumb")
+    fields = (
+        "name", "erp_name", "slug",
+        "image_preview", "image", "description", "order", "is_active",
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(parent__isnull=True)
+
+
+@admin.register(SubCategory)
+class SubCategoryAdmin(CategoryLevelAdmin):
+    form = SubCategoryForm
+    list_filter = (
+        ("is_active", CleanBooleanDropdownFilter),
+        ("parent", CleanRelatedDropdownFilter),
+    )
+    list_filter_options = horizontal_options_for(list_filter)
+    fields = (
+        "parent", "name", "erp_name", "slug",
+        "image_preview", "image", "description", "order", "is_active",
+    )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .filter(parent__isnull=False, parent__parent__isnull=True)
+        )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "parent":
+            kwargs["queryset"] = Category.objects.filter(parent__isnull=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(SubSubCategory)
+class SubSubCategoryAdmin(CategoryLevelAdmin):
+    form = SubSubCategoryForm
+    list_filter = (
+        ("is_active", CleanBooleanDropdownFilter),
+        ("parent", CleanRelatedDropdownFilter),
+    )
+    list_filter_options = horizontal_options_for(list_filter)
+    fields = (
+        "parent", "name", "erp_name", "slug",
+        "image_preview", "image", "description", "order", "is_active",
+    )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .filter(parent__parent__isnull=False)
+        )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "parent":
+            kwargs["queryset"] = Category.objects.filter(
+                parent__isnull=False, parent__parent__isnull=True,
+            )
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+# Прихована реєстрація Category — для FK у товарів, без пункту в меню
+@admin.register(Category)
+class CategoryAdmin(CategoryLevelAdmin):
+    def has_module_permission(self, request):
+        return False
 
 
 class ProductVariantInline(TabularInline):

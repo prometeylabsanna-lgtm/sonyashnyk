@@ -247,10 +247,30 @@ UNFOLD = {
                 "items": _content_sidebar_items(),
             },
             {
+                "title": "Меню",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Головні категорії",
+                        "icon": "account_tree",
+                        "link": "/admin/catalog/rootcategory/",
+                    },
+                    {
+                        "title": "Підкатегорії",
+                        "icon": "subdirectory_arrow_right",
+                        "link": "/admin/catalog/subcategory/",
+                    },
+                    {
+                        "title": "Підпідкатегорії",
+                        "icon": "more_horiz",
+                        "link": "/admin/catalog/subsubcategory/",
+                    },
+                ],
+            },
+            {
                 "title": "Каталог",
                 "separator": True,
                 "items": [
-                    {"title": "Категорії", "icon": "category", "link": "/admin/catalog/category/"},
                     {"title": "Товари", "icon": "inventory_2", "link": "/admin/catalog/product/"},
                 ],
             },
