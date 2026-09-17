@@ -91,7 +91,7 @@
       color-mix(in srgb, #ffffff 60%, transparent) 86%,
       transparent 100%
     ),
-    url("../img/modal/meadow-sunflowers.jpg");
+    url("../img/modal/meadow-sunflowers.webp");
   background-repeat: no-repeat;
   background-position: center top, center 128%;
   background-size: 100% 100%, 118% auto;

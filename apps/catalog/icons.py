@@ -33,7 +33,7 @@ NAV_CATEGORY_ICONS = {
 NAV_SALE_ICON = "img/header/categories/aktsiyi.webp"
 
 # Єдина іконка для всіх під- і підпідкатегорій
-SUBCAT_ICON_FALLBACK = "img/catalog/subcats/default.png"
+SUBCAT_ICON_FALLBACK = "img/catalog/subcats/default.webp"
 
 
 def category_uploaded_image_url(category):

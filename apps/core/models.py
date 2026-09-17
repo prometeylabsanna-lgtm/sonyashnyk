@@ -1,5 +1,7 @@
 from django.db import models
 
+from apps.core.fields import WebPImageField
+
 
 class SiteSettings(models.Model):
     """Глобальні налаштування сайту (singleton, pk=1)."""
@@ -87,7 +89,7 @@ class SiteBlock(models.Model):
         default=ContentType.TEXT,
     )
     text_html = models.TextField("Текст / HTML", blank=True, default="")
-    image = models.ImageField("Зображення", upload_to="blocks/", blank=True, null=True)
+    image = WebPImageField("Зображення", upload_to="blocks/", blank=True, null=True)
     link_url = models.CharField("URL посилання", max_length=512, blank=True, default="")
     link_label = models.CharField("Текст посилання", max_length=128, blank=True, default="")
     video_embed_url = models.URLField("Embed URL відео", blank=True, default="")
@@ -117,7 +119,7 @@ class HeroSlide(models.Model):
     eyebrow = models.CharField("Надпис над заголовком", max_length=120, blank=True)
     title = models.CharField("Заголовок", max_length=200)
     lead = models.TextField("Підпис", blank=True)
-    image = models.ImageField("Зображення", upload_to="banners/", blank=True, null=True)
+    image = WebPImageField("Зображення", upload_to="banners/", blank=True, null=True)
     alt_text = models.CharField("Alt зображення", max_length=200, blank=True, default="")
     cta1_text = models.CharField("Текст кнопки 1", max_length=60, default="Дивитись каталог")
     cta1_url = models.CharField("Посилання кнопки 1", max_length=255, default="/katalog/")

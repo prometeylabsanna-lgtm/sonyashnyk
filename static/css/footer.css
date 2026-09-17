@@ -44,7 +44,7 @@
   inset: -18px;
   z-index: 0;
   background:
-    url("../img/footer/mint-hands.png") center / cover no-repeat;
+    url("../img/footer/mint-hands.webp") center / cover no-repeat;
   filter: blur(6px);
   -webkit-filter: blur(6px);
   transform: translateZ(0) scale(1.04);

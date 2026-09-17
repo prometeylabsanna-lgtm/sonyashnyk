@@ -18,7 +18,9 @@
   <div class="site-content-editor__head">
     <div>
       <h1 class="text-font-important-light dark:text-font-important-dark">{{ title }}</h1>
-      {% if section.description %}
+      {% if section_hint %}
+        <p class="site-content-editor__hint">{{ section_hint }}</p>
+      {% elif section.description %}
         <p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__desc">{{ section.description }}</p>
       {% endif %}
     </div>

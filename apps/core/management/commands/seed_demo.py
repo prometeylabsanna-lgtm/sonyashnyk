@@ -333,7 +333,7 @@ class Command(BaseCommand):
     def seed_product_images(self):
         base = Path(__file__).resolve().parents[4] / "static" / "img" / "home"
         pool = []
-        for pattern in ("_cand*.jpg", "_c[1-5].jpg", "_s*.jpg", "_t*.jpg", "_pex*.jpg"):
+        for pattern in ("_cand*.webp", "_c[1-5].webp", "_s*.webp", "_t*.webp", "_pex*.webp"):
             pool.extend(sorted(base.glob(pattern)))
         pool = [p for p in pool if p.is_file() and p.stat().st_size > 1000]
         if not pool:

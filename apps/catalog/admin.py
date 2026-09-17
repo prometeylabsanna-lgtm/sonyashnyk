@@ -11,6 +11,7 @@ from apps.core.admin_filters import (
     TopDropdownFiltersMixin,
     horizontal_options_for,
 )
+from apps.core.admin_guidelines import help_for_category_level
 from apps.core.admin_utils import ImagePreviewMixin
 
 from .category_forms import RootCategoryForm, SubCategoryForm, SubSubCategoryForm
@@ -28,13 +29,24 @@ class CategoryLevelAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin)
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("name", "erp_name", "slug")
     ordering = ("order", "name")
-    readonly_fields = ("image_preview",)
+    readonly_fields = ("level_hint", "image_preview")
     preview_max_height = 96
     preview_max_width = 96
     for_nav_preview = False
+    category_level = 1
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("parent", "parent__parent")
+
+    @admin.display(description="Підказка")
+    def level_hint(self, obj=None):
+        tip = help_for_category_level(self.category_level)
+        return format_html(
+            '<div style="max-width:36rem;line-height:1.45;color:#4b5563;'
+            'background:#f9fafb;border:1px solid #e5e7eb;border-radius:0.5rem;'
+            'padding:0.75rem 1rem">{}</div>',
+            tip,
+        )
 
     def _icon_img_html(self, obj, *, size=40, show_caption=False):
         url = category_icon_url(obj, for_nav=self.for_nav_preview)
@@ -72,8 +84,10 @@ class CategoryLevelAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin)
 class RootCategoryAdmin(CategoryLevelAdmin):
     form = RootCategoryForm
     for_nav_preview = True
+    category_level = 1
     list_display = ("name", "erp_name", "order", "is_active", "icon_thumb")
     fields = (
+        "level_hint",
         "name", "erp_name", "slug",
         "image_preview", "image", "description", "order", "is_active",
     )
@@ -85,12 +99,14 @@ class RootCategoryAdmin(CategoryLevelAdmin):
 @admin.register(SubCategory)
 class SubCategoryAdmin(CategoryLevelAdmin):
     form = SubCategoryForm
+    category_level = 2
     list_filter = (
         ("is_active", CleanBooleanDropdownFilter),
         ("parent", CleanRelatedDropdownFilter),
     )
     list_filter_options = horizontal_options_for(list_filter)
     fields = (
+        "level_hint",
         "parent", "name", "erp_name", "slug",
         "image_preview", "image", "description", "order", "is_active",
     )
@@ -111,12 +127,14 @@ class SubCategoryAdmin(CategoryLevelAdmin):
 @admin.register(SubSubCategory)
 class SubSubCategoryAdmin(CategoryLevelAdmin):
     form = SubSubCategoryForm
+    category_level = 3
     list_filter = (
         ("is_active", CleanBooleanDropdownFilter),
         ("parent", CleanRelatedDropdownFilter),
     )
     list_filter_options = horizontal_options_for(list_filter)
     fields = (
+        "level_hint",
         "parent", "name", "erp_name", "slug",
         "image_preview", "image", "description", "order", "is_active",
     )

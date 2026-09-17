@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from unfold.widgets import UnfoldAdminFileFieldWidget, UnfoldBooleanWidget
 
-from apps.core.admin_guidelines import help_for_key
+from apps.core.admin_guidelines import help_for_key, help_for_section
 from apps.core.admin_hero_slides import build_hero_slide_formset
 from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget, CmsAdminTextareaWidget
 from apps.core.block_defaults import (
@@ -62,7 +62,7 @@ class SitePageContentForm(forms.Form):
             block = self.blocks[key]
             ctype = get_block_content_type(page, key)
             label = block.label or get_block_label(page, key)
-            help_text = help_for_key(key)
+            help_text = help_for_key(key, page=page)
 
             if is_visibility_key(key):
                 self.fields[f"block__{page}__{key}__visible"] = forms.BooleanField(
@@ -204,6 +204,7 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
         **(model_admin.admin_site.each_context(request) if model_admin else {}),
         "title": section.title,
         "section": section,
+        "section_hint": help_for_section(section.page_slug, section.slug),
         "form": form,
         "field_groups": field_groups,
         "image_previews": image_previews,

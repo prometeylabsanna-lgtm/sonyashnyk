@@ -175,10 +175,10 @@ LOGIN_URL = "/admin/login/"
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 # --- Unfold admin (акцент #E4DA69) ----------------------------------------
-def _content_sidebar_items():
-    from apps.core.site_content_registry import build_content_sidebar_items
+def _content_sidebar_groups():
+    from apps.core.site_content_registry import build_content_sidebar_groups
 
-    return build_content_sidebar_items()
+    return build_content_sidebar_groups()
 
 
 def _static(path: str):
@@ -241,27 +241,23 @@ UNFOLD = {
                     },
                 ],
             },
-            {
-                "title": "Контент сторінок",
-                "separator": True,
-                "items": _content_sidebar_items(),
-            },
+            *_content_sidebar_groups(),
             {
                 "title": "Меню",
                 "separator": True,
                 "items": [
                     {
-                        "title": "Головні категорії",
+                        "title": "1 рівень категорій",
                         "icon": "account_tree",
                         "link": "/admin/catalog/rootcategory/",
                     },
                     {
-                        "title": "Підкатегорії",
+                        "title": "2 рівень категорій",
                         "icon": "subdirectory_arrow_right",
                         "link": "/admin/catalog/subcategory/",
                     },
                     {
-                        "title": "Підпідкатегорії",
+                        "title": "3 рівень категорій",
                         "icon": "more_horiz",
                         "link": "/admin/catalog/subsubcategory/",
                     },

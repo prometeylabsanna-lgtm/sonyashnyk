@@ -1,4 +1,8 @@
+from pathlib import Path
+
 from django.db import models
+
+from apps.core.image_webp import IMAGE_EXTENSIONS, convert_file_to_webp_content, is_already_webp
 
 
 class Certificate(models.Model):
@@ -6,7 +10,13 @@ class Certificate(models.Model):
 
     title = models.CharField("Назва", max_length=200)
     series = models.CharField("Серія / продукт", max_length=120, blank=True)
-    file = models.FileField("Файл (PDF/зображення)", upload_to="certificates/", blank=True, null=True)
+    file = models.FileField(
+        "Файл (PDF/зображення)",
+        upload_to="certificates/",
+        blank=True,
+        null=True,
+        help_text="PDF лишається як є; зображення автоматично конвертуються в WebP.",
+    )
     product = models.ForeignKey(
         "catalog.Product", verbose_name="Товар", null=True, blank=True,
         on_delete=models.SET_NULL, related_name="certificates",
@@ -21,3 +31,13 @@ class Certificate(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if self.file and self.file.name:
+            name = self.file.name
+            ext = Path(name).suffix.lower()
+            if ext != ".pdf" and ext in IMAGE_EXTENSIONS and not is_already_webp(name):
+                converted = convert_file_to_webp_content(self.file, original_name=name)
+                if converted is not None:
+                    self.file = converted
+        super().save(*args, **kwargs)

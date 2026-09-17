@@ -20,6 +20,18 @@
   font-size: 0.875rem;
 }
 
+.site-content-editor__hint {
+  margin: 0.5rem 0 0;
+  max-width: 40rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  color: #4b5563;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
 .site-content-editor__preview {
   display: inline-flex;
   align-items: center;

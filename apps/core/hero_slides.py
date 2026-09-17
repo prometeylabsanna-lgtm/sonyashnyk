@@ -16,7 +16,7 @@ DEFAULT_HERO_SLIDES = (
         "cta1_url": "/katalog/nasinnia/",
         "cta2_text": "До акцій",
         "cta2_url": "/katalog/aktsiyi/",
-        "static_image": "img/home/hero-seeds.jpg",
+        "static_image": "img/home/hero-seeds.webp",
         "order": 0,
     },
     {
@@ -26,7 +26,7 @@ DEFAULT_HERO_SLIDES = (
         "cta1_url": "/katalog/nasinnia/",
         "cta2_text": "До акцій",
         "cta2_url": "/katalog/aktsiyi/",
-        "static_image": "img/home/hero-vegetables.jpg",
+        "static_image": "img/home/hero-vegetables.webp",
         "order": 1,
     },
     {
@@ -36,7 +36,7 @@ DEFAULT_HERO_SLIDES = (
         "cta1_url": "/katalog/dobriva-ta-stimuliatori-rostu/",
         "cta2_text": "До акцій",
         "cta2_url": "/katalog/aktsiyi/",
-        "static_image": "img/home/hero-fertilizer.jpg",
+        "static_image": "img/home/hero-fertilizer.webp",
         "order": 2,
     },
 )

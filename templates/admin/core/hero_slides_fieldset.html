@@ -2,9 +2,9 @@
 {{ hero_formset.management_form }}
 <fieldset class="site-content-editor__fieldset border border-base-200 dark:border-base-700 rounded-default shadow-sm dark:bg-base-900" data-hero-slides>
   <legend class="text-font-important-light dark:text-font-important-dark">Слайди банера</legend>
-  <p class="text-font-subtle-light dark:text-font-subtle-dark">
-    Превʼю без upload — static: img/home/hero-seeds.jpg, hero-vegetables.jpg, hero-fertilizer.jpg.
-    Перетягніть рядки для зміни порядку.
+  <p class="site-content-editor__hint">
+    Кожен слайд: фото ≈ 1600×900 px, заголовок до ~60 символів, підпис — 1–2 речення, кнопки — по 2–4 слова.
+    Порядок змінюйте перетягуванням. Без свого фото лишиться стандартне.
   </p>
 
   <div class="hero-slides" data-hero-list>
@@ -16,21 +16,11 @@
           {% if form.instance.image %}
             <img src="{{ form.instance.image.url }}" alt="" width="160" height="90" loading="lazy">
           {% else %}
-            <img src="{% static 'img/home/hero-seeds.jpg' %}" alt="" width="160" height="90" loading="lazy" class="hero-slide-row__fallback">
+            <img src="{% static 'img/home/hero-seeds.webp' %}" alt="" width="160" height="90" loading="lazy" class="hero-slide-row__fallback">
           {% endif %}
         </div>
         <div class="hero-slide-row__fields">
-          <div class="site-content-editor__field">{{ form.title.label_tag }}{{ form.title }}</div>
-          <div class="site-content-editor__field">{{ form.lead.label_tag }}{{ form.lead }}</div>
-          <div class="site-content-editor__field">{{ form.eyebrow.label_tag }}{{ form.eyebrow }}</div>
-          <div class="site-content-editor__field">{{ form.image.label_tag }}{{ form.image }}</div>
-          <div class="site-content-editor__field">{{ form.alt_text.label_tag }}{{ form.alt_text }}</div>
-          <div class="hero-slide-row__cta">
-            <div class="site-content-editor__field">{{ form.cta1_text.label_tag }}{{ form.cta1_text }}</div>
-            <div class="site-content-editor__field">{{ form.cta1_url.label_tag }}{{ form.cta1_url }}</div>
-            <div class="site-content-editor__field">{{ form.cta2_text.label_tag }}{{ form.cta2_text }}</div>
-            <div class="site-content-editor__field">{{ form.cta2_url.label_tag }}{{ form.cta2_url }}</div>
-          </div>
+          {% include "admin/core/hero_slide_fields.html" with form=form %}
           <div class="hero-slide-row__meta">
             <label>{{ form.is_active }} {{ form.is_active.label }}</label>
             {% if form.DELETE %}<label>{{ form.DELETE }} Видалити</label>{% endif %}
@@ -47,20 +37,10 @@
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
         <div class="hero-slide-row__handle" aria-hidden="true">⋮⋮</div>
         <div class="hero-slide-row__preview">
-          <img src="{% static 'img/home/hero-seeds.jpg' %}" alt="" width="160" height="90" loading="lazy" class="hero-slide-row__fallback">
+          <img src="{% static 'img/home/hero-seeds.webp' %}" alt="" width="160" height="90" loading="lazy" class="hero-slide-row__fallback">
         </div>
         <div class="hero-slide-row__fields">
-          <div class="site-content-editor__field">{{ form.title.label_tag }}{{ form.title }}</div>
-          <div class="site-content-editor__field">{{ form.lead.label_tag }}{{ form.lead }}</div>
-          <div class="site-content-editor__field">{{ form.eyebrow.label_tag }}{{ form.eyebrow }}</div>
-          <div class="site-content-editor__field">{{ form.image.label_tag }}{{ form.image }}</div>
-          <div class="site-content-editor__field">{{ form.alt_text.label_tag }}{{ form.alt_text }}</div>
-          <div class="hero-slide-row__cta">
-            <div class="site-content-editor__field">{{ form.cta1_text.label_tag }}{{ form.cta1_text }}</div>
-            <div class="site-content-editor__field">{{ form.cta1_url.label_tag }}{{ form.cta1_url }}</div>
-            <div class="site-content-editor__field">{{ form.cta2_text.label_tag }}{{ form.cta2_text }}</div>
-            <div class="site-content-editor__field">{{ form.cta2_url.label_tag }}{{ form.cta2_url }}</div>
-          </div>
+          {% include "admin/core/hero_slide_fields.html" with form=form %}
           <div class="hero-slide-row__meta">
             <label>{{ form.is_active }} {{ form.is_active.label }}</label>
             {% if form.DELETE %}<label>{{ form.DELETE }} Видалити</label>{% endif %}

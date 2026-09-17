@@ -2,6 +2,7 @@ from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 
+from apps.core.fields import WebPImageField
 from apps.core.utils import make_unique_slug
 
 
@@ -25,14 +26,15 @@ class Category(models.Model):
         "self", verbose_name="Батьківська категорія",
         null=True, blank=True, on_delete=models.CASCADE, related_name="children",
     )
-    image = models.ImageField(
+    image = WebPImageField(
         "Іконка категорії",
         upload_to="categories/",
         blank=True,
         null=True,
         help_text=(
-            "PNG або WebP. Головні: якщо порожньо — іконка шапки/головної. "
-            "Підкатегорії та підпідкатегорії: якщо порожньо — соняшник."
+            "PNG/JPG/WebP — автоматично збережеться як WebP. "
+            "Головні: якщо порожньо — іконка шапки/головної. "
+            "2–3 рівень: якщо порожньо — соняшник."
         ),
     )
     description = models.TextField("Опис", blank=True)
@@ -200,7 +202,7 @@ class ProductImage(models.Model):
     """Фото товару. Поки немає реальних фото — на фронті рендериться плейсхолдер."""
 
     product = models.ForeignKey(Product, verbose_name="Товар", on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField("Зображення", upload_to="products/", blank=True, null=True)
+    image = WebPImageField("Зображення", upload_to="products/", blank=True, null=True)
     alt = models.CharField("Alt-текст", max_length=255, blank=True)
     order = models.PositiveIntegerField("Порядок", default=0)
 

@@ -4,27 +4,27 @@ from .models import Category
 
 
 class RootCategory(Category):
-    """Рівень 0 — головні категорії (шапка / головна)."""
+    """1 рівень — головні категорії (шапка / головна)."""
 
     class Meta:
         proxy = True
-        verbose_name = "Головна категорія"
-        verbose_name_plural = "Головні категорії"
+        verbose_name = "1 рівень категорій"
+        verbose_name_plural = "1 рівень категорій"
 
 
 class SubCategory(Category):
-    """Рівень 1 — підкатегорії."""
+    """2 рівень — підкатегорії."""
 
     class Meta:
         proxy = True
-        verbose_name = "Підкатегорія"
-        verbose_name_plural = "Підкатегорії"
+        verbose_name = "2 рівень категорій"
+        verbose_name_plural = "2 рівень категорій"
 
 
 class SubSubCategory(Category):
-    """Рівень 2 — підпідкатегорії (уточнення)."""
+    """3 рівень — підпідкатегорії."""
 
     class Meta:
         proxy = True
-        verbose_name = "Підпідкатегорія"
-        verbose_name_plural = "Підпідкатегорії"
+        verbose_name = "3 рівень категорій"
+        verbose_name_plural = "3 рівень категорій"
