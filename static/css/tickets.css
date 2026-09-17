@@ -1,7 +1,6 @@
 /* ============================================================
    КАРТКИ-«КВИТКИ» — блок переваг (перфорація, mobile-first)
-   Горизонтальний скрол на всіх брейкпоінтах:
-   ширина фіксована, щоб RU-заголовок був в 1 рядок
+   Горизонтальний скрол; ширина ~280–300px (не вужче референсу)
    ============================================================ */
 
 .section--tickets {
@@ -30,11 +29,12 @@
 }
 
 .ticket {
-  --ticket-pad-x: 16px;
+  --ticket-pad-x: 14px;
   --ticket-notch: 14px;
   flex: 0 0 auto;
-  width: max(320px, min(360px, 88vw));
-  min-width: 320px;
+  /* Компактніше за колишні 320–400px; підлога ≈ як на референсі (~280px) */
+  width: max(280px, min(300px, 86vw));
+  min-width: 280px;
   scroll-snap-align: start;
   position: relative;
   display: flex;
@@ -59,11 +59,11 @@
   }
 
   .ticket {
-    --ticket-pad-x: 18px;
+    --ticket-pad-x: 16px;
     --ticket-notch: 12px;
-    width: 380px;
-    min-width: 380px;
-    flex-basis: 380px;
+    width: 300px;
+    min-width: 280px;
+    flex-basis: 300px;
     padding: 16px var(--ticket-pad-x) 14px;
   }
 }
@@ -74,10 +74,10 @@
   }
 
   .ticket {
-    --ticket-pad-x: 20px;
-    width: 400px;
-    min-width: 400px;
-    flex: 0 0 400px;
+    --ticket-pad-x: 16px;
+    width: 300px;
+    min-width: 280px;
+    flex: 0 0 300px;
   }
 }
 
