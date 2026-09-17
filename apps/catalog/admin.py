@@ -175,8 +175,7 @@ class ProductImageInline(TabularInline):
 class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
     form = ProductAdminForm
     list_display = (
-        "name", "sku", "category", "pack_volume", "power", "base_price",
-        "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
+        "image_thumb", "name", "sku", "category", "power", "base_price", "active_flag",
     )
     list_filter = (
         ("category", CleanRelatedDropdownFilter),
@@ -201,3 +200,45 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         "base_price", "old_price",
         "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
     )
+
+    class Media:
+        css = {"all": ("css/admin_product_list.css",)}
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("category")
+            .prefetch_related("images")
+        )
+
+    @admin.display(description="")
+    def image_thumb(self, obj):
+        image = None
+        for item in obj.images.all():
+            if item.image:
+                image = item.image
+                break
+        if not image:
+            return "—"
+        try:
+            url = image.url
+        except Exception:
+            return "—"
+        return format_html(
+            '<img src="{}" alt="" width="40" height="40" '
+            'class="admin-product-thumb" '
+            'style="width:40px;height:40px;object-fit:cover;'
+            'border-radius:4px;background:#f3f4f6;display:block">',
+            url,
+        )
+
+    @admin.display(
+        description=mark_safe(
+            '<span title="Активний (видимий на сайті)">Акт.</span>'
+        ),
+        boolean=True,
+        ordering="is_active",
+    )
+    def active_flag(self, obj):
+        return obj.is_active
