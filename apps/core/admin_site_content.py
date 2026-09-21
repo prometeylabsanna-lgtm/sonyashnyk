@@ -11,6 +11,7 @@ from unfold.widgets import UnfoldAdminFileFieldWidget, UnfoldBooleanWidget
 
 from apps.core.admin_guidelines import help_for_key, help_for_section
 from apps.core.admin_hero_slides import build_hero_slide_formset
+from apps.core.admin_pickup_points import build_pickup_point_formset
 from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget, CmsAdminTextareaWidget
 from apps.core.block_defaults import (
     INLINE_KEYS,
@@ -176,22 +177,30 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
     keys = [key for _, key in section.blocks]
     blocks = load_section_blocks(section.page_slug, keys)
     hero_formset = None
+    pickup_formset = None
 
     if request.method == "POST":
         form = SitePageContentForm(request.POST, request.FILES, section=section, blocks=blocks)
         if section.has_hero_slides:
             hero_formset = build_hero_slide_formset(data=request.POST, files=request.FILES)
+        if section.has_pickup_points:
+            pickup_formset = build_pickup_point_formset(data=request.POST, files=request.FILES)
         ok = form.is_valid() and (hero_formset is None or hero_formset.is_valid())
+        ok = ok and (pickup_formset is None or pickup_formset.is_valid())
         if ok:
             form.save()
             if hero_formset is not None:
                 hero_formset.save()
+            if pickup_formset is not None:
+                pickup_formset.save()
             messages.success(request, "Збережено.")
             return redirect(request.path)
     else:
         form = SitePageContentForm(section=section, blocks=blocks)
         if section.has_hero_slides:
             hero_formset = build_hero_slide_formset()
+        if section.has_pickup_points:
+            pickup_formset = build_pickup_point_formset()
 
     field_groups = []
     for group in section.field_groups:
@@ -232,6 +241,7 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
         "image_previews": image_previews,
         "blocks_map": blocks,
         "hero_formset": hero_formset,
+        "pickup_formset": pickup_formset,
         "opts": SiteSettings._meta,
         "has_view_permission": True,
         "has_change_permission": True,
@@ -240,4 +250,6 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
     }
     if hero_formset is not None:
         context["media"] += hero_formset.media
+    if pickup_formset is not None:
+        context["media"] += pickup_formset.media
     return render(request, "admin/core/site_content_page.html", context)

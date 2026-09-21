@@ -13,7 +13,7 @@
 
   <h2>{% block_plain 'delivery' 'methods_title' %}</h2>
   <div>{% block_html 'delivery' 'methods_html' %}</div>
-  <p>Безкоштовна доставка при замовленні від {{ free_shipping_threshold }} ₴.</p>
+  <p>{% block_plain 'delivery' 'free_note' %}</p>
 
   <h2>{% block_plain 'delivery' 'payment_title' %}</h2>
   <div>{% block_html 'delivery' 'payment_html' %}</div>

@@ -197,3 +197,44 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.rating}★)"
+
+
+class PickupPoint(models.Model):
+    """Точка видачі на сторінці контактів. ListItem, правка через CMS-форму."""
+
+    title = models.CharField("Назва крамниці", max_length=120)
+    title_ru = models.CharField("Назва (RU)", max_length=120, blank=True, default="")
+    address = models.CharField("Адреса", max_length=255)
+    address_ru = models.CharField("Адреса (RU)", max_length=255, blank=True, default="")
+    phone = models.CharField(
+        "Телефон",
+        max_length=32,
+        blank=True,
+        default="",
+        help_text="Порожнє — телефон із налаштувань сайту.",
+    )
+    phone_raw = models.CharField(
+        "Телефон для tel:",
+        max_length=32,
+        blank=True,
+        default="",
+        help_text="Лише цифри та +. Порожнє — телефон сайту.",
+    )
+    hours = models.CharField(
+        "Графік",
+        max_length=120,
+        blank=True,
+        default="",
+        help_text="Порожнє — графік із налаштувань сайту.",
+    )
+    hours_ru = models.CharField("Графік (RU)", max_length=120, blank=True, default="")
+    order = models.PositiveIntegerField("Порядок", default=0)
+    is_active = models.BooleanField("Активна", default=True)
+
+    class Meta:
+        verbose_name = "Точка видачі"
+        verbose_name_plural = "Точки видачі"
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return self.title

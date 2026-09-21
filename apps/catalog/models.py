@@ -56,10 +56,12 @@ class Category(models.Model):
             self.slug = make_unique_slug(Category, self.name, instance_pk=self.pk)
         super().save(*args, **kwargs)
         cache.delete("nav_categories")
+        cache.delete("footer_categories")
 
     def delete(self, *args, **kwargs):
         result = super().delete(*args, **kwargs)
         cache.delete("nav_categories")
+        cache.delete("footer_categories")
         return result
 
     def get_absolute_url(self):
@@ -87,6 +89,15 @@ class Category(models.Model):
         for child in self.children.filter(is_active=True):
             ids.extend(child.get_descendant_ids())
         return ids
+
+
+class ProductQuerySet(models.QuerySet):
+    def for_cards(self):
+        return self.select_related(
+            "category",
+            "category__parent",
+            "category__parent__parent",
+        ).prefetch_related("variants", "images")
 
 
 class Product(models.Model):
@@ -122,11 +133,11 @@ class Product(models.Model):
     brand = models.CharField("Бренд / виробник", max_length=120, blank=True)
     country_of_origin = models.CharField("Країна виробник", max_length=120, blank=True)
     pack_volume = models.CharField(
-        "Обʼєм / вага / фасування",
+        "Обʼєм / вага / кількість",
         max_length=80,
         blank=True,
-        help_text="Обʼєм або вага: 6 мл, 100 мл, 1 л, 10 г, 500 г, 5 кг. "
-                  "Окремі фасування краще робити варіантами товару.",
+        help_text="Обʼєм, вага або кількість: 6 мл, 100 мл, 1 л, 10 г, 500 г, 5 кг, 10 шт. "
+                  "Окремі варіанти краще робити варіантами товару.",
     )
     power = models.CharField(
         "Потужність",
@@ -149,6 +160,8 @@ class Product(models.Model):
     created_at = models.DateTimeField("Створено", auto_now_add=True)
     updated_at = models.DateTimeField("Оновлено", auto_now=True)
 
+    objects = models.Manager.from_queryset(ProductQuerySet)()
+
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товари"
@@ -166,8 +179,27 @@ class Product(models.Model):
         return reverse("product_detail", kwargs={"slug": self.slug})
 
     @property
+    def pack_measure_label(self):
+        from .category_tree import pack_measure_label
+
+        return pack_measure_label(self.category, self.pack_volume)
+
+    @property
+    def pack_variants(self):
+        """Префетчений список варіантів — без зайвих запитів на картках."""
+        return list(self.variants.all())
+
+    @property
+    def has_pack_choices(self):
+        return len(self.pack_variants) > 1
+
+    @property
     def default_variant(self):
-        return self.variants.filter(is_default=True).first() or self.variants.first()
+        variants = self.pack_variants
+        for variant in variants:
+            if variant.is_default:
+                return variant
+        return variants[0] if variants else None
 
     @property
     def display_price(self):
@@ -181,7 +213,10 @@ class Product(models.Model):
 
     @property
     def in_stock(self):
-        return self.variants.filter(stock_qty__gt=0).exists() or not self.variants.exists()
+        variants = self.pack_variants
+        if not variants:
+            return True
+        return any(variant.stock_qty > 0 for variant in variants)
 
     def get_characteristics(self):
         from apps.core.i18n_utils import is_ru
@@ -202,13 +237,13 @@ class Product(models.Model):
 
 
 class ProductVariant(models.Model):
-    """Варіант фасування (обʼєм або вага) зі своєю ціною й залишком."""
+    """Варіант обʼєму, ваги або кількості зі своєю ціною й залишком."""
 
     product = models.ForeignKey(Product, verbose_name="Товар", on_delete=models.CASCADE, related_name="variants")
     label = models.CharField(
         "Назва варіанту",
         max_length=80,
-        help_text="Фасування: «100 мл», «1 л», «10 г», «500 г» — не розміри одягу.",
+        help_text="Наприклад: «100 мл», «1 л», «10 г», «500 г», «10 шт» — не розміри одягу S/M/L.",
     )
     label_ru = models.CharField("Назва варіанту (RU)", max_length=80, blank=True, default="")
     sku_variant = models.CharField("Код варіанту", max_length=64, blank=True)

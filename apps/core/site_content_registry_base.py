@@ -29,6 +29,7 @@ class ContentSection:
     field_groups: tuple[FieldGroup, ...] = ()
     admin_model_name: str = ""
     has_hero_slides: bool = False
+    has_pickup_points: bool = False
 
     def __post_init__(self):
         if not self.admin_model_name:

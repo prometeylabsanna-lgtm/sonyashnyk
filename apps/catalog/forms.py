@@ -5,10 +5,10 @@ from django import forms
 from .admin_widgets import CharacteristicsKeyValueWidget
 from .filter_models import (
     LEGACY_PRODUCT_FIELDS,
-    CatalogFilter,
     CatalogFilterValue,
     ProductAttribute,
 )
+from .filters import active_catalog_filters
 from .models import Product
 
 
@@ -39,9 +39,7 @@ class ProductAdminForm(forms.ModelForm):
                     if legacy_val:
                         current_by_slug[slug] = legacy_val
 
-        self._catalog_filters = list(
-            CatalogFilter.objects.filter(is_active=True).order_by("order", "name")
-        )
+        self._catalog_filters = list(active_catalog_filters())
         for cf in self._catalog_filters:
             fname = _attr_field_name(cf.slug)
             current = current_by_slug.get(cf.slug, "")

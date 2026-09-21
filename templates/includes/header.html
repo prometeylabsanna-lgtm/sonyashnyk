@@ -1,18 +1,54 @@
 {% load static site_content %}
-<header class="site-header" id="site-header">
-  {% section_visible 'site' 'header_announce_visible' as show_announce %}
-  {% if show_announce %}
-  <div class="announce">
+{% section_visible 'site' 'header_announce_visible' as show_announce %}
+{% if show_announce %}
+<div class="announce">
     <div class="announce__row container">
-      <span>{% block_format 'site' 'header_announce_text' threshold=free_shipping_threshold %}</span>
+      <span class="announce__text">{% block_plain 'site' 'header_announce_text' %}</span>
       <div class="announce__meta">
+        {% if site_instagram_url or site_tiktok_url or site_telegram_url %}
+        <ul class="announce__social" aria-label="Соцмережі">
+          {% if site_instagram_url %}
+          <li>
+            <a class="announce__social-link" href="{{ site_instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/>
+              </svg>
+            </a>
+          </li>
+          {% endif %}
+          {% if site_tiktok_url %}
+          <li>
+            <a class="announce__social-link" href="{{ site_tiktok_url }}" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 4v9.2a3.8 3.8 0 1 1-3.2-3.75"/>
+                <path d="M14 7.5c1.4 1.6 3.2 2.5 5 2.7"/>
+              </svg>
+            </a>
+          </li>
+          {% endif %}
+          {% if site_telegram_url %}
+          <li>
+            <a class="announce__social-link" href="{{ site_telegram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 5 3.5 12.5l5.2 1.8"/>
+                <path d="m8.7 14.3 1.8 5.5 2.4-4.2 5.2 3.9L21 5"/>
+                <path d="m8.7 14.3 12.3-9.3"/>
+              </svg>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+        {% endif %}
         <a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a>
         <span class="announce__hours">{{ site_working_hours }}</span>
       </div>
     </div>
   </div>
-  {% endif %}
+{% endif %}
 
+<header class="site-header" id="site-header">
   <div class="site-header__pin">
   <div class="logobar container">
     <nav class="logobar__pages" aria-label="Основні сторінки">
@@ -47,7 +83,7 @@
     </nav>
 
     <a href="{% url 'home' %}" class="brand">
-      <img class="brand__logo" src="{% static 'img/brand/logo.webp' %}?v=3" alt="{{ site_name }}" width="200" height="82" decoding="async">
+      <img class="brand__logo" src="{% static 'img/brand/logo.webp' %}?v=5" alt="{{ site_name }}" width="200" height="82" decoding="async">
     </a>
 
     <div class="logobar__actions">
@@ -138,12 +174,14 @@
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><path d="M2 5h16M2 10h16M2 15h16"/></svg>
     </button>
     <a href="{% url 'home' %}" class="brand brand--mobile">
-      <img class="brand__logo" src="{% static 'img/brand/logo.webp' %}?v=3" alt="{{ site_name }}" width="200" height="82" decoding="async">
+      <img class="brand__logo" src="{% static 'img/brand/logo.webp' %}?v=5" alt="{{ site_name }}" width="200" height="82" decoding="async">
     </a>
-    <div style="display:flex;align-items:center">
-      <a href="{% url 'search' %}" class="icon-btn" aria-label="Пошук">
+    <div class="header-mobile__actions">
+      {% if show_search %}
+      <a href="{% url 'search' %}" class="icon-btn" aria-label="Пошук" data-mobile-search-toggle aria-expanded="false" aria-controls="header-mobile-search">
         <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg>
       </a>
+      {% endif %}
       <a href="{% url 'wishlist' %}" class="icon-btn wish-btn wish-btn--mobile" aria-label="Обране">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--c-ink)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -156,6 +194,14 @@
       </button>
     </div>
   </div>
+  {% if show_search %}
+  <form id="header-mobile-search" role="search" class="header-mobile__search" action="{% url 'search' %}" method="get" data-mobile-search hidden>
+    <input type="search" name="q" aria-label="Пошук товарів" placeholder="{% block_text 'site' 'header_search_placeholder' %}" value="{{ request.GET.q }}" autocomplete="off" autocapitalize="none" enterkeyhint="search">
+    <button type="submit" class="logobar__search-btn" aria-label="Шукати">
+      <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 17 17"/></svg>
+    </button>
+  </form>
+  {% endif %}
   </div>
 </header>
 

@@ -1,0 +1,61 @@
+{{ pickup_formset.management_form }}
+<fieldset class="site-content-editor__fieldset border border-base-200 dark:border-base-700 rounded-default shadow-sm dark:bg-base-900">
+  <legend class="text-font-important-light dark:text-font-important-dark">Крамниці</legend>
+  <p class="site-content-editor__hint">
+    Чотири точки видачі. Адресу можна лишити заглушкою і замінити пізніше.
+    Порожній телефон і графік підставляються з налаштувань сайту.
+  </p>
+
+  <div class="pickup-points">
+    {% for form in pickup_formset %}
+      <div class="pickup-point-row">
+        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+        <div class="pickup-point-row__fields">
+          <div class="site-content-editor__field">
+            <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% for error in form.title.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.title_ru.id_for_label }}">{{ form.title_ru.label }}</label>
+            {{ form.title_ru }}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+            {{ form.address }}
+            {% if form.address.help_text %}<p class="site-content-editor__help">{{ form.address.help_text }}</p>{% endif %}
+            {% for error in form.address.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.address_ru.id_for_label }}">{{ form.address_ru.label }}</label>
+            {{ form.address_ru }}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+            {{ form.phone }}
+            {% if form.phone.help_text %}<p class="site-content-editor__help">{{ form.phone.help_text }}</p>{% endif %}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.phone_raw.id_for_label }}">{{ form.phone_raw.label }}</label>
+            {{ form.phone_raw }}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.hours.id_for_label }}">{{ form.hours.label }}</label>
+            {{ form.hours }}
+            {% if form.hours.help_text %}<p class="site-content-editor__help">{{ form.hours.help_text }}</p>{% endif %}
+          </div>
+          <div class="site-content-editor__field">
+            <label for="{{ form.hours_ru.id_for_label }}">{{ form.hours_ru.label }}</label>
+            {{ form.hours_ru }}
+          </div>
+        </div>
+        <div class="pickup-point-row__meta">
+          <label>{{ form.is_active }} {{ form.is_active.label }}</label>
+          {% if form.DELETE %}<label>{{ form.DELETE }} Видалити</label>{% endif %}
+        </div>
+        {% if form.non_field_errors %}<div class="site-content-editor__error">{{ form.non_field_errors }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {{ pickup_formset.non_form_errors }}
+</fieldset>

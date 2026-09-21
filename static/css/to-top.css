@@ -1,0 +1,58 @@
+.to-top {
+  position: fixed;
+  z-index: 46;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px);
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  background: var(--c-surface);
+  color: var(--c-sage);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.to-top[hidden] {
+  display: none;
+}
+
+.to-top:active {
+  background: var(--c-roseblock);
+}
+
+.to-top:focus-visible {
+  outline: 2px solid var(--c-sage);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .to-top:hover {
+    background: var(--c-roseblock);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899.98px) {
+  .to-top {
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px);
+  }
+}
+
+@media (min-width: 900px) {
+  .to-top {
+    right: 28px;
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px);
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .to-top {
+    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px);
+  }
+}

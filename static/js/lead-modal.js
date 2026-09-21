@@ -6,6 +6,38 @@
 
   var AUTO_OPEN_DELAY = 15000;
   var STORAGE_KEY = "sonyashnyk_lead_modal_shown";
+  var AUTO_KEY = "sonyashnyk_lead_modal_auto";
+  var AUTO_TTL_MS = 24 * 60 * 60 * 1000;
+
+  function storageGet(store, key) {
+    try {
+      return store.getItem(key);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function storageSet(store, key, value) {
+    try {
+      store.setItem(key, value);
+    } catch (err) {}
+  }
+
+  function submittedLead() {
+    return storageGet(window.localStorage, STORAGE_KEY) === "1";
+  }
+
+  function autoOpenConsumed() {
+    if (storageGet(window.sessionStorage, AUTO_KEY) === "1") return true;
+    var ts = parseInt(storageGet(window.localStorage, AUTO_KEY), 10);
+    if (!ts) return false;
+    return Date.now() - ts < AUTO_TTL_MS;
+  }
+
+  function consumeAutoOpen() {
+    storageSet(window.sessionStorage, AUTO_KEY, "1");
+    storageSet(window.localStorage, AUTO_KEY, String(Date.now()));
+  }
 
   var COPY = {
     uk: {
@@ -136,7 +168,8 @@
           if (result.data && result.data.ok) {
             form.classList.add("is-hidden");
             successBox.classList.add("is-visible");
-            window.localStorage.setItem(STORAGE_KEY, "1");
+            storageSet(window.localStorage, STORAGE_KEY, "1");
+            consumeAutoOpen();
             window.setTimeout(close, 2200);
           } else {
             SonyashnykUtils.showToast(
@@ -156,10 +189,31 @@
         });
     });
 
-    if (!window.localStorage.getItem(STORAGE_KEY)) {
-      window.setTimeout(function () {
-        if (!modal.classList.contains("is-open")) open("phone_modal");
-      }, AUTO_OPEN_DELAY);
+    var autoOpenTimer = null;
+    var autoOpenScheduledAt = 0;
+
+    function cancelPendingAutoOpen() {
+      if (!autoOpenTimer) return;
+      window.clearTimeout(autoOpenTimer);
+      autoOpenTimer = null;
     }
+
+    function tryAutoOpen() {
+      autoOpenTimer = null;
+      if (modal.classList.contains("is-open")) return;
+      if (document.hidden) return;
+      if (Date.now() - autoOpenScheduledAt > AUTO_OPEN_DELAY * 2) return;
+      open("phone_modal");
+    }
+
+    if (!submittedLead() && !autoOpenConsumed()) {
+      consumeAutoOpen();
+      autoOpenScheduledAt = Date.now();
+      autoOpenTimer = window.setTimeout(tryAutoOpen, AUTO_OPEN_DELAY);
+    }
+
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) cancelPendingAutoOpen();
+    });
   });
 })();

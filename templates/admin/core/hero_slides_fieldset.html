@@ -9,9 +9,9 @@
 
   <div class="hero-slides" data-hero-list>
     {% for form in hero_formset %}
-      <div class="hero-slide-row" data-hero-row draggable="true">
+      <div class="hero-slide-row" data-hero-row>
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-        <div class="hero-slide-row__handle" title="Перетягнути" aria-hidden="true">⋮⋮</div>
+        <div class="hero-slide-row__handle" data-hero-handle draggable="true" title="Перетягнути">⋮⋮</div>
         <div class="hero-slide-row__preview">
           {% if form.instance.image %}
             <img src="{{ form.instance.image.url }}" alt="" width="160" height="90" loading="lazy">
@@ -32,10 +32,10 @@
   </div>
 
   <template data-hero-empty>
-    <div class="hero-slide-row" data-hero-row draggable="true">
+    <div class="hero-slide-row" data-hero-row>
       {% with form=hero_formset.empty_form %}
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-        <div class="hero-slide-row__handle" aria-hidden="true">⋮⋮</div>
+        <div class="hero-slide-row__handle" data-hero-handle draggable="true" title="Перетягнути">⋮⋮</div>
         <div class="hero-slide-row__preview">
           <img src="{% static 'img/home/hero-seeds.webp' %}" alt="" width="160" height="90" loading="lazy" class="hero-slide-row__fallback">
         </div>

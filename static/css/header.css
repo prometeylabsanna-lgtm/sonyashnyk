@@ -2,16 +2,15 @@
    ХЕДЕР — announce-бар, лого-бар, категорії, мобільна панель
    ============================================================ */
 .site-header {
-  position: relative;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
   z-index: var(--z-header);
   background: transparent;
 }
 
-/* Sticky лише pin — announce від’їжджає зі сторінкою (без max-height / без гойдалки) */
+/* Sticky на header — announce лишається сусідом і від’їжджає зі сторінкою */
 .site-header__pin {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-header);
   background: var(--c-bg);
   border-bottom: 1px solid var(--c-border);
   padding-top: env(safe-area-inset-top);
@@ -38,13 +37,59 @@
   font-size: 12.5px;
   letter-spacing: .02em;
 }
+.announce__text {
+  min-width: 0;
+}
 .announce a { color: var(--c-announcetext); font-weight: 600; }
 .announce__meta {
   display: flex;
   align-items: center;
-  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px 18px;
+  min-width: 0;
 }
 .announce__hours { color: color-mix(in srgb, var(--c-announcetext) 78%, transparent); }
+
+.announce__social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.announce__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--c-announcetext) 45%, transparent);
+  border-radius: 50%;
+  color: var(--c-announcetext);
+  text-decoration: none;
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease;
+}
+.announce__social-link svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+.announce__social-link:hover,
+.announce__social-link:focus-visible {
+  color: var(--c-announce);
+  background: var(--c-announcetext);
+  border-color: var(--c-announcetext);
+  text-decoration: none;
+}
+.announce__social-link:focus-visible {
+  outline: 2px solid var(--c-announcetext);
+  outline-offset: 2px;
+}
 
 .logobar {
   max-width: var(--container-max);
@@ -253,6 +298,12 @@
     height: 44px;
     max-height: 44px;
   }
+  .search-page__form {
+    flex-wrap: wrap;
+  }
+  .search-page__submit {
+    width: 100%;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 899.98px) {
@@ -451,14 +502,85 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 3px 12px;
+  padding: 3px max(12px, env(safe-area-inset-right)) 3px max(12px, env(safe-area-inset-left));
   box-sizing: border-box;
   height: 56px; /* як було: 8+40+8 */
   overflow: hidden;
 }
+.header-mobile__actions {
+  display: flex;
+  align-items: center;
+}
+.header-mobile__search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
+  padding: 0 6px 0 14px;
+  min-height: 44px;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: var(--c-surface);
+}
+.header-mobile__search[hidden] {
+  display: none;
+}
+.header-mobile__search input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 16px;
+  color: var(--c-ink);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.header-mobile__search input::-webkit-search-decoration,
+.header-mobile__search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+.search-page__form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  max-width: 520px;
+}
+.search-page__form input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: var(--c-surface);
+  font-size: 16px;
+  color: var(--c-ink);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.search-page__form input[type="search"]::-webkit-search-decoration,
+.search-page__form input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+.search-page__submit {
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding-inline: 18px;
+}
 .icon-btn {
-  width: 40px; height: 40px; display: grid; place-items: center;
-  border: 0; background: transparent; position: relative; flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  position: relative;
+  flex: 0 0 auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 @media (min-width: 900px) {
@@ -469,6 +591,8 @@
   }
   .main-nav { display: block; }
   .header-mobile { display: none; }
+  .header-mobile__search { display: none; }
+  .search-page__form { display: none; }
   .announce { display: block; }
 }
 @media (min-width: 900px) and (max-width: 1099.98px) {
@@ -511,8 +635,58 @@
     font-size: 12px;
   }
 }
+@media (min-width: 600px) and (max-width: 899.98px) {
+  .header-mobile {
+    padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right));
+  }
+  .header-mobile__search {
+    margin-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right));
+  }
+  .search-page__form {
+    max-width: 560px;
+  }
+}
 @media (max-width: 899.98px) {
-  .announce { display: none; }
+  .announce {
+    display: block;
+    padding-top: env(safe-area-inset-top);
+  }
+  .site-header__pin {
+    padding-top: 0;
+  }
+  .site-header.is-scrolled .site-header__pin {
+    padding-top: env(safe-area-inset-top);
+  }
+  .announce__row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 12px;
+    min-height: 0;
+    padding-block: 8px;
+    text-align: center;
+  }
+  .announce__text {
+    flex: 1 1 100%;
+  }
+  .announce__meta {
+    width: 100%;
+    justify-content: center;
+    gap: 8px 14px;
+  }
+  .announce__social-link {
+    width: 40px;
+    height: 40px;
+  }
+  .announce__social-link svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .announce__social-link {
+    cursor: pointer;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

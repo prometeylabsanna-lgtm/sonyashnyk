@@ -75,8 +75,6 @@ CONTENT_SECTIONS_SHOP: tuple[ContentSection, ...] = (
             "badge_sale",
             "badge_own",
             "sku_label",
-            "volume_label",
-            "power_label",
             "in_stock",
             "out_of_stock",
             "add_cart",
@@ -93,8 +91,6 @@ CONTENT_SECTIONS_SHOP: tuple[ContentSection, ...] = (
                 "Купівля",
                 (
                     "sku_label",
-                    "volume_label",
-                    "power_label",
                     "in_stock",
                     "out_of_stock",
                     "add_cart",

@@ -10,6 +10,11 @@
 <div class="container section--tight">
   <h1 class="h1">{% block_plain 'search' 'page_title' %}{% if query %}: «{{ query }}»{% endif %}</h1>
 
+  <form role="search" class="search-page__form" action="{% url 'search' %}" method="get">
+    <input type="search" name="q" value="{{ query }}" placeholder="{% block_text 'site' 'header_search_placeholder' %}" aria-label="{% block_plain 'search' 'page_title' %}" autocomplete="off" autocapitalize="none" enterkeyhint="search">
+    <button type="submit" class="btn btn--primary search-page__submit">{% if LANGUAGE_CODE == 'ru' %}Искать{% else %}Шукати{% endif %}</button>
+  </form>
+
   {% if not query %}
     <p style="margin-top:16px;color:var(--c-muted)">{% block_plain 'search' 'hint_text' %}</p>
   {% elif products %}

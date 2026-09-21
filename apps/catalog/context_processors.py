@@ -2,7 +2,7 @@ from django.core.cache import cache
 
 from apps.core.db_safe import database_reachable
 
-from .category_tree import HOME_ROOT_SLUGS
+from .category_tree import FOOTER_CATEGORY_SLUGS, HOME_ROOT_SLUGS
 from .icons import NAV_SALE_ICON, category_icon_is_custom, category_icon_url
 from .models import Category
 
@@ -18,6 +18,7 @@ def nav_categories(request):
     if not database_reachable():
         return {
             "nav_categories": [],
+            "footer_categories": [],
             "nav_sale_icon": NAV_SALE_ICON,
         }
     categories = cache.get("nav_categories")
@@ -30,9 +31,24 @@ def nav_categories(request):
         }
         categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
         cache.set("nav_categories", categories, 300)
+    footer_categories = cache.get("footer_categories")
+    if footer_categories is None:
+        footer_by_slug = {
+            c.slug: c
+            for c in Category.objects.filter(
+                slug__in=FOOTER_CATEGORY_SLUGS, is_active=True
+            )
+        }
+        footer_categories = [
+            footer_by_slug[slug]
+            for slug in FOOTER_CATEGORY_SLUGS
+            if slug in footer_by_slug
+        ]
+        cache.set("footer_categories", footer_categories, 300)
     for cat in categories:
         _attach_nav_icon(cat)
     return {
         "nav_categories": categories,
+        "footer_categories": footer_categories,
         "nav_sale_icon": NAV_SALE_ICON,
     }

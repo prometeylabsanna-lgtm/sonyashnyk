@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 from apps.core.db_safe import database_reachable
+from apps.core.pickup_points import get_pickup_points
 
 from .models import Certificate
 
@@ -28,7 +29,7 @@ def certificates(request):
 
 
 def contacts(request):
-    return render(request, "pages/contacts.html")
+    return render(request, "pages/contacts.html", {"pickup_points": get_pickup_points()})
 
 
 def offer(request):

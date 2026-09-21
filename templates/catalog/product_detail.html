@@ -13,7 +13,7 @@
 
 {% with variant=product.default_variant %}
 <div class="container section--tight">
-  <div class="pdp">
+  <div class="pdp" data-pack-root data-label-in-stock="{% block_plain 'product' 'in_stock' %}" data-label-out-of-stock="{% block_plain 'product' 'out_of_stock' %}">
     <div class="gallery{% if product.images.all|length < 2 %} gallery--single{% endif %}">
       {% if product.images.all|length > 1 %}
       <div class="gallery__thumbs" role="tablist" aria-label="Фото товару">
@@ -52,31 +52,30 @@
         {% if product.is_own_production %}<span class="badge badge--own">{% block_plain 'product' 'badge_own' %}</span>{% endif %}
       </div>
       <h1 class="h1 pdp-info__title">{{ product|loc_field:'name' }}</h1>
-      <div class="pdp-info__meta">{% block_plain 'product' 'sku_label' %} {{ product.sku }}{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
-      {% if product.pack_volume %}
-        <div class="pdp-info__volume">{% block_plain 'product' 'volume_label' %} {{ product.pack_volume }}</div>
-      {% endif %}
-      {% if product.power %}
-        <div class="pdp-info__volume">{% block_plain 'product' 'power_label' %} {{ product.power }}</div>
+      <div class="pdp-info__meta">{% block_plain 'product' 'sku_label' %} <span data-pack-sku>{% firstof variant.sku_variant product.sku %}</span>{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
+      {% if product.has_pack_choices %}
+        {% include "includes/pack_switch.html" with product=product current=variant extra_class="pack-switch--pdp" %}
+      {% elif product.pack_volume %}
+        <div class="pdp-info__volume">{{ product.pack_measure_label }}: {{ product.pack_volume }}</div>
       {% endif %}
 
       <div class="pdp-info__prices">
-        <span class="price pdp-info__price" data-pdp-price>{{ product.display_price }} ₴</span>
+        <span class="price pdp-info__price" data-pdp-price data-pack-price>{{ product.display_price }} ₴</span>
         {% if product.display_old_price %}
-          <span class="price price--old" data-pdp-old-price>{{ product.display_old_price }} ₴</span>
+          <span class="price price--old" data-pdp-old-price data-pack-old-price>{{ product.display_old_price }} ₴</span>
         {% else %}
-          <span class="price price--old" data-pdp-old-price hidden></span>
+          <span class="price price--old" data-pdp-old-price data-pack-old-price hidden></span>
         {% endif %}
       </div>
-      <div class="pdp-info__stock {% if not product.in_stock %}is-out{% endif %}" data-pdp-stock>
-        {% if product.in_stock %}{% block_plain 'product' 'in_stock' %}{% else %}{% block_plain 'product' 'out_of_stock' %}{% endif %}
+      <div class="pdp-info__stock {% if not variant or not variant.stock_qty %}is-out{% endif %}" data-pdp-stock data-pack-stock>
+        {% if variant and variant.stock_qty %}{% block_plain 'product' 'in_stock' %}{% else %}{% block_plain 'product' 'out_of_stock' %}{% endif %}
       </div>
 
       <div class="pdp-buy" data-pdp-actions>
         <div class="qty-stepper">
-          <button type="button" data-qty-decrement aria-label="Зменшити кількість">−</button>
-          <input type="number" value="1" min="1" max="99" data-qty-input aria-label="Кількість" inputmode="numeric">
-          <button type="button" data-qty-increment aria-label="Збільшити кількість">+</button>
+          <button type="button" data-qty-decrement aria-label="Зменшити кількість" {% if not variant or not variant.stock_qty %}disabled{% endif %}>−</button>
+          <input type="number" value="1" min="1" max="99" data-qty-input aria-label="Кількість" inputmode="numeric" {% if not variant or not variant.stock_qty %}disabled{% endif %}>
+          <button type="button" data-qty-increment aria-label="Збільшити кількість" {% if not variant or not variant.stock_qty %}disabled{% endif %}>+</button>
         </div>
 
         <div class="pdp-actions">
@@ -85,7 +84,7 @@
             class="btn btn--primary"
             data-add-to-cart
             data-variant-id="{{ variant.id }}"
-            {% if not product.in_stock %}disabled{% endif %}
+            {% if not variant or not variant.stock_qty %}disabled{% endif %}
           >{% block_plain 'product' 'add_cart' %}</button>
           <button
             type="button"
@@ -93,7 +92,7 @@
             data-lead-open
             data-lead-type="buy_one_click"
             data-product-id="{{ product.id }}"
-            {% if not product.in_stock %}disabled{% endif %}
+            {% if not variant or not variant.stock_qty %}disabled{% endif %}
           >{% block_plain 'product' 'one_click' %}</button>
           <button
             type="button"

@@ -150,6 +150,22 @@
   margin-bottom: 18px;
 }
 
+.pack-switch--pdp {
+  margin: 4px 0 18px;
+}
+
+.pack-switch--pdp .pack-switch__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+
+.pack-switch--pdp .pack-switch__btn {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
 .pdp-info__prices {
   display: flex;
   align-items: baseline;
@@ -380,6 +396,10 @@
   .pdp-info__title {
     font-size: clamp(1.35rem, 4vw, 1.75rem);
   }
+
+  .pack-switch--pdp .pack-switch__btn {
+    min-height: 38px;
+  }
 }
 
 /* --- Мобільний: мініатюри під фото горизонтально --- */
@@ -442,6 +462,10 @@
   .gallery__main,
   .gallery__thumbs {
     -webkit-overflow-scrolling: touch;
+  }
+
+  .pack-switch__btn {
+    cursor: pointer;
   }
 
   .gallery__slide img {

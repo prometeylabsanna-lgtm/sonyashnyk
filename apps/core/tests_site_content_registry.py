@@ -1,5 +1,7 @@
 from django.test import TestCase
 
+from apps.core.block_defaults import BLOCK_DEFAULTS
+from apps.core.block_defaults_ru import BLOCK_DEFAULTS_RU
 from apps.core.site_content_registry import CONTENT_SECTIONS, all_registry_block_keys
 
 
@@ -21,3 +23,8 @@ class SiteContentRegistryTests(TestCase):
                 section.blocks,
                 msg=section.admin_model_name,
             )
+
+    def test_shipping_copy_has_no_threshold_placeholder(self):
+        for source in (BLOCK_DEFAULTS, BLOCK_DEFAULTS_RU):
+            for key, value in source.items():
+                self.assertNotIn("{threshold}", value or "", msg=key)

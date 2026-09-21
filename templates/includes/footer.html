@@ -39,27 +39,27 @@
     {% endif %}
 
     <div class="footer-panel">
-      <div class="footer-brand">
-        <img class="footer-brand__logo" src="{% static 'img/brand/logo.webp' %}?v=3" alt="{{ site_name }}" width="180" height="73" decoding="async">
-      </div>
-
       <div class="footer-cols">
-        <div class="footer-col">
+        <div class="footer-col footer-col--cats">
           <div class="footer-col__title">{% block_plain 'site' 'footer_col_cats_title' %}</div>
           <ul>
-            {% for cat in nav_categories|slice:":4" %}
+            {% for cat in footer_categories %}
               <li><a href="{{ cat.get_absolute_url }}">{{ cat|loc_field:'name' }}</a></li>
             {% endfor %}
+            <li><a href="{% url 'catalog:sale' %}">{% block_plain 'site' 'header_nav_sale_label' %}</a></li>
           </ul>
         </div>
 
-        <div class="footer-col">
+        <div class="footer-col footer-col--info">
           <div class="footer-col__title">{% block_plain 'site' 'footer_col_info_title' %}</div>
           <ul>
             <li><a href="{% url 'about' %}">Про нас</a></li>
             <li><a href="{% url 'delivery' %}">Доставка</a></li>
             <li><a href="{% url 'offer' %}">Оферта</a></li>
           </ul>
+          <div class="footer-brand">
+            <img class="footer-brand__logo" src="{% static 'img/brand/logo.webp' %}?v=5" alt="{{ site_name }}" width="180" height="74" decoding="async">
+          </div>
         </div>
 
         <div class="footer-col footer-col--contacts">

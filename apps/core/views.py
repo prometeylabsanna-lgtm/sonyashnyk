@@ -57,13 +57,13 @@ def home(request):
             "top_categories": top_categories,
             "hit_products": Product.objects.filter(
                 is_active=True, is_hit=True
-            ).prefetch_related("variants", "images")[:8],
+            ).for_cards()[:8],
             "new_products": Product.objects.filter(
                 is_active=True, is_new=True
-            ).prefetch_related("variants", "images")[:8],
+            ).for_cards()[:8],
             "sale_products": Product.objects.filter(
                 is_active=True, is_sale=True
-            ).prefetch_related("variants", "images")[:4],
+            ).for_cards()[:4],
             "reviews": reviews_qs,
             "featured_review": featured_review,
             "side_reviews": side_reviews,

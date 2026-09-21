@@ -11,14 +11,15 @@
 <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/brand/apple-touch-icon.png' %}">
 <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
 <link rel="stylesheet" href="{% static 'css/variables.css' %}">
-<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}?v=overflow-clip-20260921">
 <link rel="stylesheet" href="{% static 'css/layout.css' %}">
-<link rel="stylesheet" href="{% static 'css/header.css' %}?v=logo-crop-20260914o">
+<link rel="stylesheet" href="{% static 'css/header.css' %}?v=sticky-search-20260921">
 <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}">
-<link rel="stylesheet" href="{% static 'css/footer.css' %}?v=logo-cover-20260914d">
+<link rel="stylesheet" href="{% static 'css/footer.css' %}?v=footer-logo-down-20260921">
 <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+<link rel="stylesheet" href="{% static 'css/to-top.css' %}?v=fab-size-20260921">
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
-<link rel="stylesheet" href="{% static 'css/product-card.css' %}">
+<link rel="stylesheet" href="{% static 'css/product-card.css' %}?v=tags-20260921">
 {% block extra_css %}{% endblock %}
 <link rel="stylesheet" href="{% static 'css/motion.css' %}">
 </head>
@@ -34,6 +35,7 @@
 {% include "includes/cart_drawer.html" %}
 {% include "includes/lead_modal.html" %}
 {% include "includes/fab.html" %}
+{% include "includes/to_top.html" %}
 
 <script>window.SONYASHNYK = {
   csrfToken: "{{ csrf_token }}",
@@ -44,15 +46,17 @@
   wishlistFragmentUrl: "{% url 'wishlist_fragment' %}"
 };</script>
 <script src="{% static 'js/utils.js' %}" defer></script>
-<script src="{% static 'js/form-validation.js' %}" defer></script>
+<script src="{% static 'js/form-validation.js' %}?v=pay-20260921" defer></script>
 <script src="{% static 'js/phone-mask.js' %}" defer></script>
 <script src="{% static 'js/mobile-menu.js' %}" defer></script>
-<script src="{% static 'js/lead-modal.js' %}" defer></script>
+<script src="{% static 'js/lead-modal.js' %}?v=lead-once-20260921b" defer></script>
 <script src="{% static 'js/lead-form-inline.js' %}" defer></script>
 <script src="{% static 'js/cart.js' %}" defer></script>
+<script src="{% static 'js/pack-switch.js' %}" defer></script>
 <script src="{% static 'js/wishlist.js' %}" defer></script>
 <script src="{% static 'js/scroll-reveal.js' %}" defer></script>
-<script src="{% static 'js/main.js' %}" defer></script>
+<script src="{% static 'js/main.js' %}?v=mobile-search-20260921" defer></script>
+<script src="{% static 'js/to-top.js' %}?v=mobile-20260921" defer></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

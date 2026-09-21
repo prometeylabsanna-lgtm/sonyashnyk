@@ -36,10 +36,15 @@
 
   let dragRow = null;
   list.addEventListener("dragstart", (e) => {
-    const row = e.target.closest("[data-hero-row]");
-    if (!row) return;
-    dragRow = row;
-    row.classList.add("is-dragging");
+    const handle = e.target.closest("[data-hero-handle]");
+    if (!handle || !list.contains(handle)) return;
+    dragRow = handle.closest("[data-hero-row]");
+    if (!dragRow) return;
+    dragRow.classList.add("is-dragging");
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", "slide");
+    }
   });
   list.addEventListener("dragend", () => {
     if (dragRow) dragRow.classList.remove("is-dragging");

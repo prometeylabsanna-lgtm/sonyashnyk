@@ -80,7 +80,8 @@
       delivery_choice_ukrposhta: "Укрпошта",
       delivery_choice_pickup: "Самовивіз",
       payment_choice_liqpay: "Оплата карткою (LiqPay)",
-      payment_choice_cod: "Оплата при отриманні (накладений платіж)",
+      payment_choice_cod: "Оплата при отриманні (післяплата)",
+      payment_choice_bank: "Оплата на розрахунковий рахунок",
       payment_choice_cash: "Оплата при самовивозі",
 
       checkout_contacts: "Контакти",
@@ -166,6 +167,7 @@
       delivery_choice_pickup: "Самовывоз",
       payment_choice_liqpay: "Оплата картой (LiqPay)",
       payment_choice_cod: "Оплата при получении (наложенный платёж)",
+      payment_choice_bank: "Оплата на расчётный счёт",
       payment_choice_cash: "Оплата при самовывозе",
 
       checkout_contacts: "Контакты",
@@ -282,6 +284,7 @@
     if (name === "phone" || type === "tel") return "phone";
     if (name === "email" || type === "email") return "email";
     if (type === "checkbox") return "checkbox";
+    if (type === "radio") return "radio";
     return "text";
   }
 
@@ -302,6 +305,19 @@
         key = input.name === "agreed_to_data_processing" || input.id === "lead-modal-agree"
           ? "agree_required"
           : "required";
+      }
+    } else if (rule === "radio") {
+      if (required) {
+        var groupName = input.getAttribute("name") || "";
+        var scope = input.form || document;
+        var group = scope.querySelectorAll('input[type="radio"][name="' + groupName + '"]');
+        if (!group.length || group[0] === input) {
+          var selected = "";
+          for (var i = 0; i < group.length; i++) {
+            if (group[i].checked) selected = group[i].value || "";
+          }
+          if (!String(selected).trim()) key = "required";
+        }
       }
     } else if (rule === "city") {
       if (required && !String(input.value || "").trim()) key = "city_required";

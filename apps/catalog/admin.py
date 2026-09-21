@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
@@ -16,10 +16,10 @@ from apps.core.admin_utils import ImagePreviewMixin
 
 from .category_forms import RootCategoryForm, SubCategoryForm, SubSubCategoryForm
 from .category_proxies import RootCategory, SubCategory, SubSubCategory
+from .filters import active_catalog_filters
 from .forms import ProductAdminForm
 from .icons import category_icon_caption, category_icon_url
 from .models import Category, Product, ProductImage, ProductVariant
-from .filter_models import CatalogFilter
 
 # Реєстрація адмінки фільтрів
 from . import filter_admin  # noqa: E402,F401
@@ -170,6 +170,10 @@ class CategoryAdmin(CategoryLevelAdmin):
 class ProductVariantInline(TabularInline):
     model = ProductVariant
     extra = 1
+    fields = (
+        "label", "label_ru", "sku_variant", "price", "old_price",
+        "stock_qty", "is_default", "order",
+    )
 
 
 class ProductImageInline(TabularInline):
@@ -187,7 +191,6 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         ("category", CleanRelatedDropdownFilter),
         ("brand", CleanAllValuesDropdownFilter),
         ("country_of_origin", CleanAllValuesDropdownFilter),
-        ("power", CleanAllValuesDropdownFilter),
         ProductAvailabilityFilter,
         ("is_own_production", CleanBooleanDropdownFilter),
         ("is_hit", CleanBooleanDropdownFilter),
@@ -196,30 +199,61 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         ("is_active", CleanBooleanDropdownFilter),
     )
     list_filter_options = horizontal_options_for(list_filter)
-    search_fields = ("name", "sku", "pack_volume", "power", "brand", "country_of_origin")
+    search_fields = (
+        "name", "sku", "pack_volume", "brand",
+        "country_of_origin", "variants__sku_variant", "variants__label",
+    )
     inlines = [ProductVariantInline, ProductImageInline]
+    actions = ("merge_selected_products",)
 
     def get_fields(self, request, obj=None):
         attr_fields = [
-            f"attr_{slug}"
-            for slug in CatalogFilter.objects.filter(is_active=True)
-            .order_by("order", "name")
-            .values_list("slug", flat=True)
+            f"attr_{cf.slug}"
+            for cf in active_catalog_filters()
         ]
         return (
             "category", "sku", "name", "name_ru", "slug",
             "short_description", "short_description_ru",
             "description", "description_ru", "characteristics", "characteristics_ru",
             *attr_fields,
-            "brand", "country_of_origin", "pack_volume", "power",
+            "brand", "country_of_origin", "pack_volume",
             "base_price", "old_price",
             "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
         )
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        # attr_* додаються у ProductAdminForm.__init__, їх немає на моделі.
+        fields = kwargs.get("fields")
+        if fields is None:
+            fields = self.get_fields(request, obj)
+        kwargs["fields"] = [
+            name for name in fields if not str(name).startswith("attr_")
+        ]
+        return super().get_form(request, obj, change=change, **kwargs)
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         if hasattr(form, "_save_attributes"):
             form._save_attributes(obj)
+
+    @admin.action(description="Об'єднати вибрані в один товар (варіанти)")
+    def merge_selected_products(self, request, queryset):
+        from .product_merge import MergeError, merge_products
+
+        try:
+            parent, hidden = merge_products(queryset)
+        except MergeError as exc:
+            self.message_user(request, str(exc), level=messages.ERROR)
+            return
+        hidden_skus = ", ".join(item.sku for item in hidden)
+        self.message_user(
+            request,
+            (
+                f"Варіанти зібрано в «{parent.name}» ({parent.sku}). "
+                f"Приховано як окремі товари: {hidden_skus}. "
+                f"Перевірте варіанти в картці основного товару."
+            ),
+        )
 
     class Media:
         css = {"all": ("css/admin_product_list.css",)}
@@ -230,6 +264,7 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
             .get_queryset(request)
             .select_related("category")
             .prefetch_related("images")
+            .distinct()
         )
 
     @admin.display(description="")

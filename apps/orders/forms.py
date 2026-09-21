@@ -54,6 +54,11 @@ class CheckoutForm(forms.ModelForm):
             "agreed_to_data_processing": "Погоджуюсь на обробку персональних даних",
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["delivery_method"].choices = Order.DeliveryMethod.choices
+        self.fields["payment_method"].choices = Order.PaymentMethod.choices
+
     def clean_phone(self):
         phone = self.cleaned_data["phone"].replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
         if not PHONE_RE.match(phone):

@@ -62,7 +62,7 @@ _reg("product", "badge_new", "Новинка", label="Бейдж «Новинк�
 _reg("product", "badge_sale", "Акція", label="Бейдж «Акція»", inline=True)
 _reg("product", "badge_own", "Власне виробництво", label="Бейдж «Власне»", inline=True)
 _reg("product", "sku_label", "Код:", label="Підпис коду", inline=True)
-_reg("product", "volume_label", "Фасування:", label="Підпис фасування", inline=True)
+_reg("product", "volume_label", "Обʼєм:", label="Підпис обʼєму / ваги / кількості", inline=True)
 _reg("product", "power_label", "Потужність:", label="Підпис потужності", inline=True)
 _reg("product", "in_stock", "В наявності", label="Статус: товар є", inline=True)
 _reg("product", "out_of_stock", "Немає в наявності", label="Статус: товару немає", inline=True)

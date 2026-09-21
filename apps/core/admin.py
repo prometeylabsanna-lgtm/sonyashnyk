@@ -10,7 +10,7 @@ from apps.core.admin_site_content_proxies import register_site_content_section_a
 from apps.core.admin_utils import ReadableUnfoldFieldsMixin, SingletonModelAdminMixin
 from apps.core.models import HighlightPoint, Review, SiteSettings
 
-# SiteBlock / HeroSlide — не реєструємо як звичайний ModelAdmin (CMS proxy).
+# SiteBlock / HeroSlide / PickupPoint — не реєструємо як звичайний ModelAdmin (CMS).
 
 
 @admin.register(SiteSettings)
@@ -38,7 +38,7 @@ class SiteSettingsAdmin(ReadableUnfoldFieldsMixin, SingletonModelAdminMixin, Mod
             "Соцмережі",
             {
                 "fields": ("instagram_url", "tiktok_url", "telegram_url"),
-                "description": "Порожнє поле — іконка не показується у футері.",
+                "description": "Порожнє поле — іконка без посилання. Показується у шапці, на сторінці контактів і в підвалі.",
             },
         ),
     )

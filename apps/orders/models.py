@@ -15,7 +15,8 @@ class Order(models.Model):
 
     class PaymentMethod(models.TextChoices):
         LIQPAY = "liqpay", "Оплата карткою (LiqPay)"
-        COD = "cod", "Оплата при отриманні (накладений платіж)"
+        COD = "cod", "Оплата при отриманні (післяплата)"
+        BANK = "bank", "Оплата на розрахунковий рахунок"
         CASH_PICKUP = "cash_pickup", "Оплата при самовивозі"
 
     class PaymentStatus(models.TextChoices):

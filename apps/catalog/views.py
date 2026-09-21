@@ -26,7 +26,7 @@ def catalog_index(request):
     }
     root_categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
     attach_category_icons(root_categories)
-    products = Product.objects.filter(is_active=True).prefetch_related("variants", "images")
+    products = Product.objects.filter(is_active=True).for_cards()
     products = filter_products(request, products)
     products = apply_sorting(request, products)
 
@@ -52,9 +52,9 @@ def category(request, slug):
     attach_category_icons(subcategories)
 
     descendant_ids = current_category.get_descendant_ids()
-    products = Product.objects.filter(category_id__in=descendant_ids, is_active=True).prefetch_related(
-        "variants", "images"
-    )
+    products = Product.objects.filter(
+        category_id__in=descendant_ids, is_active=True
+    ).for_cards()
     products = filter_products(request, products)
     products = apply_sorting(request, products)
 
@@ -72,7 +72,7 @@ def category(request, slug):
 
 def sale(request):
     """Віртуальна категорія «Акції / знижки» — товари з is_sale=True."""
-    products = Product.objects.filter(is_active=True, is_sale=True).prefetch_related("variants", "images")
+    products = Product.objects.filter(is_active=True, is_sale=True).for_cards()
     products = filter_products(request, products)
     products = apply_sorting(request, products)
 
@@ -91,13 +91,13 @@ def sale(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(
-        Product.objects.prefetch_related("variants", "images", "certificates"),
+        Product.objects.for_cards().prefetch_related("certificates"),
         slug=slug, is_active=True,
     )
     related_products = (
         Product.objects.filter(category=product.category, is_active=True)
         .exclude(pk=product.pk)
-        .prefetch_related("variants", "images")[:8]
+        .for_cards()[:8]
     )
     context = {
         "product": product,
@@ -114,7 +114,7 @@ def search(request):
         products = Product.objects.filter(
             Q(name__icontains=query) | Q(sku__icontains=query) | Q(short_description__icontains=query),
             is_active=True,
-        ).prefetch_related("variants", "images")
+        ).for_cards()
         products = apply_sorting(request, products)
 
     context = {
@@ -147,8 +147,7 @@ def wishlist_fragment(request):
     products = []
     if ids:
         qs = (
-            Product.objects.filter(pk__in=ids, is_active=True)
-            .prefetch_related("variants", "images", "category")
+            Product.objects.filter(pk__in=ids, is_active=True).for_cards()
         )
         by_id = {p.pk: p for p in qs}
         products = [by_id[i] for i in ids if i in by_id]

@@ -27,6 +27,8 @@
         <p class="thank-you__hint">Очікуємо підтвердження оплати LiqPay. Сторінка оновиться після callback; також можете сплатити ще раз.</p>
       {% elif order.payment_method == "liqpay" and order.payment_status == "paid" %}
         <p class="thank-you__hint">Оплату отримано. Найближчим часом менеджер підтвердить відправку.</p>
+      {% elif order.payment_method == "bank" %}
+        <p class="thank-you__hint">{% if LANGUAGE_CODE == 'ru' %}Реквизиты для оплаты на расчётный счёт отправит менеджер после подтверждения заказа.{% else %}Реквізити для оплати на розрахунковий рахунок надішле менеджер після підтвердження замовлення.{% endif %}</p>
       {% else %}
         {% block_text 'thankyou' 'page_lead' as page_lead %}
         {% if page_lead %}

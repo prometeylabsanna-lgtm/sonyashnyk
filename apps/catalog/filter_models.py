@@ -5,12 +5,12 @@ from django.db import models, transaction
 from apps.core.utils import make_unique_slug
 
 
-# Сумісність зі старими CharField на Product (PDP / картки / seed)
+# Сумісність зі старими CharField на Product (PDP / картки / seed).
+# Потужність лишається полем товару і не входить у фільтри каталогу.
 LEGACY_PRODUCT_FIELDS = {
     "brand": "brand",
     "country": "country_of_origin",
     "volume": "pack_volume",
-    "power": "power",
 }
 
 
@@ -172,7 +172,7 @@ class ProductAttribute(models.Model):
 
 
 def sync_legacy_product_attrs(product) -> None:
-    """Записує brand/country/volume/power з CharField у ProductAttribute."""
+    """Записує brand/country/volume з CharField у ProductAttribute."""
     for slug, field in LEGACY_PRODUCT_FIELDS.items():
         value = (getattr(product, field, "") or "").strip()
         cf = CatalogFilter.objects.filter(slug=slug, is_active=True).first()

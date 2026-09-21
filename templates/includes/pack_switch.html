@@ -1,0 +1,24 @@
+{% load site_content %}
+{% if product.has_pack_choices %}
+{% with current=current|default:product.default_variant measure=product.pack_measure_label %}
+<div class="pack-switch{% if extra_class %} {{ extra_class }}{% endif %}" data-pack-switch role="radiogroup" aria-label="{{ measure }}">
+  {% if measure %}<div class="pack-switch__label">{{ measure }}</div>{% endif %}
+  <div class="pack-switch__options">
+    {% for option in product.pack_variants %}
+      <button
+        type="button"
+        class="pack-switch__btn{% if current and option.id == current.id %} is-active{% endif %}{% if not option.stock_qty %} is-oos{% endif %}"
+        role="radio"
+        aria-checked="{% if current and option.id == current.id %}true{% else %}false{% endif %}"
+        data-pack-option
+        data-variant-id="{{ option.id }}"
+        data-price="{{ option.price }}"
+        data-old-price="{% if option.old_price %}{{ option.old_price }}{% endif %}"
+        data-in-stock="{% if option.stock_qty %}1{% else %}0{% endif %}"
+        data-sku="{% firstof option.sku_variant product.sku %}"
+      >{{ option|loc_field:'label' }}</button>
+    {% endfor %}
+  </div>
+</div>
+{% endwith %}
+{% endif %}

@@ -122,7 +122,7 @@ _reg("home", "reviews_section_visible", "1", label="Показувати від�
 _reg("home", "reviews_title", "Відгуки покупців", label="Заголовок", inline=True)
 
 # --- Site: header (item-level visibility) ---
-_reg("site", "header_announce_text", "Безкоштовна доставка від {threshold} ₴ · Відправка наступного дня", label="Текст анонсу", inline=True)
+_reg("site", "header_announce_text", "Швидка відправка · Безкоштовна консультація при замовленні", label="Текст анонсу", inline=True)
 _reg("site", "header_announce_visible", "1", label="Показувати анонс")
 _reg("site", "header_nav_home_visible", "1", label="Пункт «Головна»")
 _reg("site", "header_nav_catalog_visible", "1", label="Пункт «Каталог»")
@@ -285,7 +285,7 @@ _reg(
 _reg(
     "delivery",
     "free_note",
-    "Безкоштовна доставка при замовленні від {threshold} ₴.",
+    "Безкоштовна доставка при замовленні від 1500 ₴.",
     label="Примітка про безкоштовну доставку",
     inline=True,
 )
@@ -294,7 +294,8 @@ _reg(
     "delivery",
     "payment_html",
     "<ul><li><strong>LiqPay</strong> — оплата карткою онлайн (у т.ч. Apple Pay / Google Pay).</li>"
-    "<li><strong>Післяплата</strong> — оплата під час отримання на пошті.</li>"
+    "<li><strong>Оплата при отриманні (післяплата)</strong> — оплата під час отримання на пошті.</li>"
+    "<li><strong>Оплата на розрахунковий рахунок</strong> — реквізити надішле менеджер після підтвердження замовлення.</li>"
     "<li><strong>При самовивозі</strong> — готівкою або терміналом у точці видачі.</li></ul>",
     label="Оплата (HTML)",
     multiline=True,
@@ -302,7 +303,7 @@ _reg(
 _reg("delivery", "faq_title", "Часті запитання", label="Заголовок FAQ", inline=True)
 for i, (q, a) in enumerate(
     [
-        ("Скільки коштує доставка?", "Вартість розраховується перевізником залежно від ваги та міста. При замовленні від {threshold} ₴ доставка безкоштовна."),
+        ("Скільки коштує доставка?", "Вартість розраховується перевізником залежно від ваги та міста. При замовленні від 1500 ₴ доставка безкоштовна."),
         ("Як швидко відправляють замовлення?", "Замовлення, оформлені до 15:00, відправляємо того ж дня, інші — наступного робочого дня."),
         ("Чи можна оплатити при отриманні?", "Так, доступна оплата післяплатою під час отримання посилки на пошті."),
     ],
@@ -319,12 +320,13 @@ _reg("certificates", "empty_text", "Сертифікати зʼявляться 
 
 _reg("contacts", "page_section_visible", "1", label="Показувати сторінку")
 _reg("contacts", "page_title", "Контакти", label="Заголовок", inline=True)
+_reg("contacts", "social_title", "Соцмережі", label="Заголовок соцмереж", inline=True)
+_reg("contacts", "stores_title", "Точки видачі", label="Заголовок крамниць", inline=True)
 _reg("contacts", "label_phone", "Телефон", label="Підпис телефону", inline=True)
 _reg("contacts", "label_hours", "Графік роботи", label="Підпис графіка", inline=True)
-_reg("contacts", "label_address", "Точка видачі", label="Підпис адреси", inline=True)
+_reg("contacts", "label_address", "Адреса", label="Підпис адреси", inline=True)
 _reg("contacts", "form_title", "Написати нам", label="Заголовок форми", inline=True)
 _reg("contacts", "form_cta", "Надіслати", label="Кнопка форми", inline=True)
-_reg("contacts", "map_embed", "https://maps.google.com/maps?q=%D0%9A%D0%B8%D1%97%D0%B2%2C+%D0%A5%D1%80%D0%B5%D1%89%D0%B0%D1%82%D0%B8%D0%BA+1&hl=uk&z=16&output=embed", label="URL карти (embed)", inline=True)
 
 _reg("offer", "page_section_visible", "1", label="Показувати сторінку")
 _reg("offer", "page_title", "Договір публічної оферти", label="Заголовок", inline=True)

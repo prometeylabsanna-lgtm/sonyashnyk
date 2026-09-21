@@ -15,6 +15,8 @@
     </div>
 
     {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+    {% if request.GET.hit %}<input type="hidden" name="hit" value="1">{% endif %}
+    {% if request.GET.new %}<input type="hidden" name="new" value="1">{% endif %}
 
     <div class="filter-group">
       <div class="filter-group__title">{% block_plain 'catalog' 'filters_price' %}</div>

@@ -2,7 +2,7 @@
 {% load static site_content %}
 
 {% block title %}{% block_text "checkout" "page_title" %} — {{ site_name }}{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=pay-20260921">{% endblock %}
 
 {% block content %}
 {% section_visible 'checkout' 'page_section_visible' as show %}
@@ -137,4 +137,4 @@
 {% endif %}
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/checkout.js' %}" defer></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/checkout.js' %}?v=pay-20260921" defer></script>{% endblock %}

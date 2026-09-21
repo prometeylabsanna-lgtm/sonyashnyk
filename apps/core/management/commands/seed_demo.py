@@ -35,8 +35,6 @@ CATEGORY_TREE = FULL_CATEGORY_TREE
 BRANDS = ["АгроХім", "БіоСад", "Соняшник", "ЗеленСвіт"]
 COUNTRIES = ["Україна", "Польща", "Нідерланди"]
 VOLUME_SAMPLES = ["6 мл", "100 мл", "1 л", "500 г", "5 кг", "10 л"]
-WEIGHT_VARIANT_LABELS = ["10 г", "50 г", "100 г"]
-VOLUME_VARIANT_LABELS = ["100 мл", "500 мл", "1 л"]
 POWER_SAMPLES = ["600 Вт", "800 Вт", "1.2 кВт", "1500 Вт"]
 
 # Назви без «товар N» — по 3 на підкатегорію
@@ -232,24 +230,17 @@ class Command(BaseCommand):
             return ""
         return POWER_SAMPLES[counter % len(POWER_SAMPLES)]
 
-    def _variant_labels_for(self, pack_volume):
-        if not pack_volume:
-            return ["1 шт"]
-        lower = pack_volume.lower()
-        if any(u in lower for u in ("г", "кг")):
-            return list(WEIGHT_VARIANT_LABELS)
-        if any(u in lower for u in ("мл", "л")):
-            return list(VOLUME_VARIANT_LABELS)
-        return [pack_volume]
+    def _variant_labels_for(self, category, pack_volume):
+        from apps.catalog.category_tree import pack_measure_kind, pack_option_labels
+
+        return pack_option_labels(pack_measure_kind(category, pack_volume))
 
     def _sync_variants(self, product, pack_volume):
-        labels = self._variant_labels_for(pack_volume)
+        from apps.catalog.category_tree import rewrite_size_variant_labels
+
+        rewrite_size_variant_labels(product)
+        labels = self._variant_labels_for(product.category, pack_volume)
         existing = list(product.variants.order_by("order", "id"))
-        # Замінюємо демо S/M/L і вирівнюємо підписи під фасування
-        stale = {"S", "M", "L"}
-        if existing and all(v.label in stale for v in existing):
-            product.variants.all().delete()
-            existing = []
         if not existing:
             for v_order, label in enumerate(labels):
                 ProductVariant.objects.create(

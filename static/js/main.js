@@ -28,6 +28,35 @@
       SonyashnykFormValidation.applyStaticI18n(document);
     }
 
+    var searchToggle = document.querySelector("[data-mobile-search-toggle]");
+    var searchPanel = document.querySelector("[data-mobile-search]");
+    if (searchToggle && searchPanel) {
+      function setSearchOpen(open) {
+        if (open) {
+          searchPanel.removeAttribute("hidden");
+          searchToggle.setAttribute("aria-expanded", "true");
+        } else {
+          searchPanel.setAttribute("hidden", "");
+          searchToggle.setAttribute("aria-expanded", "false");
+        }
+      }
+
+      searchToggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        var willOpen = searchPanel.hasAttribute("hidden");
+        setSearchOpen(willOpen);
+        if (!willOpen) return;
+        var input = searchPanel.querySelector("input[type='search']");
+        if (input) input.focus();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        if (searchPanel.hasAttribute("hidden")) return;
+        setSearchOpen(false);
+      });
+    }
+
     // Тінь sticky-шапки (announce не стискається — лише від’їжджає)
     var header = document.getElementById("site-header");
     if (header) {
@@ -38,7 +67,7 @@
 
       function syncHeaderScroll() {
         ticking = false;
-        var y = window.scrollY || window.pageYOffset || 0;
+        var y = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
         var next = scrolled ? y > SHOW_AT : y > HIDE_AT;
         if (next === scrolled) return;
         scrolled = next;
