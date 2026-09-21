@@ -127,7 +127,7 @@ class Product(models.Model):
         "Характеристики (RU)",
         default=dict,
         blank=True,
-        help_text="Російські підписи характеристик (ті самі ключі або повний словник).",
+        help_text="У адмінці — рядки «назва → значення» (без JSON), як у полі «Характеристики».",
     )
 
     brand = models.CharField("Бренд / виробник", max_length=120, blank=True)

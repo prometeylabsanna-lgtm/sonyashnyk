@@ -24,6 +24,7 @@ class ProductAdminForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "characteristics": CharacteristicsKeyValueWidget(),
+            "characteristics_ru": CharacteristicsKeyValueWidget(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -75,13 +76,23 @@ class ProductAdminForm(forms.ModelForm):
                 self.fields[field].widget = forms.HiddenInput()
                 self.fields[field].required = False
 
-    def clean_characteristics(self):
-        value = self.cleaned_data.get("characteristics")
+        for fname in ("characteristics", "characteristics_ru"):
+            if fname in self.fields:
+                self.fields[fname].widget = CharacteristicsKeyValueWidget()
+
+    def _clean_char_dict(self, field_name):
+        value = self.cleaned_data.get(field_name)
         if value in (None, ""):
             return {}
         if isinstance(value, dict):
             return value
         raise forms.ValidationError("Характеристики мають бути парами «назва → значення».")
+
+    def clean_characteristics(self):
+        return self._clean_char_dict("characteristics")
+
+    def clean_characteristics_ru(self):
+        return self._clean_char_dict("characteristics_ru")
 
     def save(self, commit=True):
         instance = super().save(commit=False)

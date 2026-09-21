@@ -702,18 +702,18 @@
   }
   .announce__row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 1fr);
     grid-template-areas:
-      "text text"
-      "meta meta"
-      "hours lang";
+      "text text text text"
+      "meta meta meta meta"
+      ". hours lang .";
     align-items: center;
-    column-gap: 8px;
+    column-gap: 20px;
     row-gap: 6px;
     min-height: 0;
     padding-block: 6px;
     padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
-    text-align: left;
+    text-align: center;
   }
   .announce__text {
     grid-area: text;
@@ -723,30 +723,39 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
   .announce__meta {
     grid-area: meta;
-    width: 100%;
+    width: auto;
+    max-width: 100%;
     margin-left: 0;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: nowrap;
-    gap: 8px 10px;
+    gap: 12px 20px;
   }
   .announce__hours {
     grid-area: hours;
-    justify-self: start;
-    text-align: left;
+    justify-self: end;
+    text-align: right;
     font-size: 12px;
   }
   .announce__lang {
     display: flex;
     grid-area: lang;
-    justify-self: end;
+    justify-self: start;
   }
-  .announce__lang button:last-child {
-    padding-right: 0;
+  .announce__row:not(:has(.announce__lang)) {
+    grid-template-areas:
+      "text text text text"
+      "meta meta meta meta"
+      ". hours hours .";
+  }
+  .announce__row:not(:has(.announce__lang)) .announce__hours {
+    justify-self: center;
+    text-align: center;
   }
   .announce__social-link {
     width: 30px;

@@ -28,3 +28,5 @@ class ProductAdminOpenTests(TestCase):
         self.assertEqual(add.status_code, 200)
         self.assertEqual(change.status_code, 200)
         self.assertContains(change, "attr_")
+        self.assertContains(change, 'data-char-kv-name="characteristics"')
+        self.assertContains(change, 'data-char-kv-name="characteristics_ru"')
