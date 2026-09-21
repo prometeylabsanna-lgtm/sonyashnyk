@@ -20,6 +20,8 @@ class CharacteristicsKeyValueWidget(forms.Widget):
     def format_value(self, value):
         if value in (None, "", {}, []):
             return []
+        if isinstance(value, (bytes, bytearray)):
+            value = value.decode("utf-8")
         if isinstance(value, str):
             try:
                 value = json.loads(value)
@@ -30,15 +32,27 @@ class CharacteristicsKeyValueWidget(forms.Widget):
         return []
 
     def value_from_datadict(self, data, files, name):
-        keys = data.getlist(f"{name}_key")
-        vals = data.getlist(f"{name}_value")
+        keys = self._getlist(data, f"{name}_key")
+        vals = self._getlist(data, f"{name}_value")
         result = {}
         for key, val in zip(keys, vals):
             key = (key or "").strip()
             if not key:
                 continue
             result[key] = (val or "").strip()
-        return result
+        # JSONField.bound_data завжди робить json.loads — потрібен рядок, не dict.
+        return json.dumps(result, ensure_ascii=False)
+
+    @staticmethod
+    def _getlist(data, key):
+        if hasattr(data, "getlist"):
+            return data.getlist(key)
+        value = data.get(key)
+        if value is None:
+            return []
+        if isinstance(value, (list, tuple)):
+            return list(value)
+        return [value]
 
     def render(self, name, value, attrs=None, renderer=None):
         pairs = self.format_value(value)
