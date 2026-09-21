@@ -491,6 +491,16 @@
   .footer-panel {
     border-radius: 0 0 clamp(16px, 2.4vw, 28px) clamp(16px, 2.4vw, 28px);
   }
+
+  .footer-social__link {
+    width: 30px;
+    height: 30px;
+  }
+
+  .footer-social__link svg {
+    width: 15px;
+    height: 15px;
+  }
 }
 
 @media (max-width: 599px) {

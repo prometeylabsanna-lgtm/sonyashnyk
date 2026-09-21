@@ -6,7 +6,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     // Синхронізація клієнтської мови форм з серверною (cookie Django)
-    var langGroup = document.querySelector(".logobar__lang");
+    var langGroups = document.querySelectorAll(".logobar__lang, .announce__lang");
     var htmlLang = (document.documentElement.lang || "uk").toLowerCase();
     var serverLang = htmlLang.indexOf("ru") === 0 ? "ru" : "uk";
     var langKey =
@@ -16,13 +16,13 @@
       window.localStorage.setItem(langKey, serverLang === "ru" ? "ru" : "ua");
     } catch (e) { /* ignore */ }
 
-    if (langGroup) {
+    langGroups.forEach(function (langGroup) {
       langGroup.querySelectorAll("button[data-lang]").forEach(function (b) {
         var code = (b.getAttribute("data-lang") || "").toLowerCase();
         var isActive = serverLang === "ru" ? code === "ru" : code === "ua" || code === "uk";
         b.classList.toggle("is-active", isActive);
       });
-    }
+    });
 
     if (window.SonyashnykFormValidation) {
       SonyashnykFormValidation.applyStaticI18n(document);

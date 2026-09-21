@@ -48,8 +48,46 @@
   justify-content: flex-end;
   gap: 10px 18px;
   min-width: 0;
+  margin-left: auto;
 }
-.announce__hours { color: color-mix(in srgb, var(--c-announcetext) 78%, transparent); }
+.announce__hours {
+  flex-shrink: 0;
+  color: color-mix(in srgb, var(--c-announcetext) 78%, transparent);
+  white-space: nowrap;
+}
+.announce__lang {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+.announce__lang button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 4px 2px;
+  min-height: 32px;
+  font-family: var(--f-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: color-mix(in srgb, var(--c-announcetext) 72%, transparent);
+  border-bottom: 1.5px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.announce__lang button.is-active {
+  color: var(--c-announcetext);
+  border-bottom-color: var(--c-announcetext);
+}
+.announce__lang button:hover,
+.announce__lang button:focus-visible {
+  color: var(--c-announcetext);
+  border-bottom-color: var(--c-announcetext);
+  outline: none;
+}
 
 .announce__social {
   list-style: none;
@@ -663,28 +701,57 @@
     padding-top: env(safe-area-inset-top);
   }
   .announce__row {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "text text"
+      "meta meta"
+      "hours lang";
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 6px;
     min-height: 0;
-    padding-block: 8px;
+    padding-block: 6px;
+    padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
     text-align: center;
   }
   .announce__text {
-    flex: 1 1 100%;
+    grid-area: text;
+    font-size: clamp(10px, 2.85vw, 12px);
+    letter-spacing: 0;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   .announce__meta {
+    grid-area: meta;
     width: 100%;
+    margin-left: 0;
     justify-content: center;
-    gap: 8px 14px;
+    flex-wrap: nowrap;
+    gap: 8px 10px;
+  }
+  .announce__hours {
+    grid-area: hours;
+    justify-self: start;
+    text-align: left;
+    font-size: 12px;
+  }
+  .announce__lang {
+    display: flex;
+    grid-area: lang;
+    justify-self: end;
   }
   .announce__social-link {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
   }
   .announce__social-link svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
   }
 }
 

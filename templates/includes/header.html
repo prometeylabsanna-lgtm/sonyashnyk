@@ -1,5 +1,6 @@
 {% load static site_content %}
 {% section_visible 'site' 'header_announce_visible' as show_announce %}
+{% section_visible 'site' 'header_lang_visible' as show_lang %}
 {% if show_announce %}
 <div class="announce">
     <div class="announce__row container">
@@ -62,9 +63,17 @@
             {% endif %}
           </li>
         </ul>
-        <a href="tel:{{ site_phone_raw }}">{{ site_phone }}</a>
-        <span class="announce__hours">{{ site_working_hours }}</span>
+        <a class="announce__phone" href="tel:{{ site_phone_raw }}">{{ site_phone }}</a>
       </div>
+      <span class="announce__hours">{{ site_working_hours }}</span>
+      {% if show_lang %}
+      <form class="announce__lang" action="{% url 'set_language' %}" method="post" role="group" aria-label="Мова інтерфейсу">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" name="language" value="uk" class="{% if LANGUAGE_CODE == 'uk' or LANGUAGE_CODE == 'uk-ua' %}is-active{% endif %}" data-lang="ua">UA</button>
+        <button type="submit" name="language" value="ru" class="{% if LANGUAGE_CODE == 'ru' or LANGUAGE_CODE == 'ru-ru' %}is-active{% endif %}" data-lang="ru">RU</button>
+      </form>
+      {% endif %}
     </div>
   </div>
 {% endif %}
@@ -118,7 +127,6 @@
       </form>
       {% endif %}
 
-      {% section_visible 'site' 'header_lang_visible' as show_lang %}
       {% if show_lang %}
       <form class="logobar__lang" action="{% url 'set_language' %}" method="post" role="group" aria-label="Мова інтерфейсу">
         {% csrf_token %}

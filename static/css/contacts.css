@@ -233,6 +233,11 @@ a.contacts-social__link:focus-visible {
   .contacts-form .field textarea {
     min-height: 120px;
   }
+
+  .contacts-social__link {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 @supports (-webkit-touch-callout: none) {
