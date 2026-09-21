@@ -41,24 +41,6 @@
   </div>
 
   <div class="product-card__body">
-    <div class="product-card__tags">
-      {% if product.category %}
-        <a href="{{ product.category.get_absolute_url }}" class="product-card__tag">#{{ product.category|loc_field:'name'|cut:" "|lower }}</a>
-      {% endif %}
-      {% if product.is_hit %}
-        <a href="{% url 'catalog:index' %}?hit=1" class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#хит{% else %}#хіт{% endif %}</a>
-      {% endif %}
-      {% if product.is_new %}
-        <a href="{% url 'catalog:index' %}?new=1" class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#новинка{% else %}#новинка{% endif %}</a>
-      {% endif %}
-      {% if product.is_sale %}
-        <a href="{% url 'catalog:sale' %}" class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#акция{% else %}#акція{% endif %}</a>
-      {% endif %}
-      {% if product.is_own_production %}
-        <a href="{% url 'catalog:index' %}?own_production=1" class="product-card__tag">{% if LANGUAGE_CODE == 'ru' %}#своё{% else %}#власне{% endif %}</a>
-      {% endif %}
-    </div>
-
     <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ pname }}</a>
     {% if product.has_pack_choices %}
       {% include "includes/pack_switch.html" with product=product current=variant extra_class="pack-switch--card" %}
