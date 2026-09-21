@@ -3,6 +3,7 @@
 from django.db.models import Prefetch, Q
 
 from .category_tree import category_allows_catalog_filter
+from .category_tree import pack_unit_kind
 from .filter_models import CatalogFilter, CatalogFilterValue
 
 SORT_OPTIONS = {
@@ -58,7 +59,7 @@ def filter_products(request, products):
         selected = get.getlist(cf.slug)
         if not selected:
             continue
-        if cf.slug == "volume":
+        if cf.slug in ("volume", "weight", "pieces"):
             products = products.filter(
                 Q(filter_attrs__catalog_filter=cf, filter_attrs__value__in=selected)
                 | Q(variants__label__in=selected),
@@ -86,11 +87,14 @@ def _ordered_values_for_filter(cf, products):
         .values_list("filter_attrs__value", flat=True)
         .distinct()
     )
-    if cf.slug == "volume":
+    if cf.slug in ("volume", "weight", "pieces"):
         product_vals.update(
-            products.exclude(variants__label="")
+            label
+            for label in products.exclude(variants__label="")
             .values_list("variants__label", flat=True)
             .distinct()
+            if pack_unit_kind(label) == cf.slug
+            or (pack_unit_kind(label) is None and cf.slug == "pieces")
         )
     result = [v for v in dict_ordered if v in product_vals]
     orphans = sorted(v for v in product_vals if v not in set(dict_ordered))
@@ -130,13 +134,16 @@ def build_filter_context(request, products, category=None):
         "available_brands": [],
         "available_countries": [],
         "available_volumes": [],
-        "available_powers": [],
+        "available_weights": [],
+        "available_pieces": [],
         "selected_brands": [],
         "selected_countries": [],
         "selected_volumes": [],
-        "selected_powers": [],
+        "selected_weights": [],
+        "selected_pieces": [],
         "show_brand_filter": False,
         "show_country_filter": False,
         "show_volume_filter": False,
-        "show_power_filter": False,
+        "show_weight_filter": False,
+        "show_pieces_filter": False,
     }

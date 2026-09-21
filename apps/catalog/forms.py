@@ -3,8 +3,10 @@
 from django import forms
 
 from .admin_widgets import CharacteristicsKeyValueWidget
+from .category_tree import pack_measure_kind
 from .filter_models import (
     LEGACY_PRODUCT_FIELDS,
+    PACK_FILTER_SLUGS,
     CatalogFilterValue,
     ProductAttribute,
 )
@@ -38,6 +40,11 @@ class ProductAdminForm(forms.ModelForm):
                     legacy_val = getattr(instance, field, "") or ""
                     if legacy_val:
                         current_by_slug[slug] = legacy_val
+            pack_val = (instance.pack_volume or "").strip()
+            if pack_val:
+                kind = pack_measure_kind(instance.category, pack_val)
+                if kind not in current_by_slug:
+                    current_by_slug[kind] = pack_val
 
         self._catalog_filters = list(active_catalog_filters())
         for cf in self._catalog_filters:
@@ -63,7 +70,7 @@ class ProductAdminForm(forms.ModelForm):
             )
 
         # Старі CharField ховаємо — керування через attr_*
-        for field in LEGACY_PRODUCT_FIELDS.values():
+        for field in (*LEGACY_PRODUCT_FIELDS.values(), "pack_volume"):
             if field in self.fields:
                 self.fields[field].widget = forms.HiddenInput()
                 self.fields[field].required = False
@@ -85,6 +92,13 @@ class ProductAdminForm(forms.ModelForm):
             legacy = LEGACY_PRODUCT_FIELDS.get(cf.slug)
             if legacy:
                 setattr(instance, legacy, raw)
+        pack_val = ""
+        for slug in PACK_FILTER_SLUGS:
+            raw = (self.cleaned_data.get(_attr_field_name(slug)) or "").strip()
+            if raw:
+                pack_val = raw
+                break
+        instance.pack_volume = pack_val
         if commit:
             instance.save()
             self.save_m2m()

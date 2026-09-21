@@ -113,11 +113,26 @@ class PackSwitchTests(TestCase):
         self.assertNotIn("Фасування", html)
         self.assertNotIn("Фасовка", html)
         self.assertNotRegex(html, r">\s*[SML]\s*<")
+        self.assertNotIn("Потужність", html)
+        self.assertNotIn("Мощность", html)
 
     def test_volume_filter_matches_variant_label(self):
         request = RequestFactory().get("/katalog/", {"volume": "1 л"})
         qs = filter_products(request, Product.objects.filter(is_active=True))
         self.assertIn(self.product, list(qs))
+
+    def test_weight_and_pieces_are_separate_filters(self):
+        from apps.catalog.filter_models import CatalogFilter
+
+        slugs = set(CatalogFilter.objects.values_list("slug", flat=True))
+        self.assertIn("volume", slugs)
+        self.assertIn("weight", slugs)
+        self.assertIn("pieces", slugs)
+        self.assertNotIn("power", slugs)
+        volume = CatalogFilter.objects.get(slug="volume")
+        self.assertEqual(volume.name, "Обʼєм")
+        self.assertEqual(CatalogFilter.objects.get(slug="weight").name, "Вага")
+        self.assertEqual(CatalogFilter.objects.get(slug="pieces").name, "Кількість шт")
 
 
 class ProductMergeTests(TestCase):
@@ -184,4 +199,5 @@ class SizePackRewriteTests(TestCase):
         self.assertIn("Кількість шт", html)
         self.assertNotIn("Фасування", html)
         self.assertNotIn(">S<", html)
+        self.assertNotIn("Потужність", html)
 

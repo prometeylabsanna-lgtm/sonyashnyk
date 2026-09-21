@@ -139,12 +139,6 @@ class Product(models.Model):
         help_text="Обʼєм, вага або кількість: 6 мл, 100 мл, 1 л, 10 г, 500 г, 5 кг, 10 шт. "
                   "Окремі варіанти краще робити варіантами товару.",
     )
-    power = models.CharField(
-        "Потужність",
-        max_length=80,
-        blank=True,
-        help_text="Наприклад: 600 Вт, 800 Вт, 1.2 кВт. Для інструменту та оприскувачів.",
-    )
 
     base_price = models.DecimalField("Базова ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField(

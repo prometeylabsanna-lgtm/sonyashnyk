@@ -47,9 +47,6 @@
     {% elif product.pack_volume %}
       <div class="product-card__volume">{{ product.pack_measure_label }}: {{ product.pack_volume }}</div>
     {% endif %}
-    {% if product.power %}
-      <div class="product-card__volume">{% if LANGUAGE_CODE == 'ru' %}Мощность{% else %}Потужність{% endif %}: {{ product.power }}</div>
-    {% endif %}
 
     <div class="product-card__meta">
       <div class="product-card__prices">

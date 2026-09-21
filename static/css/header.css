@@ -713,7 +713,7 @@
     min-height: 0;
     padding-block: 6px;
     padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
-    text-align: center;
+    text-align: left;
   }
   .announce__text {
     grid-area: text;
@@ -730,7 +730,7 @@
     grid-area: meta;
     width: 100%;
     margin-left: 0;
-    justify-content: center;
+    justify-content: space-between;
     flex-wrap: nowrap;
     gap: 8px 10px;
   }
@@ -744,6 +744,9 @@
     display: flex;
     grid-area: lang;
     justify-self: end;
+  }
+  .announce__lang button:last-child {
+    padding-right: 0;
   }
   .announce__social-link {
     width: 30px;

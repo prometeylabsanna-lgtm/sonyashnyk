@@ -189,11 +189,6 @@ VOLUME_FILTER_EXTRA_SLUGS = frozenset({
     "vagove-nasinnia",
 })
 
-POWER_FILTER_ROOT_SLUGS = frozenset({
-    "sadovii-instrument",
-    "poliv-ta-opriskuvachi",
-})
-
 
 def category_allows_catalog_filter(category, catalog_filter):
     """Чи показувати фільтр для категорії (найближче налаштування в ланцюгу)."""
@@ -223,16 +218,6 @@ def category_allows_volume_filter(category):
     if not cf:
         return False
     return category_allows_catalog_filter(category, cf)
-
-
-def category_allows_power_filter(category):
-    """Чи заповнювати потужність товару в гілці. У фільтрах каталогу її немає."""
-    if category is None:
-        return False
-    for node in category.breadcrumb_chain():
-        if node.slug in POWER_FILTER_ROOT_SLUGS:
-            return True
-    return False
 
 
 # Підпис на картці та сторінці товару: лише обʼєм / вага / кількість шт.

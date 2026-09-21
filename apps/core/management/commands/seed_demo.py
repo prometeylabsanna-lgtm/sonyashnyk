@@ -25,17 +25,11 @@ from .seed_demo_ru import (
 # Повне дерево — apps.catalog.category_tree; seed лишає сумісний плоский режим.
 # Для повного sync: python3 manage.py sync_categories
 from apps.catalog.category_tree import CATEGORY_TREE as FULL_CATEGORY_TREE
-from apps.catalog.category_tree import (
-    category_allows_power_filter,
-    category_allows_volume_filter,
-)
 
 CATEGORY_TREE = FULL_CATEGORY_TREE
 
 BRANDS = ["АгроХім", "БіоСад", "Соняшник", "ЗеленСвіт"]
 COUNTRIES = ["Україна", "Польща", "Нідерланди"]
-VOLUME_SAMPLES = ["6 мл", "100 мл", "1 л", "500 г", "5 кг", "10 л"]
-POWER_SAMPLES = ["600 Вт", "800 Вт", "1.2 кВт", "1500 Вт"]
 
 # Назви без «товар N» — по 3 на підкатегорію
 PRODUCT_NAMES = {
@@ -221,14 +215,10 @@ class Command(BaseCommand):
         )
 
     def _pack_volume_for(self, category, counter):
-        if not category_allows_volume_filter(category):
-            return ""
-        return VOLUME_SAMPLES[counter % len(VOLUME_SAMPLES)]
+        from apps.catalog.category_tree import pack_measure_kind, pack_option_labels
 
-    def _power_for(self, category, counter):
-        if not category_allows_power_filter(category):
-            return ""
-        return POWER_SAMPLES[counter % len(POWER_SAMPLES)]
+        labels = pack_option_labels(pack_measure_kind(category, ""))
+        return labels[counter % len(labels)]
 
     def _variant_labels_for(self, category, pack_volume):
         from apps.catalog.category_tree import pack_measure_kind, pack_option_labels
@@ -306,16 +296,14 @@ class Command(BaseCommand):
                     product.short_description = short
                     product.description = full
                     product.pack_volume = self._pack_volume_for(product.category, counter)
-                    product.power = self._power_for(product.category, counter)
                     product.save(update_fields=[
-                        "name", "short_description", "description", "pack_volume", "power",
+                        "name", "short_description", "description", "pack_volume",
                     ])
                     self._sync_variants(product, product.pack_volume)
                     sync_legacy_product_attrs(product)
                     apply_product_ru(product)
                     continue
                 pack_volume = self._pack_volume_for(category, counter)
-                power = self._power_for(category, counter)
                 product = Product.objects.create(
                     category=category,
                     sku=sku,
@@ -325,7 +313,6 @@ class Command(BaseCommand):
                     brand=BRANDS[counter % len(BRANDS)],
                     country_of_origin=COUNTRIES[counter % len(COUNTRIES)],
                     pack_volume=pack_volume,
-                    power=power,
                     base_price=Decimal(str(50 + counter * 3 % 400)),
                     is_own_production=(counter % 4 == 0),
                     is_hit=(counter % 5 == 0),

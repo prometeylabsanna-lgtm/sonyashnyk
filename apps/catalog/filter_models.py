@@ -6,12 +6,11 @@ from apps.core.utils import make_unique_slug
 
 
 # Сумісність зі старими CharField на Product (PDP / картки / seed).
-# Потужність лишається полем товару і не входить у фільтри каталогу.
 LEGACY_PRODUCT_FIELDS = {
     "brand": "brand",
     "country": "country_of_origin",
-    "volume": "pack_volume",
 }
+PACK_FILTER_SLUGS = ("volume", "weight", "pieces")
 
 
 class CatalogFilter(models.Model):
@@ -172,7 +171,9 @@ class ProductAttribute(models.Model):
 
 
 def sync_legacy_product_attrs(product) -> None:
-    """Записує brand/country/volume з CharField у ProductAttribute."""
+    """Записує brand/country і pack_volume в ProductAttribute відповідного фільтра."""
+    from .category_tree import pack_measure_kind, pack_unit_kind
+
     for slug, field in LEGACY_PRODUCT_FIELDS.items():
         value = (getattr(product, field, "") or "").strip()
         cf = CatalogFilter.objects.filter(slug=slug, is_active=True).first()
@@ -184,8 +185,50 @@ def sync_legacy_product_attrs(product) -> None:
                 catalog_filter=cf,
                 defaults={"value": value},
             )
+            CatalogFilterValue.objects.get_or_create(
+                catalog_filter=cf,
+                value=value,
+                defaults={"order": 0, "is_active": True},
+            )
         else:
             ProductAttribute.objects.filter(
                 product=product,
                 catalog_filter=cf,
             ).delete()
+
+    pack_value = (getattr(product, "pack_volume", "") or "").strip()
+    target_slug = pack_measure_kind(product.category, pack_value) if pack_value else None
+    for slug in PACK_FILTER_SLUGS:
+        cf = CatalogFilter.objects.filter(slug=slug, is_active=True).first()
+        if not cf:
+            continue
+        if slug == target_slug and pack_value:
+            ProductAttribute.objects.update_or_create(
+                product=product,
+                catalog_filter=cf,
+                defaults={"value": pack_value},
+            )
+            CatalogFilterValue.objects.get_or_create(
+                catalog_filter=cf,
+                value=pack_value,
+                defaults={"order": 0, "is_active": True},
+            )
+        else:
+            ProductAttribute.objects.filter(
+                product=product,
+                catalog_filter=cf,
+            ).delete()
+
+    for variant in product.variants.all():
+        label = (getattr(variant, "label", "") or "").strip()
+        if not label:
+            continue
+        slug = pack_unit_kind(label) or pack_measure_kind(product.category, label)
+        cf = CatalogFilter.objects.filter(slug=slug, is_active=True).first()
+        if not cf:
+            continue
+        CatalogFilterValue.objects.get_or_create(
+            catalog_filter=cf,
+            value=label,
+            defaults={"order": 0, "is_active": True},
+        )
