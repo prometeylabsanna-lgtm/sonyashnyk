@@ -17,7 +17,7 @@ class Certificate(models.Model):
         upload_to="certificates/",
         blank=True,
         null=True,
-        help_text="PDF лишається як є; зображення автоматично конвертуються в WebP.",
+        help_text="PDF або фото сертифіката. Звичайне зображення підійде — сайт збереже його сам.",
     )
     product = models.ForeignKey(
         "catalog.Product", verbose_name="Товар", null=True, blank=True,

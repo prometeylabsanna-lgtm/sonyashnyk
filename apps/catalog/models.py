@@ -20,8 +20,8 @@ class Category(models.Model):
         help_text="Заповнюється, якщо назва на сайті відрізняється від довідника.",
     )
     slug = models.SlugField(
-        "URL-адреса (slug)", max_length=180, unique=True, blank=True,
-        help_text="Залиште порожнім — згенерується автоматично з назви (кирилиця транслітерується).",
+        "Адреса в посиланні", max_length=180, unique=True, blank=True,
+        help_text="Краще не змінювати — заповниться само з назви.",
     )
     parent = models.ForeignKey(
         "self", verbose_name="Батьківська категорія",
@@ -33,9 +33,9 @@ class Category(models.Model):
         blank=True,
         null=True,
         help_text=(
-            "PNG/JPG/WebP — автоматично збережеться як WebP. "
-            "Головні: якщо порожньо — іконка шапки/головної. "
-            "2–3 рівень: якщо порожньо — соняшник."
+            "Завантажте іконку або залиште порожньою. "
+            "Головні розділи — тоді буде стандартна іконка сайту; "
+            "підрозділи — соняшник."
         ),
     )
     description = models.TextField("Опис", blank=True)
@@ -110,24 +110,31 @@ class Product(models.Model):
     name = models.CharField("Назва на сайті", max_length=255)
     name_ru = models.CharField("Назва на сайті (RU)", max_length=255, blank=True, default="")
     slug = models.SlugField(
-        "URL-адреса (slug)", max_length=255, unique=True, blank=True,
-        help_text="Залиште порожнім — згенерується автоматично з назви (кирилиця транслітерується).",
+        "Адреса в посиланні", max_length=255, unique=True, blank=True,
+        help_text="Краще не змінювати — заповниться само з назви.",
     )
     short_description = models.CharField("Короткий опис", max_length=255, blank=True)
     short_description_ru = models.CharField("Короткий опис (RU)", max_length=255, blank=True, default="")
-    description = models.TextField("Опис", blank=True)
+    description = models.TextField(
+        "Опис",
+        blank=True,
+        help_text=(
+            "Повний опис товару. Пишіть звичайними реченнями — "
+            "Enter робить новий абзац. Жирний, списки й посилання — кнопками зверху."
+        ),
+    )
     description_ru = models.TextField("Опис (RU)", blank=True, default="")
     characteristics = models.JSONField(
         "Характеристики",
         default=dict,
         blank=True,
-        help_text="У адмінці — рядки «назва → значення» (без JSON).",
+        help_text="Рядки «назва → значення», наприклад «Обʼєм → 100 мл».",
     )
     characteristics_ru = models.JSONField(
         "Характеристики (RU)",
         default=dict,
         blank=True,
-        help_text="У адмінці — рядки «назва → значення» (без JSON), як у полі «Характеристики».",
+        help_text="Ті самі характеристики російською, рядки «назва → значення».",
     )
 
     brand = models.CharField("Бренд / виробник", max_length=120, blank=True)

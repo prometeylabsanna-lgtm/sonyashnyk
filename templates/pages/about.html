@@ -30,8 +30,8 @@
     <section class="about-shelves" aria-labelledby="about-shelves-title">
       <h2 id="about-shelves-title" class="about-shelves__title">{% block_plain 'about' 'shelves_title' %}</h2>
       <ul class="about-shelves__list">
-        {% block_text 'about' 'shelves_list' as shelves_list %}
-        {% for item in shelves_list|cms_splitlines %}
+        {% cms_numbered_items 'about' 'shelves_item' 12 as shelf_items %}
+        {% for item in shelf_items %}
         <li>🌻 {{ item }}</li>
         {% endfor %}
       </ul>

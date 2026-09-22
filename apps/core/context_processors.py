@@ -9,8 +9,11 @@ from apps.core.models import SiteSettings
 def _load_site_blocks():
     from django.core.cache import cache
 
+    from apps.core.admin_site_content import migrate_shelves_list_to_items
     from apps.core.models import SiteBlock
 
+    if migrate_shelves_list_to_items():
+        cache.delete(SITE_BLOCKS_CACHE_KEY)
     cached = cache.get(SITE_BLOCKS_CACHE_KEY)
     if cached is not None:
         return cached

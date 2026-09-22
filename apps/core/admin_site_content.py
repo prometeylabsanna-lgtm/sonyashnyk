@@ -48,7 +48,45 @@ def _image_preview_url(page: str, key: str, block: SiteBlock | None) -> tuple[st
     return static(static_path), True
 
 
+def _legacy_shelves_lines(raw: str) -> list[str]:
+    return [line.strip() for line in (raw or "").replace("\r\n", "\n").split("\n") if line.strip()]
+
+
+def migrate_shelves_list_to_items() -> bool:
+    """Один раз: старий shelves_list → окремі shelves_item_N. True якщо щось створено."""
+    from apps.core.block_defaults import SHELVES_ITEM_COUNT
+
+    if SiteBlock.objects.filter(page="about", key="shelves_item_1").exists():
+        return False
+    legacy = SiteBlock.objects.filter(page="about", key="shelves_list").first()
+    lines_uk = _legacy_shelves_lines(legacy.text_html if legacy else "")
+    lines_ru = _legacy_shelves_lines(getattr(legacy, "text_html_ru", "") if legacy else "")
+    for i in range(1, SHELVES_ITEM_COUNT + 1):
+        key = f"shelves_item_{i}"
+        defaults = {
+            "label": get_block_label("about", key),
+            "content_type": get_block_content_type("about", key),
+            "text_html": (
+                lines_uk[i - 1]
+                if i <= len(lines_uk)
+                else get_block_default("about", key)
+            ),
+            "text_html_ru": lines_ru[i - 1] if i <= len(lines_ru) else "",
+        }
+        if not defaults["text_html_ru"]:
+            try:
+                from apps.core.block_defaults_ru import get_block_default_ru
+
+                defaults["text_html_ru"] = get_block_default_ru("about", key)
+            except Exception:
+                pass
+        SiteBlock.objects.get_or_create(page="about", key=key, defaults=defaults)
+    return True
+
+
 def load_section_blocks(page: str, keys: list[str]) -> dict[str, SiteBlock]:
+    if page == "about" and any(k.startswith("shelves_item_") for k in keys):
+        migrate_shelves_list_to_items()
     result: dict[str, SiteBlock] = {}
     for key in keys:
         defaults = {

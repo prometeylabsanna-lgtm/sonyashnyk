@@ -127,11 +127,26 @@ def render_cms_rich(value: str) -> str:
     parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
     if not parts:
         parts = [text]
+    if len(parts) == 1 and "\n" not in parts[0]:
+        sentences = _split_sentences(parts[0])
+        if len(sentences) > 1:
+            parts = sentences
     out = []
     for part in parts:
-        escaped = html.escape(part).replace("\n", "<br>")
-        out.append(f"<p>{escaped}</p>")
+        escaped = html.escape(part.replace("\n", " ").strip())
+        if escaped:
+            out.append(f"<p>{escaped}</p>")
     return "".join(out)
+
+
+_SENTENCE_SPLIT_RE = re.compile(
+    r"(?<=[.!?…])[\"»”']?\)?\s+(?=[A-ZА-ЯЁЇІЄҐ])"
+)
+
+
+def _split_sentences(text: str) -> list[str]:
+    parts = [p.strip() for p in _SENTENCE_SPLIT_RE.split(text) if p and p.strip()]
+    return parts or [text]
 
 
 _ALLOWED_TAGS = {
@@ -283,6 +298,39 @@ def cms_lines(value):
 @register.filter
 def cms_splitlines(value):
     return [line.strip() for line in html_to_plain(value or "").split("\n") if line.strip()]
+
+
+@register.simple_tag(takes_context=True)
+def cms_numbered_items(context, page, prefix, count=12):
+    """Список непорожніх SiteBlock з ключами prefix_1 … prefix_N."""
+    items = []
+    site_blocks = _blocks(context)
+    has_blocks = any(
+        f"{page}.{prefix}_{i}" in site_blocks for i in range(1, int(count) + 1)
+    )
+    if has_blocks:
+        for i in range(1, int(count) + 1):
+            text = get_block_text(page, f"{prefix}_{i}", site_blocks, fallback="")
+            plain = html_to_plain(text or "").strip()
+            if plain:
+                items.append(plain)
+        return items
+
+    if prefix == "shelves_item":
+        legacy = site_blocks.get(f"{page}.shelves_list")
+        if legacy is not None:
+            return [
+                line.strip()
+                for line in html_to_plain(
+                    get_block_text(page, "shelves_list", site_blocks, fallback="") or ""
+                ).split("\n")
+                if line.strip()
+            ]
+        for i in range(1, int(count) + 1):
+            plain = html_to_plain(_default_for_lang(page, f"{prefix}_{i}") or "").strip()
+            if plain:
+                items.append(plain)
+    return items
 
 
 @register.filter

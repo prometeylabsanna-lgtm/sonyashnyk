@@ -24,10 +24,18 @@ CONTENT_SECTIONS_PAGES: tuple[ContentSection, ...] = (
         sidebar_icon="inventory_2",
         preview_url="/pro-nas/",
         visibility_key="shelves_section_visible",
-        blocks=_b("about", "shelves_section_visible", "shelves_title", "shelves_list"),
+        blocks=_b(
+            "about",
+            "shelves_section_visible",
+            "shelves_title",
+            *(f"shelves_item_{i}" for i in range(1, 13)),
+        ),
         field_groups=(
             FieldGroup("Видимість", ("shelves_section_visible",)),
-            FieldGroup("Контент", ("shelves_title", "shelves_list")),
+            FieldGroup(
+                "Контент",
+                ("shelves_title", *(f"shelves_item_{i}" for i in range(1, 13))),
+            ),
         ),
         admin_model_name="aboutshelvessettings",
     ),

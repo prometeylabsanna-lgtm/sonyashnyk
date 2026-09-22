@@ -91,8 +91,8 @@ class SiteBlock(models.Model):
         choices=ContentType.choices,
         default=ContentType.TEXT,
     )
-    text_html = models.TextField("Текст / HTML", blank=True, default="")
-    text_html_ru = models.TextField("Текст / HTML (RU)", blank=True, default="")
+    text_html = models.TextField("Текст", blank=True, default="")
+    text_html_ru = models.TextField("Текст (RU)", blank=True, default="")
     image = WebPImageField("Зображення", upload_to="blocks/", blank=True, null=True)
     link_url = models.CharField("URL посилання", max_length=512, blank=True, default="")
     link_label = models.CharField("Текст посилання", max_length=128, blank=True, default="")
@@ -160,7 +160,7 @@ class HighlightPoint(models.Model):
         "Іконка",
         max_length=30,
         default="leaf",
-        help_text="Ключ іконки: leaf, truck, shield, card, chat, phone, seed, years",
+        help_text="Оберіть іконку зі списку (листок, вантажівка, щит тощо).",
     )
     title = models.CharField("Заголовок", max_length=120)
     title_ru = models.CharField("Заголовок (RU)", max_length=120, blank=True, default="")
@@ -229,12 +229,12 @@ class PickupPoint(models.Model):
     )
     hours_ru = models.CharField("Графік (RU)", max_length=120, blank=True, default="")
     map_embed = models.TextField(
-        "Google Maps (iframe)",
+        "Карта Google",
         blank=True,
         default="",
         help_text=(
-            "Вставте код iframe з Google Maps (Поділитися → Вбудувати карту) "
-            "або лише посилання embed. Порожнє — заглушка «Київ, Хрещатик 1»."
+            "У Google Maps відкрийте крамницю → «Поділитися» → «Вбудувати карту» "
+            "і вставте сюди скопійований код. Порожнє — покажеться карта-заглушка."
         ),
     )
     order = models.PositiveIntegerField("Порядок", default=0)
