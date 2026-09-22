@@ -158,6 +158,23 @@ def block_image(context, page, key, css_class="", alt="", fallback_static=None):
 
 
 @register.simple_tag(takes_context=True)
+def block_image_url(context, page, key, fallback_static=None):
+    """URL фото SiteBlock або static-fallback (для CSS background)."""
+    from django.templatetags.static import static
+
+    block = _get_block(context, page, key)
+    if block is not None and block.image:
+        try:
+            return block.image.url
+        except Exception:
+            pass
+    static_path = fallback_static or STATIC_FALLBACKS.get((page, key), "")
+    if static_path:
+        return static(static_path)
+    return ""
+
+
+@register.simple_tag(takes_context=True)
 def block_format(context, page, key, fallback=None, **kwargs):
     raw = get_block_text(page, key, site_blocks=_blocks(context), fallback=fallback)
     try:

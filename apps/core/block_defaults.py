@@ -159,6 +159,8 @@ _reg("site", "footer_copyright", "© {year} {site_name}. Усі права за�
 
 # --- Site: lead modal ---
 _reg("site", "lead_modal_visible", "1", label="Показувати модалку")
+_reg("site", "lead_modal_image", "", label="Фото арки (низ модалки)", content_type="image")
+STATIC_FALLBACKS[("site", "lead_modal_image")] = "img/modal/meadow-sunflowers.webp"
 _reg("site", "lead_modal_title", "Не йдіть без подарунка!", label="Заголовок", inline=True)
 _reg(
     "site",

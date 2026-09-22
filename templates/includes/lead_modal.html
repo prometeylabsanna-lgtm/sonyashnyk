@@ -1,9 +1,16 @@
 {% load site_content %}
 {% section_visible 'site' 'lead_modal_visible' as show_lead_modal %}
 {% if show_lead_modal %}
+{% block_image_url 'site' 'lead_modal_image' fallback_static='img/modal/meadow-sunflowers.webp' as lead_modal_photo %}
 <div class="modal" id="lead-modal" data-lead-modal aria-hidden="true">
   <div class="modal__overlay" data-modal-close></div>
-  <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="lead-modal-title">
+  <div
+    class="modal__card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="lead-modal-title"
+    {% if lead_modal_photo %}style="--modal-arch-photo: url('{{ lead_modal_photo }}')"{% endif %}
+  >
     <button type="button" class="modal__close" aria-label="Закрити" data-modal-close>
       <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 4l12 12M16 4 4 16"/></svg>
     </button>

@@ -261,6 +261,7 @@ CONTENT_SECTIONS_HOME: tuple[ContentSection, ...] = (
         blocks=_b(
             "site",
             "lead_modal_visible",
+            "lead_modal_image",
             "lead_modal_title",
             "lead_modal_lead",
             "lead_modal_cta",
@@ -270,6 +271,7 @@ CONTENT_SECTIONS_HOME: tuple[ContentSection, ...] = (
         ),
         field_groups=(
             FieldGroup("Видимість", ("lead_modal_visible",)),
+            FieldGroup("Фото", ("lead_modal_image",)),
             FieldGroup(
                 "Форма",
                 ("lead_modal_title", "lead_modal_lead", "lead_modal_cta", "lead_modal_agree"),

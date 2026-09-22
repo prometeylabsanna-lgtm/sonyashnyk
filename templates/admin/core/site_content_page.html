@@ -38,24 +38,25 @@
         {% if group.description %}
           <p class="text-font-subtle-light dark:text-font-subtle-dark">{{ group.description }}</p>
         {% endif %}
-        {% for field in group.fields %}
+        {% for item in group.fields %}
+          {% with field=item.field %}
           <div class="site-content-editor__field">
             <label class="text-font-important-light dark:text-font-important-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if item.preview_url %}
+              <div class="site-content-editor__img-preview">
+                <img src="{{ item.preview_url }}" alt="" width="240" height="160" loading="lazy" decoding="async">
+                {% if item.preview_fallback %}
+                  <p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">Зараз на сайті — стандартне фото. Завантажте своє, щоб замінити.</p>
+                {% endif %}
+              </div>
+            {% endif %}
             {{ field }}
             {% if field.help_text %}<p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">{{ field.help_text }}</p>{% endif %}
             {% for error in field.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
+          {% endwith %}
         {% endfor %}
       </fieldset>
-    {% endfor %}
-
-    {% for key, url in image_previews.items %}
-      {% if url %}
-        <div class="site-content-editor__img-preview">
-          <p class="text-font-subtle-light dark:text-font-subtle-dark">Превʼю: {{ key }}</p>
-          <img src="{{ url }}" alt="" width="240" height="160" loading="lazy">
-        </div>
-      {% endif %}
     {% endfor %}
 
     {% if hero_formset %}

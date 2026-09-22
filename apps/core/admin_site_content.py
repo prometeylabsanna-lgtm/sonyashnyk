@@ -16,6 +16,7 @@ from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget, CmsAdm
 from apps.core.block_defaults import (
     INLINE_KEYS,
     MULTILINE_KEYS,
+    STATIC_FALLBACKS,
     get_block_content_type,
     get_block_default,
     get_block_label,
@@ -25,6 +26,21 @@ from apps.core.models import SiteBlock, SiteSettings
 from apps.core.site_content_registry import get_section
 
 SITE_BLOCKS_CACHE_KEY = "sonyashnyk_site_blocks_v1"
+
+
+def _image_preview_url(page: str, key: str, block: SiteBlock | None) -> tuple[str, bool]:
+    """URL превʼю: аплоад або static-fallback. Друге значення — чи це стандартне фото."""
+    if block is not None and block.image:
+        try:
+            return block.image.url, False
+        except Exception:
+            pass
+    static_path = STATIC_FALLBACKS.get((page, key), "")
+    if not static_path:
+        return "", False
+    from django.templatetags.static import static
+
+    return static(static_path), True
 
 
 def load_section_blocks(page: str, keys: list[str]) -> dict[str, SiteBlock]:
@@ -208,7 +224,7 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
         for key in group.keys:
             if section.visibility_key and key == section.visibility_key:
                 if "section_visible" in form.fields:
-                    bound.append(form["section_visible"])
+                    bound.append({"field": form["section_visible"], "preview_url": "", "preview_fallback": False})
                 continue
             page = section.page_slug
             ctype = get_block_content_type(page, key)
@@ -220,16 +236,18 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
                 name = f"block__{page}__{key}__link_url"
             else:
                 name = f"block__{page}__{key}__text_html"
-            if name in form.fields:
-                bound.append(form[name])
-                # image preview from current block
+            if name not in form.fields:
+                continue
+            preview_url = ""
+            preview_fallback = False
+            if ctype == "image":
+                preview_url, preview_fallback = _image_preview_url(page, key, blocks.get(key))
+            bound.append({
+                "field": form[name],
+                "preview_url": preview_url,
+                "preview_fallback": preview_fallback,
+            })
         field_groups.append({"title": group.title, "description": group.description, "fields": bound, "keys": group.keys})
-
-    image_previews = {
-        key: (blocks[key].image.url if blocks[key].image else "")
-        for key in keys
-        if get_block_content_type(section.page_slug, key) == "image" and key in blocks
-    }
 
     context = {
         **(model_admin.admin_site.each_context(request) if model_admin else {}),
@@ -238,7 +256,6 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
         "section_hint": help_for_section(section.page_slug, section.slug),
         "form": form,
         "field_groups": field_groups,
-        "image_previews": image_previews,
         "blocks_map": blocks,
         "hero_formset": hero_formset,
         "pickup_formset": pickup_formset,
