@@ -271,9 +271,14 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
     def image_thumb(self, obj):
         image = None
         for item in obj.images.all():
-            if item.image:
-                image = item.image
-                break
+            if not item.image:
+                continue
+            try:
+                if item.image.storage.exists(item.image.name):
+                    image = item.image
+                    break
+            except Exception:
+                continue
         if not image:
             return "—"
         try:

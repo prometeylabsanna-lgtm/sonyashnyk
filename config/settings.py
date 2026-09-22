@@ -86,20 +86,40 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # --- Database -------------------------------------------------------------
-# Локально / DO — Postgres. Тест-Vercel — SQLite у /tmp (єдине writable місце).
-if IS_VERCEL:
+# Postgres: DATABASE_URL або DB_*. На Vercel без URL — лише демо-SQLite в /tmp
+# (не зберігає товари/фото між інстансами).
+from urllib.parse import unquote, urlparse
+
+DATABASE_URL = config("DATABASE_URL", default="").strip()
+USE_EPHEMERAL_SQLITE = False
+
+
+def _postgres_from_url(url: str) -> dict:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"postgres", "postgresql"}:
+        raise ValueError(f"Unsupported DATABASE_URL scheme: {parsed.scheme}")
+    return {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": unquote((parsed.path or "").lstrip("/") or "postgres"),
+        "USER": unquote(parsed.username or ""),
+        "PASSWORD": unquote(parsed.password or ""),
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or "5432"),
+        "CONN_MAX_AGE": 0,
+        "OPTIONS": {"connect_timeout": 5, "sslmode": "require"} if IS_VERCEL else {"connect_timeout": 3},
+    }
+
+
+if DATABASE_URL:
+    DATABASES = {"default": _postgres_from_url(DATABASE_URL)}
+elif IS_VERCEL:
+    USE_EPHEMERAL_SQLITE = True
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": "/tmp/sonyashnyk.sqlite3",
         }
     }
-    # Cookie-сесія: БД ефемерна між інстансами; hash пароля фіксуємо в api/index.py
-    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
 else:
     DATABASES = {
         "default": {
@@ -115,6 +135,14 @@ else:
             },
         }
     }
+
+if IS_VERCEL:
+    # Cookie-сесія потрібна при ефемерній БД; з Postgres теж ок.
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
 
 # --- Passwords --------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -158,6 +186,25 @@ if IS_VERCEL:
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = Path("/tmp/sonyashnyk_media") if IS_VERCEL else (BASE_DIR / "media")
+
+# S3 / R2 / інше S3-сумісне сховище (обовʼязково на Vercel для фото товарів)
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="").strip()
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="").strip()
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="").strip()
+AWS_S3_ENDPOINT_URL = config("AWS_S3_ENDPOINT_URL", default="").strip() or None
+AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="auto").strip() or "auto"
+AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN", default="").strip() or None
+AWS_QUERYSTRING_AUTH = config("AWS_QUERYSTRING_AUTH", default=False, cast=bool)
+AWS_DEFAULT_ACL = None
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    }
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

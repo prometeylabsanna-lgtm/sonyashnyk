@@ -90,25 +90,31 @@ def _migrate() -> None:
 
 if getattr(settings, "IS_VERCEL", False):
     try:
-        from apps.catalog.models import Category, ProductImage
+        from apps.catalog.models import Category, Product
 
+        ephemeral = getattr(settings, "USE_EPHEMERAL_SQLITE", False)
         profile_path = Path("/tmp/sonyashnyk_seed_profile")
         profile_ok = (
             profile_path.exists() and profile_path.read_text().strip() == SEED_PROFILE
         )
 
-        # Якщо профіль застарів або схеми немає — чистий SQLite + migrate
-        if not profile_ok or not _schema_ready():
-            print("[vercel] resetting sqlite + migrate", file=sys.stderr)
-            _reset_sqlite()
-            _migrate()
-        elif not _schema_ready():
-            _migrate()
+        if ephemeral:
+            # SQLite в /tmp — лише демо. Не чіпаємо Postgres / DATABASE_URL.
+            if not profile_ok or not _schema_ready():
+                print("[vercel] resetting sqlite + migrate", file=sys.stderr)
+                _reset_sqlite()
+                _migrate()
+            elif not _schema_ready():
+                _migrate()
 
-        if not _schema_ready():
-            print("[vercel] schema still incomplete, force reset", file=sys.stderr)
-            _reset_sqlite()
-            _migrate()
+            if not _schema_ready():
+                print("[vercel] schema still incomplete, force reset", file=sys.stderr)
+                _reset_sqlite()
+                _migrate()
+        else:
+            if not _schema_ready():
+                print("[vercel] migrate persistent db", file=sys.stderr)
+                _migrate()
 
         if not _schema_ready():
             missing = sorted(_REQUIRED_TABLES - _existing_tables())
@@ -116,10 +122,10 @@ if getattr(settings, "IS_VERCEL", False):
 
         _ensure_vercel_superuser()
 
-        need_seed = (
+        need_seed = ephemeral and (
             not profile_ok
             or not Category.objects.exists()
-            or not ProductImage.objects.exists()
+            or not Product.objects.exists()
         )
         if need_seed:
             from django.core.management import call_command

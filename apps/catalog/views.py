@@ -112,7 +112,11 @@ def search(request):
     products = Product.objects.none()
     if query:
         products = Product.objects.filter(
-            Q(name__icontains=query) | Q(sku__icontains=query) | Q(short_description__icontains=query),
+            Q(name__icontains=query)
+            | Q(name_ru__icontains=query)
+            | Q(sku__icontains=query)
+            | Q(short_description__icontains=query)
+            | Q(short_description_ru__icontains=query),
             is_active=True,
         ).for_cards()
         products = apply_sorting(request, products)
