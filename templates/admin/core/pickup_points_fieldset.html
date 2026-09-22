@@ -4,6 +4,7 @@
   <p class="site-content-editor__hint">
     Чотири точки видачі. Адресу можна лишити заглушкою і замінити пізніше.
     Порожній телефон і графік підставляються з налаштувань сайту.
+    Тексти UA/RU — вкладками зверху форми.
   </p>
 
   <div class="pickup-points">
@@ -11,29 +12,29 @@
       <div class="pickup-point-row">
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
         <div class="pickup-point-row__fields">
-          <div class="site-content-editor__field">
+          <div class="site-content-editor__field" data-admin-lang="uk">
             <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
             {{ form.title }}
             {% for error in form.title.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
-          <div class="site-content-editor__field">
+          <div class="site-content-editor__field" data-admin-lang="ru">
             <label for="{{ form.title_ru.id_for_label }}">{{ form.title_ru.label }}</label>
             {{ form.title_ru }}
             {% for error in form.title_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
 
-          <div class="site-content-editor__field">
+          <div class="site-content-editor__field" data-admin-lang="uk">
             <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
             {{ form.address }}
             {% for error in form.address.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
-          <div class="site-content-editor__field">
+          <div class="site-content-editor__field" data-admin-lang="ru">
             <label for="{{ form.address_ru.id_for_label }}">{{ form.address_ru.label }}</label>
             {{ form.address_ru }}
             {% for error in form.address_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
           {% if form.address.help_text %}
-            <p class="pickup-point-row__help site-content-editor__help">{{ form.address.help_text }}</p>
+            <p class="pickup-point-row__help site-content-editor__help" data-admin-lang="uk">{{ form.address.help_text }}</p>
           {% endif %}
 
           <div class="site-content-editor__field">
@@ -54,23 +55,40 @@
             </p>
           {% endif %}
 
-          <div class="site-content-editor__field">
+          <div class="site-content-editor__field" data-admin-lang="uk">
             <label for="{{ form.hours.id_for_label }}">{{ form.hours.label }}</label>
             {{ form.hours }}
             {% for error in form.hours.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
-          <div class="site-content-editor__field">
+          <div class="site-content-editor__field" data-admin-lang="ru">
             <label for="{{ form.hours_ru.id_for_label }}">{{ form.hours_ru.label }}</label>
             {{ form.hours_ru }}
             {% for error in form.hours_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
           {% if form.hours.help_text %}
-            <p class="pickup-point-row__help site-content-editor__help">{{ form.hours.help_text }}</p>
+            <p class="pickup-point-row__help site-content-editor__help" data-admin-lang="uk">{{ form.hours.help_text }}</p>
           {% endif %}
+
+          <div class="site-content-editor__field pickup-point-row__map">
+            <label for="{{ form.map_embed.id_for_label }}">{{ form.map_embed.label }}</label>
+            {{ form.map_embed }}
+            {% if form.map_embed.help_text %}
+              <p class="site-content-editor__help">{{ form.map_embed.help_text }}</p>
+            {% endif %}
+            {% for error in form.map_embed.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
+          </div>
         </div>
         <div class="pickup-point-row__meta">
-          <label>{{ form.is_active }} {{ form.is_active.label }}</label>
-          {% if form.DELETE %}<label>{{ form.DELETE }} Видалити</label>{% endif %}
+          <label class="pickup-point-row__check" for="{{ form.is_active.id_for_label }}">
+            {{ form.is_active }}
+            <span>{{ form.is_active.label }}</span>
+          </label>
+          {% if form.DELETE %}
+          <label class="pickup-point-row__check" for="{{ form.DELETE.id_for_label }}">
+            {{ form.DELETE }}
+            <span>Видалити</span>
+          </label>
+          {% endif %}
         </div>
         {% if form.non_field_errors %}<div class="site-content-editor__error">{{ form.non_field_errors }}</div>{% endif %}
       </div>

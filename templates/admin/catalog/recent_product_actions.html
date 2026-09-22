@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/admin/recent_actions.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="recent-actions">
+  <div class="recent-actions__head">
+    <div>
+      <h1 class="text-font-important-light dark:text-font-important-dark">Недавні дії</h1>
+      <p class="recent-actions__hint">Останні зміни товарів у адмінці (додавання, редагування, видалення).</p>
+    </div>
+    <a class="recent-actions__link" href="{{ products_url }}">До товарів</a>
+  </div>
+
+  {% if rows %}
+  <div class="recent-actions__table-wrap border border-base-200 dark:border-base-700 rounded-default shadow-sm dark:bg-base-900">
+    <table class="recent-actions__table">
+      <thead>
+        <tr>
+          <th>Коли</th>
+          <th>Хто</th>
+          <th>Дія</th>
+          <th>Товар</th>
+          <th>Деталі</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td class="recent-actions__time">{{ row.time|date:"d.m.Y H:i" }}</td>
+          <td>{{ row.user }}</td>
+          <td>
+            <span class="recent-actions__badge recent-actions__badge--{{ row.action_css }}">{{ row.action_label }}</span>
+          </td>
+          <td>{{ row.object_html }}</td>
+          <td class="recent-actions__msg">{{ row.message }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="recent-actions__empty border border-base-200 dark:border-base-700 rounded-default">
+    <p>Поки немає записів. Зʼявляться після додавання чи зміни товарів у адмінці.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

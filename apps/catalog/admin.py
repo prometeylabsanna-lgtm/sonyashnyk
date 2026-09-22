@@ -39,6 +39,10 @@ class CategoryLevelAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin)
     for_nav_preview = False
     category_level = 1
 
+    class Media:
+        css = {"all": ("css/admin/lang_tabs.css",)}
+        js = ("js/admin/lang_tabs.js",)
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("parent", "parent__parent")
 
@@ -256,7 +260,8 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         )
 
     class Media:
-        css = {"all": ("css/admin_product_list.css",)}
+        css = {"all": ("css/admin_product_list.css", "css/admin/lang_tabs.css")}
+        js = ("js/admin/lang_tabs.js",)
 
     def get_queryset(self, request):
         return (
@@ -303,3 +308,8 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
     )
     def active_flag(self, obj):
         return obj.is_active
+
+
+from .admin_recent_actions import patch_admin_recent_actions_urls  # noqa: E402
+
+patch_admin_recent_actions_urls()

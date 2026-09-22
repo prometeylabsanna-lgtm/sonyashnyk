@@ -1,37 +1,55 @@
-{% comment %}Поля одного hero-слайда + підказки{% endcomment %}
-<div class="site-content-editor__field">
+{% comment %}Поля одного hero-слайда + UA/RU під вкладками{% endcomment %}
+<div class="site-content-editor__field" data-admin-lang="uk">
   {{ form.title.label_tag }}{{ form.title }}
   {% if form.title.help_text %}<p class="site-content-editor__help">{{ form.title.help_text }}</p>{% endif %}
 </div>
-<div class="site-content-editor__field">
+<div class="site-content-editor__field" data-admin-lang="ru">
+  {{ form.title_ru.label_tag }}{{ form.title_ru }}
+</div>
+<div class="site-content-editor__field" data-admin-lang="uk">
   {{ form.lead.label_tag }}{{ form.lead }}
   {% if form.lead.help_text %}<p class="site-content-editor__help">{{ form.lead.help_text }}</p>{% endif %}
 </div>
-<div class="site-content-editor__field">
+<div class="site-content-editor__field" data-admin-lang="ru">
+  {{ form.lead_ru.label_tag }}{{ form.lead_ru }}
+</div>
+<div class="site-content-editor__field" data-admin-lang="uk">
   {{ form.eyebrow.label_tag }}{{ form.eyebrow }}
   {% if form.eyebrow.help_text %}<p class="site-content-editor__help">{{ form.eyebrow.help_text }}</p>{% endif %}
+</div>
+<div class="site-content-editor__field" data-admin-lang="ru">
+  {{ form.eyebrow_ru.label_tag }}{{ form.eyebrow_ru }}
 </div>
 <div class="site-content-editor__field">
   {{ form.image.label_tag }}{{ form.image }}
   {% if form.image.help_text %}<p class="site-content-editor__help">{{ form.image.help_text }}</p>{% endif %}
   {% for error in form.image.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
 </div>
-<div class="site-content-editor__field">
+<div class="site-content-editor__field" data-admin-lang="uk">
   {{ form.alt_text.label_tag }}{{ form.alt_text }}
   {% if form.alt_text.help_text %}<p class="site-content-editor__help">{{ form.alt_text.help_text }}</p>{% endif %}
 </div>
+<div class="site-content-editor__field" data-admin-lang="ru">
+  {{ form.alt_text_ru.label_tag }}{{ form.alt_text_ru }}
+</div>
 <div class="hero-slide-row__cta">
-  <div class="site-content-editor__field">
+  <div class="site-content-editor__field" data-admin-lang="uk">
     {{ form.cta1_text.label_tag }}{{ form.cta1_text }}
     {% if form.cta1_text.help_text %}<p class="site-content-editor__help">{{ form.cta1_text.help_text }}</p>{% endif %}
+  </div>
+  <div class="site-content-editor__field" data-admin-lang="ru">
+    {{ form.cta1_text_ru.label_tag }}{{ form.cta1_text_ru }}
   </div>
   <div class="site-content-editor__field">
     {{ form.cta1_url.label_tag }}{{ form.cta1_url }}
     {% if form.cta1_url.help_text %}<p class="site-content-editor__help">{{ form.cta1_url.help_text }}</p>{% endif %}
   </div>
-  <div class="site-content-editor__field">
+  <div class="site-content-editor__field" data-admin-lang="uk">
     {{ form.cta2_text.label_tag }}{{ form.cta2_text }}
     {% if form.cta2_text.help_text %}<p class="site-content-editor__help">{{ form.cta2_text.help_text }}</p>{% endif %}
+  </div>
+  <div class="site-content-editor__field" data-admin-lang="ru">
+    {{ form.cta2_text_ru.label_tag }}{{ form.cta2_text_ru }}
   </div>
   <div class="site-content-editor__field">
     {{ form.cta2_url.label_tag }}{{ form.cta2_url }}

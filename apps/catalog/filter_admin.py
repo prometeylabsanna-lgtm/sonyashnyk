@@ -41,6 +41,10 @@ class CatalogFilterAdmin(TopDropdownFiltersMixin, ModelAdmin):
     )
     inlines = [CatalogFilterValueInline, CatalogFilterCategoryInline]
 
+    class Media:
+        css = {"all": ("css/admin/lang_tabs.css",)}
+        js = ("js/admin/lang_tabs.js",)
+
     def get_queryset(self, request):
         return (
             super()

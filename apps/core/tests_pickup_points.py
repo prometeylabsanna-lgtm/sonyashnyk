@@ -43,3 +43,22 @@ class PickupPointTests(TestCase):
         self.assertIn("contacts-store__map", html)
         self.assertIn("maps.google.com/maps", html)
         self.assertIn("<iframe", html)
+
+    def test_custom_map_embed_iframe_src(self):
+        from apps.core.pickup_points import extract_map_embed_src, map_src_for_raw
+
+        raw = (
+            '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12" '
+            'width="600" height="450" style="border:0;" allowfullscreen></iframe>'
+        )
+        self.assertEqual(
+            extract_map_embed_src(raw),
+            "https://www.google.com/maps/embed?pb=!1m18!1m12",
+        )
+        self.assertIn("google.com", map_src_for_raw(""))
+        point = PickupPoint.objects.order_by("order", "id").first()
+        point.map_embed = raw
+        point.save(update_fields=["map_embed"])
+        html = Client().get("/kontakty/").content.decode()
+        self.assertIn("https://www.google.com/maps/embed?pb=!1m18!1m12", html)
+        self.assertNotIn("javascript:", html)

@@ -5,6 +5,7 @@
   {{ block.super }}
   {{ media }}
   <link rel="stylesheet" href="{% static 'css/admin/site_content.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin/lang_tabs.css' %}">
   <style>
     .site-content-editor .file-upload,
     .site-content-editor input[type="file"] {
@@ -14,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="site-content-editor">
+<div class="site-content-editor" data-admin-lang-scope>
   <div class="site-content-editor__head">
     <div>
       <h1 class="text-font-important-light dark:text-font-important-dark">{{ title }}</h1>
@@ -29,8 +30,9 @@
     {% endif %}
   </div>
 
-  <form method="post" enctype="multipart/form-data" novalidate>
+  <form method="post" enctype="multipart/form-data" novalidate data-admin-lang-scope>
     {% csrf_token %}
+    <div class="admin-lang-tabs-anchor" hidden></div>
 
     {% for group in field_groups %}
       <fieldset class="site-content-editor__fieldset border border-base-200 dark:border-base-700 rounded-default shadow-sm dark:bg-base-900">
@@ -42,23 +44,18 @@
           {% with field=item.field %}
           {% if item.field_ru %}
           <div class="site-content-editor__pair">
-            <div class="site-content-editor__field">
+            <div class="site-content-editor__field" data-admin-lang="uk">
               <label class="text-font-important-light dark:text-font-important-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
               {{ field }}
+              {% if field.help_text %}<p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">{{ field.help_text }}</p>{% endif %}
               {% for error in field.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
             </div>
-            <div class="site-content-editor__field">
+            <div class="site-content-editor__field" data-admin-lang="ru">
               <label class="text-font-important-light dark:text-font-important-dark" for="{{ item.field_ru.id_for_label }}">{{ item.field_ru.label }}</label>
               {{ item.field_ru }}
+              {% if item.field_ru.help_text %}<p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">{{ item.field_ru.help_text }}</p>{% endif %}
               {% for error in item.field_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
             </div>
-            {% if field.help_text or item.field_ru.help_text %}
-              <p class="site-content-editor__pair-help text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">
-                {% if field.help_text %}{{ field.help_text }}{% endif %}
-                {% if field.help_text and item.field_ru.help_text %} · {% endif %}
-                {% if item.field_ru.help_text %}{{ item.field_ru.help_text }}{% endif %}
-              </p>
-            {% endif %}
           </div>
           {% else %}
           <div class="site-content-editor__field">
@@ -99,6 +96,7 @@
 
 {% block footer %}
   {{ block.super }}
+  <script src="{% static 'js/admin/lang_tabs.js' %}" defer></script>
   {% if hero_formset %}
     <script src="{% static 'js/admin/hero_slides.js' %}" defer></script>
   {% endif %}

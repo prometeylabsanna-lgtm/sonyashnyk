@@ -2,13 +2,31 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 from apps.core.i18n_utils import current_lang, normalize_lang
 from apps.core.models import PickupPoint
 
 PLACEHOLDER_ADDRESS = "м. Київ, адреса уточнюється"
 PLACEHOLDER_ADDRESS_RU = "г. Киев, адрес уточняется"
+DEFAULT_MAP_EMBED_SRC = (
+    "https://maps.google.com/maps?q=Kyiv%2C+Khreshchatyk+1&hl=uk&z=16&output=embed"
+)
+
+_IFRAME_SRC_RE = re.compile(
+    r"<iframe[^>]+src\s*=\s*[\"']([^\"']+)[\"']",
+    re.IGNORECASE | re.DOTALL,
+)
+_ALLOWED_MAP_HOST_SUFFIXES = (
+    "google.com",
+    "google.com.ua",
+    "googleapis.com",
+    "gstatic.com",
+    "goo.gl",
+)
+
 
 DEFAULT_PICKUP_POINTS = tuple(
     {
@@ -29,6 +47,7 @@ class PickupPointView:
     phone: str
     phone_raw: str
     hours: str
+    map_src: str
 
 
 def ensure_default_pickup_points() -> int:
@@ -56,6 +75,36 @@ def _pick(lang: str, uk: str | None, ru: str | None) -> str:
     return uk_val
 
 
+def _host_allowed(hostname: str | None) -> bool:
+    if not hostname:
+        return False
+    host = hostname.lower().rstrip(".")
+    return any(host == suffix or host.endswith("." + suffix) for suffix in _ALLOWED_MAP_HOST_SUFFIXES)
+
+
+def extract_map_embed_src(raw: str) -> str:
+    """Повертає безпечний src для iframe з вставленого тегу / URL Google Maps."""
+    text = (raw or "").strip()
+    if not text:
+        return ""
+    src = text
+    match = _IFRAME_SRC_RE.search(text)
+    if match:
+        src = match.group(1).strip()
+    if src.startswith("//"):
+        src = "https:" + src
+    parsed = urlparse(src)
+    if parsed.scheme not in {"http", "https"}:
+        return ""
+    if not _host_allowed(parsed.hostname):
+        return ""
+    return src
+
+
+def map_src_for_raw(raw: str) -> str:
+    return extract_map_embed_src(raw) or DEFAULT_MAP_EMBED_SRC
+
+
 def _site_fallback(lang: str) -> tuple[str, str, str]:
     from apps.core.models import SiteSettings
 
@@ -75,6 +124,7 @@ def _view_from_defaults(lang: str, phone: str, phone_raw: str, hours: str) -> li
             phone=phone,
             phone_raw=phone_raw,
             hours=hours,
+            map_src=DEFAULT_MAP_EMBED_SRC,
         )
         for item in DEFAULT_PICKUP_POINTS
     ]
@@ -90,6 +140,7 @@ def _view_from_point(point: PickupPoint, lang: str, phone: str, phone_raw: str, 
         phone=own_phone or phone,
         phone_raw=own_raw or phone_raw,
         hours=own_hours or hours,
+        map_src=map_src_for_raw(getattr(point, "map_embed", "") or ""),
     )
 
 

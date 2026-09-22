@@ -94,8 +94,8 @@
       </div>
       <div class="contacts-store__map">
         <iframe
-          title="Карта: Київ, Хрещатик 1 — {{ point.title }}"
-          src="https://maps.google.com/maps?q=Kyiv%2C+Khreshchatyk+1&amp;hl=uk&amp;z=16&amp;output=embed"
+          title="Карта — {{ point.title }}"
+          src="{{ point.map_src }}"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen

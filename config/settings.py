@@ -323,6 +323,11 @@ UNFOLD = {
                 "separator": True,
                 "items": [
                     {"title": "Товари", "icon": "inventory_2", "link": "/admin/catalog/product/"},
+                    {
+                        "title": "Недавні дії",
+                        "icon": "history",
+                        "link": "/admin/recent-product-actions/",
+                    },
                 ],
             },
             {

@@ -15,6 +15,10 @@ from apps.core.models import HighlightPoint, Review, SiteSettings
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(ReadableUnfoldFieldsMixin, SingletonModelAdminMixin, ModelAdmin):
+    class Media:
+        css = {"all": ("css/admin/lang_tabs.css",)}
+        js = ("js/admin/lang_tabs.js",)
+
     fieldsets = (
         (
             "Основне",

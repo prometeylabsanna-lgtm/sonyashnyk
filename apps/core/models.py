@@ -228,6 +228,15 @@ class PickupPoint(models.Model):
         help_text="Порожнє — графік із налаштувань сайту.",
     )
     hours_ru = models.CharField("Графік (RU)", max_length=120, blank=True, default="")
+    map_embed = models.TextField(
+        "Google Maps (iframe)",
+        blank=True,
+        default="",
+        help_text=(
+            "Вставте код iframe з Google Maps (Поділитися → Вбудувати карту) "
+            "або лише посилання embed. Порожнє — заглушка «Київ, Хрещатик 1»."
+        ),
+    )
     order = models.PositiveIntegerField("Порядок", default=0)
     is_active = models.BooleanField("Активна", default=True)
 

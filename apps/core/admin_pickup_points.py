@@ -2,11 +2,11 @@
 
 from django import forms
 from django.forms import BaseModelFormSet, modelformset_factory
-from unfold.widgets import UnfoldBooleanWidget
+from django.forms.widgets import CheckboxInput
 
-from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget
+from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget, CmsAdminTextareaWidget
 from apps.core.models import PickupPoint
-from apps.core.pickup_points import ensure_default_pickup_points
+from apps.core.pickup_points import ensure_default_pickup_points, extract_map_embed_src
 
 
 def _tel_value(value: str) -> str:
@@ -25,6 +25,7 @@ class PickupPointForm(forms.ModelForm):
             "phone_raw",
             "hours",
             "hours_ru",
+            "map_embed",
             "order",
             "is_active",
         )
@@ -37,8 +38,9 @@ class PickupPointForm(forms.ModelForm):
             "phone_raw": CmsAdminTextInputWidget(),
             "hours": CmsAdminTextInputWidget(),
             "hours_ru": CmsAdminTextInputWidget(),
+            "map_embed": CmsAdminTextareaWidget(attrs={"rows": 3}),
             "order": forms.HiddenInput(),
-            "is_active": UnfoldBooleanWidget(),
+            "is_active": CheckboxInput(attrs={"class": "pickup-point-row__checkbox"}),
         }
         help_texts = {
             "title": "Коротка назва, наприклад «Крамниця на Хрещатику».",
@@ -46,10 +48,24 @@ class PickupPointForm(forms.ModelForm):
             "phone": "Якщо порожнє — на сайті буде телефон із налаштувань.",
             "phone_raw": "Для посилання tel:, лише цифри та +.",
             "hours": "Якщо порожнє — графік із налаштувань сайту.",
+            "map_embed": (
+                "Google Maps → Поділитися → Вбудувати карту → скопіюйте HTML. "
+                "Або вставте лише URL embed. Порожнє = заглушка Київ, Хрещатик 1."
+            ),
         }
 
     def clean_phone_raw(self):
         return _tel_value(self.cleaned_data.get("phone_raw") or "")
+
+    def clean_map_embed(self):
+        raw = (self.cleaned_data.get("map_embed") or "").strip()
+        if not raw:
+            return ""
+        if not extract_map_embed_src(raw):
+            raise forms.ValidationError(
+                "Невірний код карти. Вставте iframe з Google Maps або embed-посилання google.com."
+            )
+        return raw
 
     def clean(self):
         cleaned = super().clean()
