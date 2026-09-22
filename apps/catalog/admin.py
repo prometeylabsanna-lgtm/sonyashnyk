@@ -260,7 +260,13 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         )
 
     class Media:
-        css = {"all": ("css/admin_product_list.css", "css/admin/lang_tabs.css")}
+        css = {
+            "all": (
+                "css/admin_product_list.css",
+                "css/admin/lang_tabs.css",
+                "css/admin/cms_tinymce.css",
+            )
+        }
         js = ("js/admin/lang_tabs.js",)
 
     def get_queryset(self, request):

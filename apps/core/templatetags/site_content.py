@@ -106,8 +106,93 @@ def block_text(context, page, key, fallback=None):
 @register.simple_tag(takes_context=True)
 def block_html(context, page, key, fallback=None):
     raw = get_block_text(page, key, site_blocks=_blocks(context), fallback=fallback)
-    return mark_safe(raw or "")
+    return mark_safe(render_cms_rich(raw or ""))
 
+
+@register.simple_tag(takes_context=True)
+def block_rich(context, page, key, fallback=None):
+    """HTML з TinyMCE або legacy-текст із абзацами."""
+    raw = get_block_text(page, key, site_blocks=_blocks(context), fallback=fallback)
+    return mark_safe(render_cms_rich(raw or ""))
+
+
+def render_cms_rich(value: str) -> str:
+    if not value:
+        return ""
+    text = value.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not text:
+        return ""
+    if _TAG_RE.search(text):
+        return sanitize_cms_html(text)
+    parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    if not parts:
+        parts = [text]
+    out = []
+    for part in parts:
+        escaped = html.escape(part).replace("\n", "<br>")
+        out.append(f"<p>{escaped}</p>")
+    return "".join(out)
+
+
+_ALLOWED_TAGS = {
+    "p", "br", "strong", "b", "em", "i", "u", "ul", "ol", "li",
+    "a", "h2", "h3", "h4", "span",
+}
+_ALLOWED_ATTRS = {"a": {"href", "title", "target", "rel"}}
+
+
+def sanitize_cms_html(value: str) -> str:
+    """Мінімальна санітизація HTML зі штатного TinyMCE (без сторонніх пакетів)."""
+    from html.parser import HTMLParser
+
+    class _Sanitizer(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.parts: list[str] = []
+
+        def handle_starttag(self, tag, attrs):
+            tag = tag.lower()
+            if tag not in _ALLOWED_TAGS:
+                return
+            if tag == "br":
+                self.parts.append("<br>")
+                return
+            allowed = _ALLOWED_ATTRS.get(tag, set())
+            chunks = [tag]
+            for name, val in attrs:
+                name = (name or "").lower()
+                if name not in allowed or val is None:
+                    continue
+                if name == "href" and not re.match(r"^(https?:|/|#|mailto:)", val, re.I):
+                    continue
+                if name == "target" and val not in {"_blank", "_self"}:
+                    continue
+                chunks.append(f'{name}="{html.escape(val, quote=True)}"')
+                if name == "target" and val == "_blank":
+                    chunks.append('rel="noopener noreferrer"')
+            self.parts.append("<" + " ".join(chunks) + ">")
+
+        def handle_endtag(self, tag):
+            tag = tag.lower()
+            if tag in _ALLOWED_TAGS and tag != "br":
+                self.parts.append(f"</{tag}>")
+
+        def handle_data(self, data):
+            self.parts.append(html.escape(data))
+
+        def handle_entityref(self, name):
+            self.parts.append(f"&{name};")
+
+        def handle_charref(self, name):
+            self.parts.append(f"&#{name};")
+
+    parser = _Sanitizer()
+    try:
+        parser.feed(value)
+        parser.close()
+    except Exception:
+        return html.escape(html_to_plain(value)).replace("\n", "<br>")
+    return "".join(parser.parts)
 
 @register.simple_tag(takes_context=True)
 def block_url(context, page, key, fallback=None):
@@ -181,6 +266,12 @@ def block_format(context, page, key, fallback=None, **kwargs):
         return raw.format(**kwargs)
     except (KeyError, ValueError):
         return raw
+
+
+@register.filter
+def cms_rich(value):
+    """Фільтр: plain → <p>, HTML TinyMCE → санітизований HTML."""
+    return mark_safe(render_cms_rich(value or ""))
 
 
 @register.filter

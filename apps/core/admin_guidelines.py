@@ -242,10 +242,11 @@ def help_for_key(key: str, page: str = "") -> str:
         return TEXT_HINTS["title"]
     if "lead" in key:
         return TEXT_HINTS["lead"]
-    if page in {"offer", "privacy"} or key.endswith("_body") or key.endswith("_html"):
-        if page in {"offer", "privacy"}:
-            return TEXT_HINTS["long"]
-        return TEXT_HINTS["body"]
+    if key.endswith("_body") or key in {"philosophy_text", "intro_body"}:
+        return (
+            "Великий текст — редактор TinyMCE. Можна абзаци, списки, посилання. "
+            "Збережеться як HTML."
+        )
     if key.endswith("_text") or key.endswith("_empty") or "empty_" in key:
         return TEXT_HINTS["lead"]
     return ""

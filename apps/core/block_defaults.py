@@ -10,6 +10,7 @@ INLINE_KEYS: set[tuple[str, str]] = set()
 MULTILINE_KEYS: set[tuple[str, str]] = set()
 URL_KEYS: set[tuple[str, str]] = set()
 IMAGE_KEYS: set[tuple[str, str]] = set()
+RICHTEXT_KEYS: set[tuple[str, str]] = set()
 
 
 def _reg(
@@ -21,6 +22,7 @@ def _reg(
     content_type: str = "text",
     inline: bool = False,
     multiline: bool = False,
+    richtext: bool = False,
 ) -> None:
     pair = (page, key)
     BLOCK_DEFAULTS[pair] = default
@@ -33,6 +35,9 @@ def _reg(
     if inline:
         INLINE_KEYS.add(pair)
     if multiline:
+        MULTILINE_KEYS.add(pair)
+    if richtext:
+        RICHTEXT_KEYS.add(pair)
         MULTILINE_KEYS.add(pair)
 
 
@@ -197,7 +202,7 @@ _reg(
     "Продукція представлена у крамницях мережі «Соняшник» завжди якісна та сертифікована. Ми працюємо з найкращими виробниками, завжди маємо свіжу продукцію, що зберігається із дотриманням усіх необхідних умов.\n\n"
     "Ми щиро віримо у світле аграрне майбутнє нашої країни, обожнюємо нашу справу та віддано допомагаємо клієнтам отримати найкращі врожаї, найквітучіші сади та затишні зелені куточки — де б ви не знаходились.",
     label="Текст",
-    multiline=True,
+    richtext=True,
 )
 
 _reg("about", "shelves_section_visible", "1", label="Показувати полички")
@@ -242,7 +247,7 @@ _reg(
     "Ми пропонуємо раціональне використання добрив та засобів захисту рослин з максимальною користю для вас і мінімальною шкодою для навколишнього середовища. Ви завжди можете отримати ефективну консультацію з допомогою по догляду та використанню засобів, системою захисту рослини на сезон та схемами лікування для вашого саду або кімнатних зелених друзів.\n\n"
     "А наші соцмережі допоможуть вам розібратися з особливостями застосування препаратів на різних культурах та полегшать ведення рослинного господарства.",
     label="Текст",
-    multiline=True,
+    richtext=True,
 )
 
 _reg("about", "why_section_visible", "1", label="Показувати «Чому нас обирають»")
@@ -344,7 +349,7 @@ _reg(
     "<h2>4. Оплата та доставка</h2><p>Оплата здійснюється одним із способів, зазначених на сторінці «Доставка і оплата». Доставка виконується службами Нова Пошта / Укрпошта або самовивозом.</p>"
     "<h2>5. Повернення товару</h2><p>Повернення та обмін товару здійснюються згідно з чинним законодавством України про захист прав споживачів.</p>",
     label="Текст оферти (HTML)",
-    multiline=True,
+    richtext=True,
 )
 
 _reg("privacy", "page_section_visible", "1", label="Показувати сторінку")
@@ -361,7 +366,7 @@ _reg(
     "<h2>3. Захист даних</h2><p>Сайт не зберігає дані банківських карток. Оплата обробляється через захищений сервіс LiqPay.</p>"
     "<h2>4. Права користувача</h2><p>Користувач має право вимагати видалення чи уточнення своїх персональних даних, звернувшись через сторінку «Контакти».</p>",
     label="Текст політики (HTML)",
-    multiline=True,
+    richtext=True,
 )
 
 # --- Catalog / Search / Cart / Checkout / Thankyou / 404 ---
@@ -418,3 +423,7 @@ def get_block_label(page: str, key: str) -> str:
 
 def get_block_content_type(page: str, key: str) -> str:
     return BLOCK_CONTENT_TYPES.get((page, key), "text")
+
+
+def is_richtext_key(page: str, key: str) -> bool:
+    return (page, key) in RICHTEXT_KEYS

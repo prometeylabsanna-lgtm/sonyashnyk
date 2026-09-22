@@ -113,9 +113,9 @@
 
       <div class="pdp-desc">
         <h2 class="pdp-desc__title">{% block_plain 'product' 'desc_title' %}</h2>
-        <div class="pdp-desc__body">
+        <div class="pdp-desc__body cms-richtext">
           {% firstof product|loc_field:'description' product|loc_field:'short_description' as desc %}
-          <p>{{ desc|linebreaksbr }}</p>
+          {{ desc|cms_rich }}
         </div>
 
         {% if product.characteristics %}

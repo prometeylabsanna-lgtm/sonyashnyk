@@ -21,10 +21,7 @@
     <section class="about-intro" aria-labelledby="about-intro-title">
       <h1 id="about-intro-title" class="about-intro__title">{% block_plain 'about' 'intro_title' %}</h1>
       <p class="about-intro__lead">{% block_plain 'about' 'intro_lead' %}</p>
-      {% block_text 'about' 'intro_body' as intro_body %}
-      {% for para in intro_body|cms_splitlines %}
-      <p class="about-intro__text">{{ para }}</p>
-      {% endfor %}
+      <div class="about-intro__body cms-richtext">{% block_rich 'about' 'intro_body' %}</div>
     </section>
     {% endif %}
 
@@ -147,10 +144,7 @@
   <section class="about-philosophy" aria-labelledby="about-philosophy-title">
     <h2 id="about-philosophy-title" class="about-philosophy__title">{% block_plain 'about' 'philosophy_title' %}</h2>
     <p class="about-philosophy__motto">{% block_plain 'about' 'philosophy_motto' %}</p>
-    {% block_text 'about' 'philosophy_text' as philosophy_text %}
-    {% for para in philosophy_text|cms_splitlines %}
-    <p class="about-philosophy__text">{{ para }}</p>
-    {% endfor %}
+    <div class="about-philosophy__body cms-richtext">{% block_rich 'about' 'philosophy_text' %}</div>
   </section>
   {% endif %}
 

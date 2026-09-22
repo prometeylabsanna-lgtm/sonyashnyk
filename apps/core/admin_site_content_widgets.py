@@ -28,12 +28,36 @@ class CmsAdminTextareaWidget(AdminTextareaWidget):
         super().__init__(attrs=attrs)
 
 
+class CmsTinyMCEWidget(AdminTextareaWidget):
+    """TinyMCE для великих HTML-текстів у CMS / товарах."""
+
+    def __init__(self, attrs=None):
+        attrs = dict(attrs or {})
+        rows = attrs.pop("rows", 14)
+        existing = attrs.get("class", "")
+        merged = list(TEXTAREA_CLASSES) + ["cms-tinymce"]
+        if existing:
+            merged = list(dict.fromkeys([*merged, *existing.split()]))
+        attrs["class"] = " ".join(merged)
+        attrs["rows"] = rows
+        super().__init__(attrs=attrs)
+
+    class Media:
+        js = (
+            "https://cdn.jsdelivr.net/npm/tinymce@7.6.1/tinymce.min.js",
+            "js/admin/cms_tinymce.js",
+        )
+        css = {"all": ("css/admin/cms_tinymce.css",)}
+
+
 def apply_readable_widget(widget):
     """Застосувати стандартні Unfold input/textarea (тема light/dark)."""
     from django.forms.widgets import CheckboxInput, ClearableFileInput, Select
     from unfold.widgets import UnfoldAdminTextareaWidget, UnfoldAdminTextInputWidget
 
     if isinstance(widget, (CheckboxInput, ClearableFileInput, Select)):
+        return widget
+    if isinstance(widget, CmsTinyMCEWidget):
         return widget
     if isinstance(widget, (UnfoldAdminTextInputWidget, AdminTextInputWidget)):
         return CmsAdminTextInputWidget(attrs=widget.attrs)

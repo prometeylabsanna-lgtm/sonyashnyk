@@ -2,6 +2,7 @@
 
 from django import forms
 
+from apps.core.admin_site_content_widgets import CmsTinyMCEWidget
 from .admin_widgets import CharacteristicsKeyValueWidget
 from .category_tree import pack_measure_kind
 from .filter_models import (
@@ -25,6 +26,8 @@ class ProductAdminForm(forms.ModelForm):
         widgets = {
             "characteristics": CharacteristicsKeyValueWidget(),
             "characteristics_ru": CharacteristicsKeyValueWidget(),
+            "description": CmsTinyMCEWidget(attrs={"rows": 14}),
+            "description_ru": CmsTinyMCEWidget(attrs={"rows": 14}),
         }
 
     def __init__(self, *args, **kwargs):

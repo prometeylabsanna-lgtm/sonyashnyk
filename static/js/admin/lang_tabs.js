@@ -96,6 +96,9 @@
           window.localStorage.setItem(STORAGE_KEY, lang);
         } catch (err) {}
         applyLang(root, lang);
+        document.dispatchEvent(
+          new CustomEvent("admin-lang-changed", { detail: { lang: lang, root: root } })
+        );
       });
       tabs.appendChild(btn);
     });

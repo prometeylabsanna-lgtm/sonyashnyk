@@ -12,7 +12,11 @@ from unfold.widgets import UnfoldAdminFileFieldWidget, UnfoldBooleanWidget
 from apps.core.admin_guidelines import help_for_key, help_for_section
 from apps.core.admin_hero_slides import build_hero_slide_formset
 from apps.core.admin_pickup_points import build_pickup_point_formset
-from apps.core.admin_site_content_widgets import CmsAdminTextInputWidget, CmsAdminTextareaWidget
+from apps.core.admin_site_content_widgets import (
+    CmsAdminTextInputWidget,
+    CmsAdminTextareaWidget,
+    CmsTinyMCEWidget,
+)
 from apps.core.block_defaults import (
     INLINE_KEYS,
     MULTILINE_KEYS,
@@ -20,6 +24,7 @@ from apps.core.block_defaults import (
     get_block_content_type,
     get_block_default,
     get_block_label,
+    is_richtext_key,
     is_visibility_key,
 )
 from apps.core.models import SiteBlock, SiteSettings
@@ -117,12 +122,18 @@ class SitePageContentForm(forms.Form):
                 continue
 
             pair = (page, key)
-            if pair in INLINE_KEYS:
+            if is_richtext_key(page, key):
+                widget = CmsTinyMCEWidget(attrs={"rows": 14})
+                ru_widget = CmsTinyMCEWidget(attrs={"rows": 14})
+            elif pair in INLINE_KEYS:
                 widget = CmsAdminTextInputWidget()
+                ru_widget = CmsAdminTextInputWidget()
             elif pair in MULTILINE_KEYS:
                 widget = CmsAdminTextareaWidget(attrs={"rows": 6})
+                ru_widget = CmsAdminTextareaWidget(attrs={"rows": 6})
             else:
                 widget = CmsAdminTextareaWidget(attrs={"rows": 2})
+                ru_widget = CmsAdminTextareaWidget(attrs={"rows": 2})
             self.fields[f"block__{page}__{key}__text_html"] = forms.CharField(
                 required=False,
                 initial=block.text_html,
@@ -130,12 +141,6 @@ class SitePageContentForm(forms.Form):
                 help_text=help_text,
                 widget=widget,
             )
-            if pair in INLINE_KEYS:
-                ru_widget = CmsAdminTextInputWidget()
-            elif pair in MULTILINE_KEYS:
-                ru_widget = CmsAdminTextareaWidget(attrs={"rows": 6})
-            else:
-                ru_widget = CmsAdminTextareaWidget(attrs={"rows": 2})
             self.fields[f"block__{page}__{key}__text_html_ru"] = forms.CharField(
                 required=False,
                 initial=getattr(block, "text_html_ru", "") or "",

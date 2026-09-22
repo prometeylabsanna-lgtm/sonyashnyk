@@ -68,12 +68,36 @@
   max-width: 52ch;
 }
 
-.about-intro__text {
+.about-intro__text,
+.about-intro__body {
   margin: 12px 0 0;
   font-size: clamp(16px, 1.55vw, 18px);
   line-height: 1.65;
   color: var(--c-body);
   max-width: 54ch;
+}
+
+.about-intro__body p,
+.about-philosophy__body p,
+.cms-richtext p {
+  margin: 0 0 0.85em;
+}
+
+.about-intro__body p:last-child,
+.about-philosophy__body p:last-child,
+.cms-richtext p:last-child {
+  margin-bottom: 0;
+}
+
+.cms-richtext ul,
+.cms-richtext ol {
+  margin: 0 0 0.85em;
+  padding-left: 1.25em;
+}
+
+.cms-richtext a {
+  color: var(--c-sage);
+  text-decoration: underline;
 }
 
 /* --- Shelves / assortment --- */
@@ -128,7 +152,8 @@
   text-wrap: balance;
 }
 
-.about-philosophy__text {
+.about-philosophy__text,
+.about-philosophy__body {
   margin: 12px 0 0;
   font-size: clamp(16px, 1.55vw, 18px);
   line-height: 1.65;
@@ -300,7 +325,9 @@
   }
   .about-intro__lead,
   .about-intro__text,
+  .about-intro__body,
   .about-philosophy__text,
+  .about-philosophy__body,
   .about-shelves__list li { font-size: 17px; }
 
   .about-shelves__list { gap: 8px; }
