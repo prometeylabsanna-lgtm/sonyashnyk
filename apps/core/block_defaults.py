@@ -140,6 +140,8 @@ _reg("site", "header_search_placeholder", "Пошук", label="Placeholder по�
 
 # --- Site: footer ---
 _reg("site", "footer_cta_visible", "1", label="Показувати newsletter")
+_reg("site", "footer_cta_image", "", label="Фон newsletter", content_type="image")
+STATIC_FALLBACKS[("site", "footer_cta_image")] = "img/footer/mint-hands.webp"
 _reg("site", "footer_cta_title", "Новини саду на email", label="Заголовок newsletter", inline=True)
 _reg(
     "site",

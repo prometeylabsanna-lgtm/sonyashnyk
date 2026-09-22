@@ -40,6 +40,27 @@
         {% endif %}
         {% for item in group.fields %}
           {% with field=item.field %}
+          {% if item.field_ru %}
+          <div class="site-content-editor__pair">
+            <div class="site-content-editor__field">
+              <label class="text-font-important-light dark:text-font-important-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% for error in field.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="site-content-editor__field">
+              <label class="text-font-important-light dark:text-font-important-dark" for="{{ item.field_ru.id_for_label }}">{{ item.field_ru.label }}</label>
+              {{ item.field_ru }}
+              {% for error in item.field_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
+            </div>
+            {% if field.help_text or item.field_ru.help_text %}
+              <p class="site-content-editor__pair-help text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">
+                {% if field.help_text %}{{ field.help_text }}{% endif %}
+                {% if field.help_text and item.field_ru.help_text %} · {% endif %}
+                {% if item.field_ru.help_text %}{{ item.field_ru.help_text }}{% endif %}
+              </p>
+            {% endif %}
+          </div>
+          {% else %}
           <div class="site-content-editor__field">
             <label class="text-font-important-light dark:text-font-important-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
             {% if item.preview_url %}
@@ -54,6 +75,7 @@
             {% if field.help_text %}<p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">{{ field.help_text }}</p>{% endif %}
             {% for error in field.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
+          {% endif %}
           {% endwith %}
         {% endfor %}
       </fieldset>

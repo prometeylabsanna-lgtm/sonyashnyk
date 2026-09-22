@@ -130,7 +130,8 @@ CONTENT_SECTIONS_PAGES: tuple[ContentSection, ...] = (
         ),
         field_groups=(
             FieldGroup("Видимість", ("produce_section_visible",)),
-            FieldGroup("Контент", ("produce_title", "produce_image", "produce_btn_catalog", "produce_btn_call")),
+            FieldGroup("Фото", ("produce_image",)),
+            FieldGroup("Контент", ("produce_title", "produce_btn_catalog", "produce_btn_call")),
         ),
         admin_model_name="aboutproducesettings",
     ),

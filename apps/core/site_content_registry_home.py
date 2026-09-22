@@ -221,6 +221,7 @@ CONTENT_SECTIONS_HOME: tuple[ContentSection, ...] = (
         blocks=_b(
             "site",
             "footer_cta_visible",
+            "footer_cta_image",
             "footer_cta_title",
             "footer_cta_text",
             "footer_cta_btn",
@@ -235,7 +236,7 @@ CONTENT_SECTIONS_HOME: tuple[ContentSection, ...] = (
         field_groups=(
             FieldGroup(
                 "Newsletter",
-                ("footer_cta_visible", "footer_cta_title", "footer_cta_text", "footer_cta_btn"),
+                ("footer_cta_visible", "footer_cta_image", "footer_cta_title", "footer_cta_text", "footer_cta_btn"),
             ),
             FieldGroup(
                 "Колонки",

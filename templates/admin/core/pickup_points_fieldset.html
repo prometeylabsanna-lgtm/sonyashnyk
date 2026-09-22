@@ -19,35 +19,54 @@
           <div class="site-content-editor__field">
             <label for="{{ form.title_ru.id_for_label }}">{{ form.title_ru.label }}</label>
             {{ form.title_ru }}
+            {% for error in form.title_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
+
           <div class="site-content-editor__field">
             <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
             {{ form.address }}
-            {% if form.address.help_text %}<p class="site-content-editor__help">{{ form.address.help_text }}</p>{% endif %}
             {% for error in form.address.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
           <div class="site-content-editor__field">
             <label for="{{ form.address_ru.id_for_label }}">{{ form.address_ru.label }}</label>
             {{ form.address_ru }}
+            {% for error in form.address_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
+          {% if form.address.help_text %}
+            <p class="pickup-point-row__help site-content-editor__help">{{ form.address.help_text }}</p>
+          {% endif %}
+
           <div class="site-content-editor__field">
             <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
             {{ form.phone }}
-            {% if form.phone.help_text %}<p class="site-content-editor__help">{{ form.phone.help_text }}</p>{% endif %}
+            {% for error in form.phone.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
           <div class="site-content-editor__field">
             <label for="{{ form.phone_raw.id_for_label }}">{{ form.phone_raw.label }}</label>
             {{ form.phone_raw }}
+            {% for error in form.phone_raw.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
+          {% if form.phone.help_text or form.phone_raw.help_text %}
+            <p class="pickup-point-row__help site-content-editor__help">
+              {% if form.phone.help_text %}{{ form.phone.help_text }}{% endif %}
+              {% if form.phone.help_text and form.phone_raw.help_text %} · {% endif %}
+              {% if form.phone_raw.help_text %}{{ form.phone_raw.help_text }}{% endif %}
+            </p>
+          {% endif %}
+
           <div class="site-content-editor__field">
             <label for="{{ form.hours.id_for_label }}">{{ form.hours.label }}</label>
             {{ form.hours }}
-            {% if form.hours.help_text %}<p class="site-content-editor__help">{{ form.hours.help_text }}</p>{% endif %}
+            {% for error in form.hours.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
           <div class="site-content-editor__field">
             <label for="{{ form.hours_ru.id_for_label }}">{{ form.hours_ru.label }}</label>
             {{ form.hours_ru }}
+            {% for error in form.hours_ru.errors %}<p class="site-content-editor__error">{{ error }}</p>{% endfor %}
           </div>
+          {% if form.hours.help_text %}
+            <p class="pickup-point-row__help site-content-editor__help">{{ form.hours.help_text }}</p>
+          {% endif %}
         </div>
         <div class="pickup-point-row__meta">
           <label>{{ form.is_active }} {{ form.is_active.label }}</label>

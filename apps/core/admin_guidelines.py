@@ -45,7 +45,8 @@ SECTION_HINTS: dict[tuple[str, str], str] = {
     ),
     ("site", "footer"): (
         "Підвал: заголовки колонок і короткий заклик. "
-        "Заголовки — до ~30 символів, текст заклику — 1–2 речення."
+        "Заголовки — до ~30 символів, текст заклику — 1–2 речення. "
+        "Фон newsletter ≈ 1200×800 px; якщо порожньо — стандартне фото."
     ),
     ("site", "lead_modal"): (
         "Вікно заявки («Купити в 1 клік» тощо). "
@@ -147,6 +148,10 @@ IMAGE_HINTS = {
     "story": "Фото історії ≈ 800×640 px. Якщо не завантажити — лишиться стандартне.",
     "timeline": "Фото кроку ≈ 700×1000 px (вертикальне) або квадрат ~800×800. Якщо порожньо — стандартне.",
     "produce": "Широке фото ≈ 1024×780 px. Якщо порожньо — стандартне.",
+    "footer": (
+        "Фон блоку newsletter ≈ 1200×800 px, горизонтальне. "
+        "Якщо порожньо — лишиться стандартне. WebP/JPG/PNG."
+    ),
     "modal": (
         "Фото низу арки модалки ≈ 900×700 px, горизонтальне. "
         "Якщо порожньо — лишиться стандартне (соняшники). WebP/JPG/PNG."
@@ -215,6 +220,8 @@ def help_for_key(key: str, page: str = "") -> str:
             return help_for_image("timeline")
         if "produce" in key:
             return help_for_image("produce")
+        if "footer_cta" in key or (key.startswith("footer_") and key.endswith("_image")):
+            return help_for_image("footer")
         if "lead_modal" in key or "modal" in key:
             return help_for_image("modal")
         if "hero" in key or "banner" in key:

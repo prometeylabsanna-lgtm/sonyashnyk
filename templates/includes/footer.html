@@ -3,7 +3,11 @@
   <div class="footer-split">
     {% section_visible 'site' 'footer_cta_visible' as show_footer_cta %}
     {% if show_footer_cta %}
-    <div class="footer-cta">
+    {% block_image_url 'site' 'footer_cta_image' fallback_static='img/footer/mint-hands.webp' as footer_cta_photo %}
+    <div
+      class="footer-cta"
+      {% if footer_cta_photo %}style="--footer-cta-photo: url('{{ footer_cta_photo }}')"{% endif %}
+    >
       <h2 class="footer-cta__title">{% block_plain 'site' 'footer_cta_title' %}</h2>
       <p class="footer-cta__text">{% block_plain 'site' 'footer_cta_text' %}</p>
       <form

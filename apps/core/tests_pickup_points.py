@@ -28,7 +28,7 @@ class PickupPointTests(TestCase):
         self.assertEqual(points[0].phone_raw, "+380670000001")
         self.assertEqual(points[0].hours, "Пн–Сб 9:00–18:00")
 
-    def test_contacts_page_lists_stores_and_drops_map(self):
+    def test_contacts_page_lists_stores_and_map(self):
         SiteSettings.objects.update_or_create(
             pk=1,
             defaults={"instagram_url": "https://instagram.com/sonyashnyk"},
@@ -40,5 +40,6 @@ class PickupPointTests(TestCase):
         self.assertIn("Крамниця 4", html)
         self.assertIn("https://instagram.com/sonyashnyk", html)
         self.assertIn("Telegram", html)
-        self.assertNotIn("contacts-map", html)
-        self.assertNotIn("<iframe", html)
+        self.assertIn("contacts-store__map", html)
+        self.assertIn("maps.google.com/maps", html)
+        self.assertIn("<iframe", html)

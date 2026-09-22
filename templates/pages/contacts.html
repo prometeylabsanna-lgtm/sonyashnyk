@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static site_content %}
 {% block title %}{% block_text "contacts" "page_title" %} — {{ site_name }}{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/contacts.css' %}?v=contacts-social-sm-20260921">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/contacts.css' %}?v=contacts-map-hover-20260922">{% endblock %}
 
 {% block content %}
 {% section_visible 'contacts' 'page_section_visible' as show %}
@@ -65,31 +65,42 @@
   <ul class="contacts-stores__grid">
     {% for point in pickup_points %}
     <li class="contacts-store">
-      <h3 class="contacts-store__title">{{ point.title }}</h3>
-      <dl class="contacts-store__meta">
-        <div>
-          <dt>{% block_plain 'contacts' 'label_address' %}</dt>
-          <dd>{{ point.address }}</dd>
-        </div>
-        {% if point.phone %}
-        <div>
-          <dt>{% block_plain 'contacts' 'label_phone' %}</dt>
-          <dd>
-            {% if point.phone_raw %}
-            <a href="tel:{{ point.phone_raw }}">{{ point.phone }}</a>
-            {% else %}
-            {{ point.phone }}
-            {% endif %}
-          </dd>
-        </div>
-        {% endif %}
-        {% if point.hours %}
-        <div>
-          <dt>{% block_plain 'contacts' 'label_hours' %}</dt>
-          <dd>{{ point.hours }}</dd>
-        </div>
-        {% endif %}
-      </dl>
+      <div class="contacts-store__body">
+        <h3 class="contacts-store__title">{{ point.title }}</h3>
+        <dl class="contacts-store__meta">
+          <div>
+            <dt>{% block_plain 'contacts' 'label_address' %}</dt>
+            <dd>{{ point.address }}</dd>
+          </div>
+          {% if point.phone %}
+          <div>
+            <dt>{% block_plain 'contacts' 'label_phone' %}</dt>
+            <dd>
+              {% if point.phone_raw %}
+              <a href="tel:{{ point.phone_raw }}">{{ point.phone }}</a>
+              {% else %}
+              {{ point.phone }}
+              {% endif %}
+            </dd>
+          </div>
+          {% endif %}
+          {% if point.hours %}
+          <div>
+            <dt>{% block_plain 'contacts' 'label_hours' %}</dt>
+            <dd>{{ point.hours }}</dd>
+          </div>
+          {% endif %}
+        </dl>
+      </div>
+      <div class="contacts-store__map">
+        <iframe
+          title="Карта: Київ, Хрещатик 1 — {{ point.title }}"
+          src="https://maps.google.com/maps?q=Kyiv%2C+Khreshchatyk+1&amp;hl=uk&amp;z=16&amp;output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </div>
     </li>
     {% endfor %}
   </ul>

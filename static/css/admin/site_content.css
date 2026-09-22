@@ -1,7 +1,7 @@
 /* CMS site content — layout only */
 
 .site-content-editor {
-  max-width: 52rem;
+  max-width: 64rem;
   display: grid;
   gap: 1.25rem;
 }
@@ -56,6 +56,7 @@
   display: grid;
   gap: 0.35rem;
   margin-top: 0.9rem;
+  min-width: 0;
 }
 
 .site-content-editor__field input[type="text"],
@@ -63,6 +64,45 @@
 .site-content-editor__field textarea {
   width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
+}
+
+.site-content-editor__pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px 16px;
+  margin-top: 0.9rem;
+  align-items: start;
+}
+
+.site-content-editor__pair .site-content-editor__field {
+  margin-top: 0;
+}
+
+.site-content-editor__pair input[type="text"],
+.site-content-editor__pair input[type="url"],
+.site-content-editor__pair textarea {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.site-content-editor__pair input[type="text"],
+.site-content-editor__pair input[type="url"] {
+  min-height: 2.75rem;
+  height: 2.75rem;
+}
+
+.site-content-editor__pair-help {
+  grid-column: 1 / -1;
+  margin: -2px 0 0;
+}
+
+@media (min-width: 800px) {
+  .site-content-editor__pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .site-content-editor__error {
@@ -178,8 +218,31 @@
 
 .pickup-point-row__fields {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px 16px;
+  align-items: start;
+}
+
+.pickup-point-row__fields .site-content-editor__field {
+  margin-top: 0;
+  min-width: 0;
+}
+
+.pickup-point-row__fields input[type="text"],
+.pickup-point-row__fields input[type="tel"],
+.pickup-point-row__fields input[type="url"] {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  min-height: 2.75rem;
+  height: 2.75rem;
+  box-sizing: border-box;
+}
+
+.pickup-point-row__help {
+  grid-column: 1 / -1;
+  margin: -2px 0 4px;
 }
 
 .pickup-point-row__meta {
@@ -191,6 +254,6 @@
 
 @media (min-width: 800px) {
   .pickup-point-row__fields {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -224,7 +224,12 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
         for key in group.keys:
             if section.visibility_key and key == section.visibility_key:
                 if "section_visible" in form.fields:
-                    bound.append({"field": form["section_visible"], "preview_url": "", "preview_fallback": False})
+                    bound.append({
+                        "field": form["section_visible"],
+                        "field_ru": None,
+                        "preview_url": "",
+                        "preview_fallback": False,
+                    })
                 continue
             page = section.page_slug
             ctype = get_block_content_type(page, key)
@@ -242,11 +247,16 @@ def site_content_section_view(request, page_slug: str, section_slug: str, model_
             preview_fallback = False
             if ctype == "image":
                 preview_url, preview_fallback = _image_preview_url(page, key, blocks.get(key))
-            bound.append({
+            item = {
                 "field": form[name],
+                "field_ru": None,
                 "preview_url": preview_url,
                 "preview_fallback": preview_fallback,
-            })
+            }
+            ru_name = f"block__{page}__{key}__text_html_ru"
+            if ctype not in {"image", "url"} and not is_visibility_key(key) and ru_name in form.fields:
+                item["field_ru"] = form[ru_name]
+            bound.append(item)
         field_groups.append({"title": group.title, "description": group.description, "fields": bound, "keys": group.keys})
 
     context = {
