@@ -1,9 +1,7 @@
 import json
-from decimal import Decimal
 
 from django.contrib import messages
-from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,14 +9,38 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.catalog.models import ProductVariant
 
-from .cart import Cart
-from .forms import CheckoutForm
 from . import liqpay
-from .models import Order, OrderItem
+from .access import (
+    get_accessible_order,
+    mock_payment_allowed,
+    order_url,
+    remember_order,
+)
+from .cart import Cart
+from .checkout import CheckoutError, ensure_checkout_token, place_order, rotate_checkout_token
+from .forms import CheckoutForm
+from .models import Order
 from .nova_poshta import is_configured as np_is_configured
 from .nova_poshta import search_cities, search_warehouses
 from .promo import apply_promo_code, clear_session_promo_code, resolve_promo
-from .stock import InsufficientStock, reserve_stock_for_items
+from .stock import InsufficientStock
+
+
+def _safe_next(raw: str | None, fallback: str) -> str:
+    if not raw:
+        return fallback
+    raw = raw.strip()
+    if raw.startswith("/") and not raw.startswith("//"):
+        return raw
+    return fallback
+
+
+def _parse_quantity(raw) -> int | None:
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return None
+    return value
 
 
 def cart_drawer_partial(request):
@@ -36,7 +58,6 @@ def _cart_totals(request, cart):
         "cart_total": promo["total"],
         "promo_code": promo["code"],
         "promo_error": promo["error"],
-        "free_shipping_threshold": 1500,
     }
 
 
@@ -47,18 +68,43 @@ def cart_page(request):
 
 @require_POST
 def cart_add(request):
-    variant_id = request.POST.get("variant_id")
-    quantity = int(request.POST.get("quantity", 1) or 1)
-    variant = get_object_or_404(ProductVariant, pk=variant_id)
-    cart = Cart(request)
+    fallback = reverse("orders_cart:page")
+    next_url = _safe_next(request.POST.get("next"), fallback)
+    quantity = _parse_quantity(request.POST.get("quantity", 1) or 1)
+    if quantity is None or quantity < 1:
+        msg = "Некоректна кількість."
+        if request.headers.get("x-requested-with") == "fetch":
+            return JsonResponse({"ok": False, "error": msg}, status=400)
+        messages.error(request, msg)
+        return redirect(next_url)
 
-    current = cart.cart.get(str(variant.id), 0)
-    if current + quantity > variant.stock_qty:
+    variant = get_object_or_404(
+        ProductVariant.objects.select_related("product"),
+        pk=request.POST.get("variant_id"),
+        product__is_active=True,
+    )
+    if variant.price <= 0:
+        msg = "Цей товар зараз недоступний для замовлення."
+        if request.headers.get("x-requested-with") == "fetch":
+            return JsonResponse({"ok": False, "error": msg}, status=400)
+        messages.error(request, msg)
+        return redirect(next_url)
+
+    cart = Cart(request)
+    current = int(cart.cart.get(str(variant.id), 0) or 0)
+    desired = current + quantity
+    if variant.max_per_order is not None and desired > variant.max_per_order:
+        msg = f"Максимум {variant.max_per_order} шт. в одному замовленні."
+        if request.headers.get("x-requested-with") == "fetch":
+            return JsonResponse({"ok": False, "error": msg}, status=400)
+        messages.error(request, msg)
+        return redirect(next_url)
+    if desired > variant.stock_qty:
         msg = f"Недостатньо на складі: доступно {variant.stock_qty} шт."
         if request.headers.get("x-requested-with") == "fetch":
             return JsonResponse({"ok": False, "error": msg}, status=400)
         messages.error(request, msg)
-        return redirect(request.POST.get("next") or reverse("orders_cart:page"))
+        return redirect(next_url)
 
     cart.add(variant.id, quantity)
 
@@ -66,15 +112,38 @@ def cart_add(request):
         return JsonResponse({"ok": True, "cart_count": len(cart)})
 
     messages.success(request, f"«{variant.product.name}» додано в кошик.")
-    return redirect(request.POST.get("next") or reverse("orders_cart:page"))
+    return redirect(next_url)
 
 
 @require_POST
 def cart_update(request, variant_id):
-    quantity = int(request.POST.get("quantity", 1) or 1)
+    quantity = _parse_quantity(request.POST.get("quantity", 1) or 1)
+    if quantity is None:
+        msg = "Некоректна кількість."
+        if request.headers.get("x-requested-with") == "fetch":
+            return JsonResponse({"ok": False, "error": msg}, status=400)
+        messages.error(request, msg)
+        return redirect(reverse("orders_cart:page"))
+
     cart = Cart(request)
-    variant = get_object_or_404(ProductVariant, pk=variant_id)
-    if quantity > variant.stock_qty:
+    variant = get_object_or_404(
+        ProductVariant.objects.select_related("product"),
+        pk=variant_id,
+        product__is_active=True,
+    )
+    if quantity > 0 and variant.price <= 0:
+        msg = "Цей товар зараз недоступний для замовлення."
+        if request.headers.get("x-requested-with") == "fetch":
+            return JsonResponse({"ok": False, "error": msg}, status=400)
+        messages.error(request, msg)
+        return redirect(reverse("orders_cart:page"))
+    if quantity > 0 and variant.max_per_order is not None and quantity > variant.max_per_order:
+        msg = f"Максимум {variant.max_per_order} шт. в одному замовленні."
+        if request.headers.get("x-requested-with") == "fetch":
+            return JsonResponse({"ok": False, "error": msg}, status=400)
+        messages.error(request, msg)
+        return redirect(reverse("orders_cart:page"))
+    if quantity > 0 and quantity > variant.stock_qty:
         msg = f"Недостатньо на складі: доступно {variant.stock_qty} шт."
         if request.headers.get("x-requested-with") == "fetch":
             return JsonResponse({"ok": False, "error": msg}, status=400)
@@ -128,55 +197,30 @@ def checkout(request):
     if request.method == "POST":
         form = CheckoutForm(request.POST)
         if form.is_valid():
-            cart_items = cart.get_items()
             try:
-                with transaction.atomic():
-                    reserve_stock_for_items(cart_items)
-
-                    order = form.save(commit=False)
-                    order.subtotal = subtotal
-                    code = promo_state["code"] or (form.cleaned_data.get("promo_code") or "").strip().upper()
-                    if code and not promo_state["code"]:
-                        applied = apply_promo_code(request, code, subtotal)
-                        discount = applied["discount"] if applied["ok"] else promo_state["discount"]
-                        code = applied["code"] if applied["ok"] else code
-                    else:
-                        discount = promo_state["discount"]
-
-                    order.promo_code = code
-                    order.discount_total = discount
-                    order.total = max(subtotal - discount, Decimal("0"))
-                    order.payment_status = Order.PaymentStatus.PENDING
-                    order.save()
-
-                    for item in cart_items:
-                        OrderItem.objects.create(
-                            order=order,
-                            product=item["product"],
-                            variant=item["variant"],
-                            product_name=item["product"].name,
-                            variant_label=item["variant"].label,
-                            price=item["price"],
-                            quantity=item["quantity"],
-                        )
+                order = place_order(request, form)
             except InsufficientStock as exc:
                 messages.error(request, str(exc))
                 return redirect(reverse("orders_cart:page"))
+            except CheckoutError as exc:
+                messages.error(request, str(exc))
+                rotate_checkout_token(request)
+                return redirect(reverse("orders_checkout:page"))
 
-            cart.clear()
-            clear_session_promo_code(request)
-
+            access = remember_order(request, order)
             if order.payment_method == Order.PaymentMethod.LIQPAY:
-                return redirect(reverse("orders_checkout:pay", args=[order.order_number]))
-            return redirect(reverse("orders_checkout:thank_you", args=[order.order_number]))
+                return redirect(order_url("orders_checkout:pay", order, access))
+            return redirect(order_url("orders_checkout:thank_you", order, access))
     else:
         initial = {}
         if promo_state["code"]:
             initial["promo_code"] = promo_state["code"]
         form = CheckoutForm(initial=initial)
+        ensure_checkout_token(request)
 
     context = {
         "form": form,
+        "checkout_token": ensure_checkout_token(request),
         "cart_items": cart.get_items(),
         "cart_subtotal": subtotal,
         "cart_discount": promo_state["discount"],
@@ -190,24 +234,44 @@ def checkout(request):
 
 
 def thank_you(request, order_number):
-    order = get_object_or_404(Order, order_number=order_number)
+    order = get_accessible_order(request, order_number)
     can_pay_again = (
         order.payment_method == Order.PaymentMethod.LIQPAY
         and order.payment_status in (Order.PaymentStatus.FAILED, Order.PaymentStatus.PENDING)
     )
+    pay_again_url = ""
+    if can_pay_again:
+        pay_again_url = order_url("orders_checkout:pay", order)
+    status_url = ""
+    if order.payment_method == Order.PaymentMethod.LIQPAY and order.payment_status == Order.PaymentStatus.PENDING:
+        status_url = order_url("orders_checkout:payment_status", order)
     return render(request, "orders/thank_you.html", {
         "order": order,
         "can_pay_again": can_pay_again,
+        "pay_again_url": pay_again_url,
+        "payment_status_url": status_url,
+    })
+
+
+@require_GET
+def payment_status(request, order_number):
+    """Легкий JSON для poll на thank-you (той самий access-gate)."""
+    order = get_accessible_order(request, order_number)
+    return JsonResponse({
+        "ok": True,
+        "order_number": order.order_number,
+        "payment_status": order.payment_status,
+        "payment_method": order.payment_method,
     })
 
 
 def pay(request, order_number):
     """Сторінка оплати LiqPay (реальний form-post або mock без ключів)."""
-    order = get_object_or_404(Order, order_number=order_number)
+    order = get_accessible_order(request, order_number)
     if order.payment_method != Order.PaymentMethod.LIQPAY:
-        return redirect(reverse("orders_checkout:thank_you", args=[order.order_number]))
+        return redirect(order_url("orders_checkout:thank_you", order))
     if order.payment_status == Order.PaymentStatus.PAID:
-        return redirect(reverse("orders_checkout:thank_you", args=[order.order_number]))
+        return redirect(order_url("orders_checkout:thank_you", order))
 
     if liqpay.is_configured():
         form_data = liqpay.build_checkout_form(order)
@@ -218,17 +282,24 @@ def pay(request, order_number):
             "liqpay_signature": form_data["signature"],
         })
 
-    return render(request, "orders/liqpay_mock.html", {"order": order})
+    if not mock_payment_allowed():
+        raise Http404()
+    return render(request, "orders/liqpay_mock.html", {
+        "order": order,
+        "access_token": request.GET.get("t") or "",
+    })
 
 
 @require_POST
 def pay_mock(request, order_number):
     """Локальний sandbox без ключів LiqPay: симуляція success/fail."""
-    order = get_object_or_404(Order, order_number=order_number)
+    if not mock_payment_allowed():
+        raise Http404()
+    order = get_accessible_order(request, order_number)
     if order.payment_method != Order.PaymentMethod.LIQPAY:
-        return redirect(reverse("orders_checkout:thank_you", args=[order.order_number]))
+        return redirect(order_url("orders_checkout:thank_you", order))
     if liqpay.is_configured():
-        return redirect(reverse("orders_checkout:pay", args=[order.order_number]))
+        return redirect(order_url("orders_checkout:pay", order))
 
     action = (request.POST.get("action") or "").strip().lower()
     if action == "success":
@@ -236,7 +307,7 @@ def pay_mock(request, order_number):
     else:
         order.payment_status = Order.PaymentStatus.FAILED
     order.save(update_fields=["payment_status"])
-    return redirect(reverse("orders_checkout:thank_you", args=[order.order_number]))
+    return redirect(order_url("orders_checkout:thank_you", order))
 
 
 @csrf_exempt
@@ -262,9 +333,19 @@ def liqpay_callback(request):
         return HttpResponseBadRequest("order not found")
 
     mapped = liqpay.map_status(payload.get("status", ""))
-    if mapped and order.payment_status != Order.PaymentStatus.PAID:
+    if mapped == Order.PaymentStatus.PAID:
+        if not liqpay.amount_matches_order(payload, order):
+            return HttpResponseBadRequest("amount mismatch")
+        if order.payment_status != Order.PaymentStatus.PAID:
+            order.payment_status = mapped
+            order.save(update_fields=["payment_status"])
+    elif mapped == Order.PaymentStatus.REFUNDED:
         order.payment_status = mapped
         order.save(update_fields=["payment_status"])
+    elif mapped == Order.PaymentStatus.FAILED:
+        if order.payment_status != Order.PaymentStatus.PAID:
+            order.payment_status = mapped
+            order.save(update_fields=["payment_status"])
 
     return HttpResponse("ok")
 

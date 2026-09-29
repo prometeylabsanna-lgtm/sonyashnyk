@@ -1,11 +1,10 @@
-import re
-
 from django import forms
+
+from apps.core.utils import UA_PHONE_RE, normalize_ua_phone
 
 from .models import Order
 from .nova_poshta import is_configured as np_is_configured
-
-PHONE_RE = re.compile(r"^\+380\d{9}$")
+from .nova_poshta import warehouse_exists
 
 
 class CheckoutForm(forms.ModelForm):
@@ -60,8 +59,8 @@ class CheckoutForm(forms.ModelForm):
         self.fields["payment_method"].choices = Order.PaymentMethod.choices
 
     def clean_phone(self):
-        phone = self.cleaned_data["phone"].replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
-        if not PHONE_RE.match(phone):
+        phone = normalize_ua_phone(self.cleaned_data["phone"])
+        if not UA_PHONE_RE.match(phone):
             raise forms.ValidationError("Введіть телефон у форматі +380XXXXXXXXX")
         return phone
 
@@ -87,7 +86,6 @@ class CheckoutForm(forms.ModelForm):
         if delivery == Order.DeliveryMethod.NP_COURIER and not warehouse:
             self.add_error("warehouse", "Вкажіть адресу доставки")
 
-        # Якщо НП API увімкнено — вимагаємо ref для відділення/поштомату
         if np_is_configured() and delivery in (
             Order.DeliveryMethod.NP_BRANCH,
             Order.DeliveryMethod.NP_LOCKER,
@@ -96,6 +94,13 @@ class CheckoutForm(forms.ModelForm):
                 self.add_error("city", "Оберіть місто зі списку підказок")
             if warehouse and not warehouse_ref:
                 self.add_error("warehouse", "Оберіть відділення зі списку підказок")
+            elif city_ref and warehouse_ref and not self.errors.get("warehouse"):
+                kind = "locker" if delivery == Order.DeliveryMethod.NP_LOCKER else "branch"
+                if not warehouse_exists(city_ref, warehouse_ref, kind=kind):
+                    self.add_error(
+                        "warehouse",
+                        "Оберіть відділення зі списку ще раз — воно більше недоступне.",
+                    )
 
         if payment == Order.PaymentMethod.CASH_PICKUP and delivery != Order.DeliveryMethod.PICKUP:
             self.add_error("payment_method", "Оплата при самовивозі доступна лише для самовивозу")

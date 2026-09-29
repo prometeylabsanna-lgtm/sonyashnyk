@@ -7,9 +7,6 @@
 .page-content ul { padding-left: 20px; margin-bottom: 14px; }
 .page-content li { margin-bottom: 6px; }
 
-.about-hero { display: grid; gap: 24px; align-items: center; margin-bottom: 32px; }
-@media (min-width: 900px) { .about-hero { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-
 .delivery-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px; }
 .delivery-table th, .delivery-table td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--c-border); }
 .delivery-table th { background: var(--c-oat); font-family: var(--f-accent); font-weight: 600; }

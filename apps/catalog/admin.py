@@ -176,7 +176,7 @@ class ProductVariantInline(TabularInline):
     extra = 1
     fields = (
         "label", "label_ru", "sku_variant", "price", "old_price",
-        "stock_qty", "is_default", "order",
+        "stock_qty", "max_per_order", "is_default", "order",
     )
 
 

@@ -13,7 +13,7 @@
       Ключі LiqPay ще не задані в .env. Це локальна симуляція успіху/помилки.
       Після додавання ключів клієнт піде на реальний LiqPay sandbox.
     </p>
-    <form method="post" action="{% url 'orders_checkout:pay_mock' order.order_number %}" class="thank-you__actions">
+    <form method="post" action="{% url 'orders_checkout:pay_mock' order.order_number %}{% if access_token %}?t={{ access_token }}{% endif %}" class="thank-you__actions">
       {% csrf_token %}
       <button type="submit" name="action" value="success" class="btn btn--primary">Симулювати успіх</button>
       <button type="submit" name="action" value="fail" class="btn btn--outline">Симулювати помилку</button>

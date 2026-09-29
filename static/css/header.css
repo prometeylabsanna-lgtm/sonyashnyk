@@ -195,13 +195,6 @@
   justify-self: end;
   min-width: 0;
 }
-.logobar__link {
-  font-size: 13px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--c-body) 80%, transparent);
-}
-
 .logobar__search {
   display: flex;
   align-items: center;
@@ -487,13 +480,6 @@
   pointer-events: none;
   object-fit: contain;
   object-position: center;
-}
-/* «Все для розсади» — тонка лінійна іконка, потрібен більший бокс */
-.nav-item--rozsada .nav-item__icon,
-.nav-item--rozsada .nav-item__icon-img {
-  width: clamp(42px, 4vw, 56px);
-  height: clamp(42px, 4vw, 56px);
-  margin-block: -4px;
 }
 .nav-item__label {
   display: -webkit-box;

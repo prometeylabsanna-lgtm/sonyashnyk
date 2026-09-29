@@ -1,7 +1,16 @@
 """Спільні хелпери для всіх застосунків."""
 
+import re
+
 from django.utils.text import slugify
 from unidecode import unidecode
+
+UA_PHONE_RE = re.compile(r"^\+380\d{9}$")
+
+
+def normalize_ua_phone(value: str) -> str:
+    """Прибирає пробіли та роздільники з номера, лишаючи +380XXXXXXXXX."""
+    return (value or "").replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
 
 
 def slugify_uk(text):

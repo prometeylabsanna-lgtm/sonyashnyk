@@ -317,15 +317,6 @@
 }
 .cat-tile:hover .cat-tile__media { box-shadow: var(--shadow-card); }
 .cat-tile:hover .cat-tile__media img { transform: scale(1.05); }
-.cat-tile--rozsada .cat-tile__media {
-  padding: clamp(2px, 0.8vw, 6px);
-}
-.cat-tile--rozsada .cat-tile__media img {
-  transform: scale(1.12);
-}
-.cat-tile--rozsada:hover .cat-tile__media img {
-  transform: scale(1.17);
-}
 .cat-tile__name {
   font-family: var(--f-accent);
   font-weight: 600;
@@ -345,7 +336,6 @@
 @media (max-width: 599px) {
   .cat-tile { gap: 8px; }
   .cat-tile__media { padding: 8px; }
-  .cat-tile--rozsada .cat-tile__media { padding: 2px; }
   .cat-tile__name { font-size: 12.5px; }
 }
 
@@ -442,47 +432,6 @@
 
 /* Стилі .product-card — у product-card.css (підключено в base.html) */
 
-/* --- Educational cards --- */
-.edu-grid {
-  display: grid;
-  gap: clamp(16px, 2.5vw, 24px);
-  grid-template-columns: 1fr;
-}
-.edu-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--c-surface);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid var(--c-border);
-  transition: box-shadow var(--t-med) var(--ease), transform var(--t-med) var(--ease);
-}
-.edu-card:hover { text-decoration: none; box-shadow: var(--shadow-card); transform: translateY(-3px); }
-.edu-card__media {
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: var(--c-oat);
-}
-.edu-card__media img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  transition: transform var(--t-slow) var(--ease);
-}
-.edu-card:hover .edu-card__media img { transform: scale(1.04); }
-.edu-card__body {
-  padding: clamp(16px, 2.5vw, 22px);
-  display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
-  flex: 1;
-}
-.edu-card__title { font-family: var(--f-accent); font-size: 20px; }
-.edu-card__text { font-size: 14px; color: var(--c-body); line-height: 1.55; flex: 1; }
-
-@media (min-width: 700px) {
-  .edu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
 /* --- Brand story: 3 cards --- */
 .section--storyband {
   background: var(--c-bg);
@@ -577,7 +526,7 @@
   .hero__plaque {
     background: color-mix(in srgb, var(--c-surface) 78%, transparent);
   }
-  .cat-tile__media, .edu-card__media, .story-card__media {
+  .cat-tile__media, .story-card__media {
     transform: translateZ(0);
   }
   @media (max-width: 899px) {
@@ -598,10 +547,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cat-tile__media img,
-  .edu-card__media img,
   .story-card__media img { transition: none; }
   .cat-tile:hover .cat-tile__media img,
-  .edu-card:hover .edu-card__media img,
   .story-card:hover .story-card__media img { transform: none; }
   .hero__plaque,
   .hero__slide.is-active .hero__plaque {

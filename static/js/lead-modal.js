@@ -95,6 +95,7 @@
     var submitBtn = form.querySelector('button[type="submit"]');
     var typeInput = form.querySelector("[data-lead-type-input]");
     var productInput = form.querySelector("[data-lead-product-input]");
+    var variantInput = form.querySelector("[data-lead-variant-input]");
     var titleEl = modal.querySelector("[data-lead-title]");
     var leadEl = modal.querySelector("[data-lead-lead]");
     var closeLabel = modal.querySelector("[data-lead-close-label]");
@@ -112,9 +113,10 @@
       if (closeLabel) closeLabel.textContent = p.close;
     }
 
-    function open(leadType, productId) {
+    function open(leadType, productId, variantId) {
       typeInput.value = leadType || "phone_modal";
       productInput.value = productId || "";
+      if (variantInput) variantInput.value = variantId || "";
       applyCopy(typeInput.value);
       modal.classList.toggle("modal--arch", typeInput.value === "phone_modal");
       form.classList.remove("is-hidden");
@@ -147,7 +149,11 @@
 
     document.querySelectorAll("[data-lead-open]").forEach(function (trigger) {
       trigger.addEventListener("click", function () {
-        open(trigger.getAttribute("data-lead-type"), trigger.getAttribute("data-product-id"));
+        open(
+          trigger.getAttribute("data-lead-type"),
+          trigger.getAttribute("data-product-id"),
+          trigger.getAttribute("data-variant-id")
+        );
       });
     });
 

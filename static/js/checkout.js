@@ -318,6 +318,12 @@
 
         if (!SonyashnykFormValidation.validateForm(form, { shouldValidate: shouldValidateCheckoutField })) {
           e.preventDefault();
+          return;
+        }
+        var submitBtn = form.querySelector("[data-checkout-submit]");
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.setAttribute("aria-busy", "true");
         }
       }, true);
     }

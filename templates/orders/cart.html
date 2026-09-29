@@ -63,7 +63,7 @@
                     {% csrf_token %}
                     <div class="qty-stepper">
                       <button type="button" data-qty-decrement aria-label="Зменшити">−</button>
-                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" data-qty-input inputmode="numeric" aria-label="Кількість">
+                      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.variant.stock_qty }}" data-qty-input inputmode="numeric" aria-label="Кількість">
                       <button type="button" data-qty-increment aria-label="Збільшити">+</button>
                     </div>
                   </form>

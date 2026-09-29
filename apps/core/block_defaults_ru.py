@@ -202,4 +202,4 @@ def get_block_default_ru(page: str, key: str) -> str:
 
 
 _RU_TRANSLATED_COUNT = len(BLOCK_DEFAULTS_RU)
-assert _RU_TRANSLATED_COUNT == 155, f"Expected 155 RU keys, got {_RU_TRANSLATED_COUNT}"
+assert _RU_TRANSLATED_COUNT == 163, f"Expected 163 RU keys, got {_RU_TRANSLATED_COUNT}"

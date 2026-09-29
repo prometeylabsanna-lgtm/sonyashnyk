@@ -418,12 +418,6 @@
   text-decoration: none;
 }
 
-.load-more {
-  display: flex;
-  justify-content: center;
-  margin-top: clamp(24px, 4vw, 36px);
-}
-
 .empty-state {
   text-align: center;
   padding: clamp(40px, 8vw, 80px) 16px;

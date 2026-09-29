@@ -49,7 +49,7 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("order_number", "full_name", "phone", "email", "city", "warehouse")
     readonly_fields = (
-        "order_number", "subtotal", "discount_total", "total", "created_at",
+        "order_number", "subtotal", "discount_total", "total", "shipping_is_free", "created_at",
         "np_city_ref", "np_warehouse_ref",
     )
     inlines = [OrderItemInline]
@@ -60,6 +60,7 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
         ("Клієнт", {"fields": ("full_name", "phone", "email")}),
         ("Доставка", {"fields": (
             "delivery_method", "city", "warehouse", "np_city_ref", "np_warehouse_ref",
+            "shipping_is_free",
         )}),
         ("Оплата", {"fields": (
             "payment_method", "payment_status", "promo_code",
@@ -89,6 +90,7 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
             Order.PaymentStatus.PENDING: "badge-admin badge-admin--pending",
             Order.PaymentStatus.PAID: "badge-admin badge-admin--paid",
             Order.PaymentStatus.FAILED: "badge-admin badge-admin--failed",
+            Order.PaymentStatus.REFUNDED: "badge-admin badge-admin--failed",
         }.get(obj.payment_status, "badge-admin")
         return format_html('<span class="{}">{}</span>', css, obj.get_payment_status_display())
 
@@ -124,7 +126,10 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
 
 @admin.register(PromoCode)
 class PromoCodeAdmin(TopDropdownFiltersMixin, ModelAdmin):
-    list_display = ("code", "discount_type", "amount", "min_subtotal", "is_active", "valid_until")
+    list_display = (
+        "code", "discount_type", "amount", "min_subtotal",
+        "used_count", "max_uses", "is_active", "valid_until",
+    )
     list_filter = (
         ("discount_type", CleanChoicesDropdownFilter),
         ("is_active", CleanBooleanDropdownFilter),
@@ -132,3 +137,4 @@ class PromoCodeAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("code",)
     list_editable = ("is_active",)
+    readonly_fields = ("used_count",)

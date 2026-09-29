@@ -6,7 +6,6 @@ from django import forms
 from django.contrib import messages
 from django.core.cache import cache
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from unfold.widgets import UnfoldAdminFileFieldWidget, UnfoldBooleanWidget
 
 from apps.core.admin_guidelines import help_for_key, help_for_section

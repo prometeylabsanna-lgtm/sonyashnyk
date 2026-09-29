@@ -68,7 +68,6 @@
   max-width: 52ch;
 }
 
-.about-intro__text,
 .about-intro__body {
   margin: 12px 0 0;
   font-size: clamp(16px, 1.55vw, 18px);
@@ -152,7 +151,6 @@
   text-wrap: balance;
 }
 
-.about-philosophy__text,
 .about-philosophy__body {
   margin: 12px 0 0;
   font-size: clamp(16px, 1.55vw, 18px);
@@ -324,9 +322,7 @@
     font-size: clamp(24px, 6vw, 30px);
   }
   .about-intro__lead,
-  .about-intro__text,
   .about-intro__body,
-  .about-philosophy__text,
   .about-philosophy__body,
   .about-shelves__list li { font-size: 17px; }
 

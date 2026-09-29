@@ -10,16 +10,19 @@ import base64
 import hashlib
 import hmac
 import json
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from django.conf import settings
 from django.urls import reverse
 
+from .access import make_order_access_token
+
 
 CHECKOUT_URL = "https://www.liqpay.ua/api/3/checkout"
 SUCCESS_STATUSES = frozenset({"success"})
-FAILED_STATUSES = frozenset({"failure", "error", "reversed"})
+FAILED_STATUSES = frozenset({"failure", "error"})
+REFUNDED_STATUSES = frozenset({"reversed"})
 
 
 def is_configured() -> bool:
@@ -57,6 +60,8 @@ def decode_data(data: str) -> dict[str, Any]:
 def build_payment_params(order) -> dict[str, Any]:
     """Параметри платежу для order (без data/signature)."""
     amount = Decimal(order.total).quantize(Decimal("0.01"))
+    access = make_order_access_token(order.order_number)
+    thank_path = reverse("orders_checkout:thank_you", args=[order.order_number])
     params: dict[str, Any] = {
         "version": 3,
         "public_key": settings.LIQPAY_PUBLIC_KEY,
@@ -65,7 +70,7 @@ def build_payment_params(order) -> dict[str, Any]:
         "currency": "UAH",
         "description": f"Замовлення {order.order_number} — Соняшник",
         "order_id": order.order_number,
-        "result_url": f"{_site_url()}{reverse('orders_checkout:thank_you', args=[order.order_number])}",
+        "result_url": f"{_site_url()}{thank_path}?t={access}",
         "server_url": f"{_site_url()}{reverse('orders_checkout:liqpay_callback')}",
         "language": "uk",
     }
@@ -94,4 +99,22 @@ def map_status(liqpay_status: str) -> str | None:
         return "paid"
     if status in FAILED_STATUSES:
         return "failed"
+    if status in REFUNDED_STATUSES:
+        return "refunded"
     return None
+
+
+def amount_matches_order(payload: dict[str, Any], order) -> bool:
+    """Перевіряє amount і currency з callback проти order.total."""
+    currency = (payload.get("currency") or "").strip().upper()
+    if currency and currency != "UAH":
+        return False
+    raw_amount = payload.get("amount")
+    if raw_amount is None:
+        return False
+    try:
+        paid = Decimal(str(raw_amount)).quantize(Decimal("0.01"))
+    except (InvalidOperation, TypeError, ValueError):
+        return False
+    expected = Decimal(order.total).quantize(Decimal("0.01"))
+    return paid == expected

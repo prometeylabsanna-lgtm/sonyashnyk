@@ -96,6 +96,9 @@
     {% include "catalog/_filters_panel.html" %}
 
     <div class="catalog-layout__main">
+      {% if page_clamped %}
+        <p class="catalog-layout__notice" style="margin-bottom:16px;color:var(--c-muted)">Список оновлено, показано останню сторінку.</p>
+      {% endif %}
       {% if products %}
         <div class="grid grid--products">
           {% for product in products %}{% include "includes/product_card.html" %}{% endfor %}
@@ -103,9 +106,15 @@
         {% include "includes/pagination.html" with page_obj=products %}
       {% else %}
         <div class="empty-state">
-          <h2>{% block_plain 'catalog' 'empty_title' %}</h2>
-          <p>{% block_plain 'catalog' 'empty_text' %}</p>
-          <a href="{% url 'home' %}" class="btn btn--primary" style="margin-top:16px">{% block_plain 'catalog' 'empty_cta' %}</a>
+          {% if has_active_filters %}
+            <h2>{% block_plain 'catalog' 'empty_title' %}</h2>
+            <p>{% block_plain 'catalog' 'empty_text' %}</p>
+            <a href="{{ request.path }}" class="btn btn--primary" style="margin-top:16px">Скинути фільтри</a>
+          {% else %}
+            <h2>{% block_plain 'catalog' 'empty_title' %}</h2>
+            <p>{% block_plain 'catalog' 'empty_text' %}</p>
+            <a href="{% url 'home' %}" class="btn btn--primary" style="margin-top:16px">{% block_plain 'catalog' 'empty_cta' %}</a>
+          {% endif %}
         </div>
       {% endif %}
     </div>

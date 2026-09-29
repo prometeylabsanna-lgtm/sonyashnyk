@@ -220,6 +220,8 @@ SITE_URL = config("SITE_URL", default="http://127.0.0.1:8000")
 LIQPAY_PUBLIC_KEY = config("LIQPAY_PUBLIC_KEY", default="")
 LIQPAY_PRIVATE_KEY = config("LIQPAY_PRIVATE_KEY", default="")
 LIQPAY_SANDBOX = config("LIQPAY_SANDBOX", default=True, cast=bool)
+# Mock-оплата без ключів — лише локально (за замовчуванням = DEBUG).
+LIQPAY_ALLOW_MOCK = config("LIQPAY_ALLOW_MOCK", default=DEBUG, cast=bool)
 NOVA_POSHTA_API_KEY = config("NOVA_POSHTA_API_KEY", default="")
 
 CART_SESSION_KEY = "cart"

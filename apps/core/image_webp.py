@@ -7,7 +7,6 @@ from io import BytesIO
 from pathlib import Path
 
 from django.core.files.base import ContentFile
-from django.core.files.uploadedfile import UploadedFile
 from PIL import Image, ImageOps
 
 logger = logging.getLogger(__name__)

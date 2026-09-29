@@ -1,6 +1,8 @@
+import secrets
 from decimal import Decimal
 
-from django.db import models
+from django.db import IntegrityError, models, transaction
+from django.utils import timezone
 
 
 class Order(models.Model):
@@ -23,6 +25,7 @@ class Order(models.Model):
         PENDING = "pending", "Очікує оплати"
         PAID = "paid", "Оплачено"
         FAILED = "failed", "Помилка оплати"
+        REFUNDED = "refunded", "Повернено"
 
     class Status(models.TextChoices):
         NEW = "new", "Нове"
@@ -53,6 +56,7 @@ class Order(models.Model):
     discount_total = models.DecimalField("Сума знижки", max_digits=10, decimal_places=2, default=Decimal("0"))
     subtotal = models.DecimalField("Сума товарів", max_digits=10, decimal_places=2, default=Decimal("0"))
     total = models.DecimalField("До сплати", max_digits=10, decimal_places=2, default=Decimal("0"))
+    shipping_is_free = models.BooleanField("Безкоштовна доставка", default=False)
 
     agreed_to_data_processing = models.BooleanField("Згода на обробку даних", default=False)
     created_at = models.DateTimeField("Створено", auto_now_add=True)
@@ -66,16 +70,27 @@ class Order(models.Model):
         return f"Замовлення {self.order_number}"
 
     def save(self, *args, **kwargs):
+        creating = self.pk is None
         if not self.order_number:
             self.order_number = self._generate_order_number()
-        super().save(*args, **kwargs)
+        if not creating:
+            super().save(*args, **kwargs)
+            return
+        for _ in range(8):
+            try:
+                with transaction.atomic():
+                    super().save(*args, **kwargs)
+                return
+            except IntegrityError:
+                if type(self).objects.filter(order_number=self.order_number).exists():
+                    self.order_number = self._generate_order_number()
+                    continue
+                raise
+        raise IntegrityError("Не вдалося згенерувати унікальний номер замовлення.")
 
     def _generate_order_number(self):
-        from django.utils import timezone
-
         prefix = timezone.now().strftime("%y%m%d")
-        last = Order.objects.filter(order_number__startswith=prefix).count() + 1
-        return f"{prefix}-{last:04d}"
+        return f"{prefix}-{secrets.token_hex(4)}"
 
 
 class PromoCode(models.Model):
@@ -95,6 +110,13 @@ class PromoCode(models.Model):
     )
     is_active = models.BooleanField("Активний", default=True)
     valid_until = models.DateField("Діє до", null=True, blank=True)
+    max_uses = models.PositiveIntegerField(
+        "Ліміт використань",
+        null=True,
+        blank=True,
+        help_text="Порожньо — без ліміту.",
+    )
+    used_count = models.PositiveIntegerField("Використано разів", default=0)
 
     class Meta:
         verbose_name = "Промокод"
@@ -118,12 +140,12 @@ class PromoCode(models.Model):
         super().save(*args, **kwargs)
 
     def is_usable(self, subtotal: Decimal) -> tuple[bool, str]:
-        from django.utils import timezone
-
         if not self.is_active:
             return False, "Промокод неактивний."
         if self.valid_until and self.valid_until < timezone.localdate():
             return False, "Термін дії промокоду минув."
+        if self.max_uses is not None and self.used_count >= self.max_uses:
+            return False, "Промокод вичерпано."
         if subtotal < self.min_subtotal:
             return False, f"Мінімальна сума для коду — {self.min_subtotal} ₴."
         return True, ""
@@ -166,3 +188,14 @@ class OrderItem(models.Model):
     @property
     def line_total(self):
         return self.price * self.quantity
+
+
+class CheckoutNonce(models.Model):
+    """Одноразовий токен оформлення — захист від подвійного submit."""
+
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Токен оформлення"
+        verbose_name_plural = "Токени оформлення"

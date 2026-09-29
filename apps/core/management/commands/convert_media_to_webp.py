@@ -5,9 +5,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
-from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 
 from apps.catalog.models import Category, ProductImage

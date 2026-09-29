@@ -110,3 +110,44 @@ def search_warehouses(
         if len(items) >= limit:
             break
     return {"ok": True, "fallback": False, "error": "", "items": items}
+
+
+def warehouse_exists(city_ref: str, warehouse_ref: str, *, kind: str = "branch") -> bool:
+    """Перевіряє, що Ref відділення/поштомату ще є в НП для цього міста.
+
+    При збої API — fail-open (True), щоб checkout не ламався офлайн.
+    При успішній відповіді без Ref — False.
+    """
+    city_ref = (city_ref or "").strip()
+    warehouse_ref = (warehouse_ref or "").strip()
+    if not is_configured() or not city_ref or not warehouse_ref:
+        return False
+
+    props: dict[str, Any] = {
+        "CityRef": city_ref,
+        "Ref": warehouse_ref,
+        "Limit": "5",
+    }
+    result = _post("Address", "getWarehouses", props)
+    if not result.get("ok"):
+        return True
+
+    for row in result.get("data") or []:
+        ref = (row.get("Ref") or "").strip()
+        if ref != warehouse_ref:
+            continue
+        category = (row.get("CategoryOfWarehouse") or "").strip()
+        is_locker = (
+            category.lower() == "postomat"
+            or "поштомат" in (row.get("Description") or "").lower()
+        )
+        if kind == "locker" and not is_locker:
+            return False
+        if kind == "branch" and is_locker:
+            return False
+        return True
+
+    listed = search_warehouses(city_ref, kind=kind, limit=100)
+    if listed.get("fallback") or not listed.get("ok"):
+        return True
+    return any(item.get("ref") == warehouse_ref for item in listed.get("items") or [])

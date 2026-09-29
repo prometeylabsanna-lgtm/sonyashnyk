@@ -32,26 +32,19 @@
 
 /* --- Сітки (mobile-first, розширюються медіазапитами) --- */
 .grid { display: grid; gap: clamp(14px, 2vw, 24px); }
-.grid--2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
 .grid--cats { grid-template-columns: repeat(2, minmax(0,1fr)); }
-.grid--trust { grid-template-columns: repeat(2, minmax(0,1fr)); }
-.grid--foot { grid-template-columns: 1fr; }
 .grid--products { grid-template-columns: repeat(2, minmax(0,1fr)); }
 
 @media (min-width: 600px) {
   .grid--cats { grid-template-columns: repeat(4, minmax(0,1fr)); }
   .grid--products { grid-template-columns: repeat(3, minmax(0,1fr)); }
-  .grid--foot { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
 @media (min-width: 900px) {
   [data-desktop] { display: flex; }
   [data-mobile] { display: none; }
   .grid--cats { grid-template-columns: repeat(4, minmax(0,1fr)); }
-  .grid--trust { grid-template-columns: repeat(4, minmax(0,1fr)); }
   .grid--products { grid-template-columns: repeat(4, minmax(0,1fr)); }
-  .grid--foot { grid-template-columns: repeat(4, minmax(0,1fr)); }
-  .grid--2col { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
 [data-desktop] { display: none; }
@@ -76,9 +69,6 @@
 .section--tight { padding-block: clamp(28px, 5vw, 48px); }
 .section--surface { background: var(--c-bg); }
 .section--oat { background: var(--c-bg); }
-.section--sageband { background: var(--c-bg); }
-.section--limeband { background: var(--c-bg); }
-.section--herbband { background: var(--c-bg); }
 .section__head {
   display: flex;
   align-items: flex-end;

@@ -16,8 +16,7 @@ html.is-motion-lite [data-reveal].is-visible {
 html.is-motion-lite [data-media-zoom] img {
   transition-duration: .01ms;
 }
-html.is-motion-lite .btn--primary:hover,
-html.is-motion-lite .btn--rose:hover {
+html.is-motion-lite .btn--primary:hover {
   transform: none;
 }
 

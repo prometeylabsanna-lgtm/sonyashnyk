@@ -27,7 +27,7 @@ def clear_session_promo_code(request) -> None:
 
 
 def resolve_promo(request, subtotal: Decimal) -> dict:
-    """Повертає {code, discount, error, promo} для поточного кошика."""
+    """Повертає {code, discount, error, promo, total} для поточного кошика."""
     code = get_session_promo_code(request)
     empty = {
         "code": "",

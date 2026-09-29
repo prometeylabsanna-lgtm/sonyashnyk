@@ -1,6 +1,6 @@
 {% comment %} Параметр: product {% endcomment %}
 {% load site_content %}
-{% with variant=product.default_variant img=product.images.first pname=product|loc_field:'name' %}
+{% with variant=product.offer_variant img=product.images.first pname=product|loc_field:'name' %}
 <article class="product-card" data-reveal data-pack-root data-label-in-stock="{% if LANGUAGE_CODE == 'ru' %}В наличии{% else %}В наявності{% endif %}" data-label-out-of-stock="{% if LANGUAGE_CODE == 'ru' %}Нет в наличии{% else %}Немає в наявності{% endif %}">
   <div class="product-card__media">
     <a href="{{ product.get_absolute_url }}" class="product-card__media-link">
@@ -20,14 +20,14 @@
     <div class="product-card__actions">
       <div class="product-card__qty" {% if not variant or not variant.stock_qty %}aria-disabled="true"{% endif %}>
         <button type="button" class="product-card__qty-btn" data-qty-decrement aria-label="{% if LANGUAGE_CODE == 'ru' %}Уменьшить количество{% else %}Зменшити кількість{% endif %}" {% if not variant or not variant.stock_qty %}disabled{% endif %}>−</button>
-        <input type="number" class="product-card__qty-input" value="1" min="1" max="99" data-qty-input aria-label="{% if LANGUAGE_CODE == 'ru' %}Количество{% else %}Кількість{% endif %}" {% if not variant or not variant.stock_qty %}disabled{% endif %}>
+        <input type="number" class="product-card__qty-input" value="1" min="1" max="{% if variant and variant.stock_qty %}{{ variant.stock_qty }}{% else %}1{% endif %}" data-qty-input aria-label="{% if LANGUAGE_CODE == 'ru' %}Количество{% else %}Кількість{% endif %}" {% if not variant or not variant.stock_qty %}disabled{% endif %}>
         <button type="button" class="product-card__qty-btn" data-qty-increment aria-label="{% if LANGUAGE_CODE == 'ru' %}Увеличить количество{% else %}Збільшити кількість{% endif %}" {% if not variant or not variant.stock_qty %}disabled{% endif %}>+</button>
       </div>
       <button
         type="button"
         class="product-card__cart"
         data-add-to-cart
-        data-variant-id="{{ variant.id }}"
+        data-variant-id="{% if variant %}{{ variant.id }}{% endif %}"
         aria-label="{% if LANGUAGE_CODE == 'ru' %}В корзину{% else %}До кошика{% endif %}"
         {% if not variant or not variant.stock_qty %}disabled{% endif %}
       >

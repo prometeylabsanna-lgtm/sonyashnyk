@@ -18,6 +18,9 @@
   {% if not query %}
     <p style="margin-top:16px;color:var(--c-muted)">{% block_plain 'search' 'hint_text' %}</p>
   {% elif products %}
+    {% if page_clamped %}
+      <p style="margin-top:8px;color:var(--c-muted)">Список оновлено, показано останню сторінку.</p>
+    {% endif %}
     <p style="margin-top:8px;color:var(--c-muted)">Знайдено: {{ total_count }} товар(ів)</p>
     <div class="grid grid--products" style="margin-top:24px">
       {% for product in products %}{% include "includes/product_card.html" %}{% endfor %}

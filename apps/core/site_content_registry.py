@@ -6,7 +6,7 @@ from typing import Iterable
 
 from django.urls import reverse_lazy
 
-from apps.core.site_content_registry_base import ContentSection, FieldGroup, _b  # noqa: F401
+from apps.core.site_content_registry_base import ContentSection
 from apps.core.site_content_registry_home import CONTENT_SECTIONS_HOME
 from apps.core.site_content_registry_pages import CONTENT_SECTIONS_PAGES
 from apps.core.site_content_registry_shop import CONTENT_SECTIONS_SHOP

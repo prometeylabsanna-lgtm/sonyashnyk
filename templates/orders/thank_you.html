@@ -8,7 +8,8 @@
 {% section_visible 'thankyou' 'page_section_visible' as show %}
 {% if show %}
 <div class="container">
-  <div class="thank-you">
+  <div class="thank-you"
+       {% if payment_status_url %}data-payment-poll data-payment-status-url="{{ payment_status_url }}"{% endif %}>
     {% if order.payment_status == "failed" %}
       <div class="thank-you__icon thank-you__icon--fail" aria-hidden="true">
         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
@@ -24,7 +25,11 @@
       <p class="thank-you__order">Номер замовлення: №{{ order.order_number }}</p>
 
       {% if order.payment_method == "liqpay" and order.payment_status == "pending" %}
-        <p class="thank-you__hint">Очікуємо підтвердження оплати LiqPay. Сторінка оновиться після callback; також можете сплатити ще раз.</p>
+        <p class="thank-you__hint">
+          Очікуємо підтвердження оплати LiqPay.
+          Якщо гроші вже списалися — зачекайте: статус оновиться автоматично.
+          Не оплачуйте повторно, поки статус «очікує».
+        </p>
       {% elif order.payment_method == "liqpay" and order.payment_status == "paid" %}
         <p class="thank-you__hint">Оплату отримано. Найближчим часом менеджер підтвердить відправку.</p>
       {% elif order.payment_method == "bank" %}
@@ -39,12 +44,18 @@
 
     <div class="thank-you__actions">
       {% if can_pay_again %}
-        <a href="{% url 'orders_checkout:pay' order.order_number %}" class="btn btn--primary">Сплатити ще раз</a>
+        <a href="{{ pay_again_url }}" class="btn btn--primary">Сплатити ще раз</a>
       {% endif %}
       <a href="{% url 'catalog:sale' %}" class="btn {% if can_pay_again %}btn--outline{% else %}btn--primary{% endif %}">Продовжити покупки</a>
       <a href="{% url 'home' %}" class="btn btn--outline">На головну</a>
     </div>
   </div>
 </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if payment_status_url %}
+<script src="{% static 'js/payment-status.js' %}" defer></script>
 {% endif %}
 {% endblock %}

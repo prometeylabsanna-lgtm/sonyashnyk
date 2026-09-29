@@ -1,5 +1,8 @@
+from decimal import Decimal
+
 from django.test import RequestFactory, TestCase
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import translation
 
 from apps.catalog.category_tree import pack_measure_kind, pack_measure_label
@@ -117,8 +120,35 @@ class PackSwitchTests(TestCase):
         self.assertNotIn("Мощность", html)
 
     def test_volume_filter_matches_variant_label(self):
+        from apps.catalog.filters import annotate_card_price
+
         request = RequestFactory().get("/katalog/", {"volume": "1 л"})
-        qs = filter_products(request, Product.objects.filter(is_active=True))
+        qs = filter_products(request, annotate_card_price(Product.objects.filter(is_active=True)))
+        self.assertIn(self.product, list(qs))
+
+    def test_price_filter_uses_variant_price_not_base(self):
+        from apps.catalog.filters import annotate_card_price
+
+        # base_price у діапазоні, ціна варіанта — ні
+        self.product.base_price = Decimal("150.00")
+        self.product.save(update_fields=["base_price"])
+        for v in self.product.variants.all():
+            v.price = Decimal("500.00")
+            v.save(update_fields=["price"])
+
+        request = RequestFactory().get("/katalog/", {"price_min": "100", "price_max": "200"})
+        qs = filter_products(request, annotate_card_price(Product.objects.filter(is_active=True)))
+        self.assertNotIn(self.product, list(qs))
+
+        request2 = RequestFactory().get("/katalog/", {"price_min": "400", "price_max": "600"})
+        qs2 = filter_products(request2, annotate_card_price(Product.objects.filter(is_active=True)))
+        self.assertIn(self.product, list(qs2))
+
+    def test_invalid_price_param_ignored(self):
+        from apps.catalog.filters import annotate_card_price
+
+        request = RequestFactory().get("/katalog/", {"price_min": "abc"})
+        qs = filter_products(request, annotate_card_price(Product.objects.filter(is_active=True)))
         self.assertIn(self.product, list(qs))
 
     def test_weight_and_pieces_are_separate_filters(self):
@@ -133,6 +163,21 @@ class PackSwitchTests(TestCase):
         self.assertEqual(volume.name, "Обʼєм")
         self.assertEqual(CatalogFilter.objects.get(slug="weight").name, "Вага")
         self.assertEqual(CatalogFilter.objects.get(slug="pieces").name, "Кількість шт")
+
+    def test_offer_variant_prefers_in_stock(self):
+        default = self.product.default_variant
+        default.stock_qty = 0
+        default.save(update_fields=["stock_qty"])
+        offer = self.product.offer_variant
+        self.assertIsNotNone(offer)
+        self.assertGreater(offer.stock_qty, 0)
+        self.assertNotEqual(offer.id, default.id)
+
+    def test_old_price_hidden_when_not_higher(self):
+        variant = self.product.offer_variant
+        variant.old_price = variant.price
+        variant.save(update_fields=["old_price"])
+        self.assertIsNone(self.product.display_old_price)
 
 
 class ProductMergeTests(TestCase):
@@ -200,4 +245,56 @@ class SizePackRewriteTests(TestCase):
         self.assertNotIn("Фасування", html)
         self.assertNotIn(">S<", html)
         self.assertNotIn("Потужність", html)
+
+
+class SearchHardenTests(TestCase):
+    def setUp(self):
+        cat = Category.objects.create(name="Кат", slug="cat-search")
+        self.product = Product.objects.create(
+            category=cat, sku="SKU-SRCH", name="привіт насіння", base_price=Decimal("10.00"),
+        )
+        ProductVariant.objects.create(
+            product=self.product, label="1", price=Decimal("10.00"), stock_qty=3, is_default=True,
+        )
+        Product.objects.create(
+            category=cat, sku="SKU-OTHER", name="Інший товар", base_price=Decimal("15.00"),
+        )
+
+    def test_special_queries_do_not_500(self):
+        for q in ("' OR 1=1", "<script>alert(1)</script>", "🔥", "%", "NULL", "&"):
+            resp = self.client.get(reverse("search"), {"q": q})
+            self.assertEqual(resp.status_code, 200, msg=q)
+
+    def test_percent_does_not_match_all(self):
+        resp = self.client.get(reverse("search"), {"q": "%"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context["total_count"], 0)
+
+    def test_layout_remap_finds_cyrillic(self):
+        # На EN-розкладці «ghbdsn» = «привіт» (і на клавіші s)
+        resp = self.client.get(reverse("search"), {"q": "ghbdsn"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertGreaterEqual(resp.context["total_count"], 1)
+        self.assertIn(self.product, list(resp.context["products"].object_list))
+
+
+class PaginationClampTests(TestCase):
+    def setUp(self):
+        cat = Category.objects.create(name="Кат", slug="cat-page")
+        for i in range(13):
+            p = Product.objects.create(
+                category=cat, sku=f"SKU-P{i}", name=f"Товар {i}",
+                base_price=Decimal("10.00"), is_active=True,
+            )
+            ProductVariant.objects.create(
+                product=p, label="1", price=Decimal("10.00"), stock_qty=1, is_default=True,
+            )
+
+    def test_high_page_clamps_to_last(self):
+        resp = self.client.get(reverse("catalog:index"), {"page": 99})
+        self.assertEqual(resp.status_code, 200)
+        page = resp.context["products"]
+        self.assertTrue(page.object_list)
+        self.assertEqual(page.number, page.paginator.num_pages)
+        self.assertTrue(resp.context["page_clamped"])
 

@@ -27,7 +27,7 @@ class NewLeadsFilter(CleanDropdownFilter):
 
 @admin.register(Lead)
 class LeadAdmin(TopDropdownFiltersMixin, ModelAdmin):
-    list_display = ("created_at", "lead_type", "name", "phone", "status_badge", "product")
+    list_display = ("created_at", "lead_type", "name", "phone", "status_badge", "product", "variant")
     list_filter = (
         NewLeadsFilter,
         ("lead_type", CleanChoicesDropdownFilter),
@@ -37,10 +37,10 @@ class LeadAdmin(TopDropdownFiltersMixin, ModelAdmin):
     search_fields = ("name", "phone", "email")
     fields = (
         "status", "lead_type", "name", "phone", "email", "message",
-        "product", "source_page", "created_at",
+        "product", "variant", "source_page", "created_at",
     )
     readonly_fields = (
-        "lead_type", "name", "phone", "email", "message", "product", "source_page", "created_at",
+        "lead_type", "name", "phone", "email", "message", "product", "variant", "source_page", "created_at",
     )
     list_per_page = 40
     actions = ("mark_in_progress", "mark_done")

@@ -14,6 +14,14 @@
     return drawer ? drawer.querySelector(".cart-drawer__panel") : null;
   }
 
+  function toastNetwork() {
+    SonyashnykUtils.showToast(
+      window.SonyashnykFormValidation
+        ? SonyashnykFormValidation.t("toast_network")
+        : "Сталася помилка мережі."
+    );
+  }
+
   function visibleToggle() {
     var toggles = document.querySelectorAll("[data-cart-toggle]");
     for (var i = 0; i < toggles.length; i++) {
@@ -101,7 +109,8 @@
         }
         current.replaceWith(fresh);
         if (wasOpen) positionPanel(lastToggle);
-      });
+      })
+      .catch(function () { toastNetwork(); });
   }
 
   function addToCart(button) {
@@ -139,11 +148,7 @@
       })
       .catch(function () {
         button.disabled = false;
-        SonyashnykUtils.showToast(
-          window.SonyashnykFormValidation
-            ? SonyashnykFormValidation.t("toast_network")
-            : "Сталася помилка мережі."
-        );
+        toastNetwork();
       });
   }
 
@@ -155,7 +160,7 @@
         setCartCount(result.data.cart_count);
         refreshDrawer(true);
       }
-    });
+    }).catch(function () { toastNetwork(); });
   }
 
   function adjustQtyInput(input, delta) {
@@ -163,6 +168,23 @@
     var max = parseInt(input.getAttribute("max") || "99", 10);
     var value = (parseInt(input.value, 10) || min) + delta;
     input.value = Math.min(max, Math.max(min, value));
+  }
+
+  function submitCartQtyForm(fromEl) {
+    var form = fromEl.closest("[data-cart-qty-form]");
+    if (!form) return;
+    var formData = new FormData(form);
+    var action = form.getAttribute("action");
+    SonyashnykUtils.postForm(action, formData)
+      .then(function (result) {
+        if (result.data && result.data.ok) {
+          window.location.reload();
+          return;
+        }
+        var msg = (result.data && result.data.error) || "Не вдалося оновити кількість.";
+        SonyashnykUtils.showToast(msg);
+      })
+      .catch(function () { toastNetwork(); });
   }
 
   document.addEventListener("click", function (e) {
@@ -206,12 +228,6 @@
       return;
     }
   });
-
-  function submitCartQtyForm(fromEl) {
-    var form = fromEl.closest("[data-cart-qty-form]");
-    if (!form) return;
-    form.submit();
-  }
 
   document.addEventListener("change", function (e) {
     var input = e.target.closest("[data-cart-qty-form] [data-qty-input]");

@@ -94,11 +94,6 @@
   height: 2.75rem;
 }
 
-.site-content-editor__pair-help {
-  grid-column: 1 / -1;
-  margin: -2px 0 0;
-}
-
 @media (min-width: 800px) {
   .site-content-editor__pair {
     grid-template-columns: repeat(2, minmax(0, 1fr));

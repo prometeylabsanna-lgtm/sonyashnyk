@@ -135,9 +135,6 @@ h3, .h3 {
 .btn--outline { background: transparent; color: var(--c-ink); border: 1px solid var(--c-border); }
 .btn--outline:hover { border-color: var(--c-sage); color: var(--c-sage); }
 
-.btn--rose { background: var(--c-rose); color: #ffffff; }
-.btn--rose:hover { background: var(--c-sagehover); color: #ffffff; }
-
 .btn--glass {
   background: color-mix(in srgb, var(--c-surface) 28%, transparent);
   color: var(--c-ink);
@@ -266,8 +263,7 @@ h3, .h3 {
   [data-media-zoom]:hover img {
     transform: scale(1.04);
   }
-  .btn--primary:hover,
-  .btn--rose:hover {
+  .btn--primary:hover {
     transform: translateY(-1px);
   }
 }

@@ -44,9 +44,15 @@
     {% if cart_drawer_items %}
       <div class="cart-drawer__foot">
         <div class="cart-summary">
+          {% if cart_drawer_discount %}
+          <div class="cart-summary__row">
+            <span>Знижка{% if cart_drawer_promo_code %} ({{ cart_drawer_promo_code }}){% endif %}</span>
+            <span>−{{ cart_drawer_discount }} ₴</span>
+          </div>
+          {% endif %}
           <div class="cart-summary__row cart-summary__row--total">
             <span>{% block_plain 'site' 'cart_drawer_total' %}</span>
-            <span data-cart-drawer-subtotal>{{ cart_drawer_subtotal }} ₴</span>
+            <span data-cart-drawer-subtotal>{{ cart_drawer_total }} ₴</span>
           </div>
         </div>
         <a href="{% url 'orders_cart:page' %}" class="btn btn--outline btn--block" style="margin-bottom:10px">{% block_plain 'site' 'cart_drawer_view' %}</a>

@@ -15,6 +15,7 @@
     var price = btn.getAttribute("data-price") || "";
     var oldPrice = btn.getAttribute("data-old-price") || "";
     var inStock = btn.getAttribute("data-in-stock") === "1";
+    var stockQty = parseInt(btn.getAttribute("data-stock-qty") || "0", 10) || 0;
     var sku = btn.getAttribute("data-sku") || "";
 
     root.querySelectorAll("[data-pack-option]").forEach(function (el) {
@@ -30,6 +31,7 @@
 
     root.querySelectorAll("[data-lead-open]").forEach(function (el) {
       el.disabled = !inStock;
+      if (variantId) el.setAttribute("data-variant-id", variantId);
     });
 
     var priceEl = root.querySelector("[data-pack-price]");
@@ -58,7 +60,16 @@
     var skuEl = root.querySelector("[data-pack-sku]");
     if (skuEl && sku) skuEl.textContent = sku;
 
-    root.querySelectorAll("[data-qty-input], [data-qty-decrement], [data-qty-increment]").forEach(function (el) {
+    root.querySelectorAll("[data-qty-input]").forEach(function (el) {
+      el.disabled = !inStock;
+      var max = inStock ? Math.max(1, stockQty) : 1;
+      el.setAttribute("max", String(max));
+      var current = parseInt(el.value, 10) || 1;
+      if (current > max) el.value = String(max);
+      if (current < 1) el.value = "1";
+    });
+
+    root.querySelectorAll("[data-qty-decrement], [data-qty-increment]").forEach(function (el) {
       el.disabled = !inStock;
     });
 

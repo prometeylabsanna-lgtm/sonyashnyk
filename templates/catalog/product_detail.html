@@ -11,7 +11,7 @@
 {% if show_pdp %}
 {% include "includes/breadcrumbs.html" with breadcrumbs=breadcrumbs current_label=product|loc_field:'name' %}
 
-{% with variant=product.default_variant %}
+{% with variant=product.offer_variant %}
 <div class="container section--tight">
   <div class="pdp" data-pack-root data-label-in-stock="{% block_plain 'product' 'in_stock' %}" data-label-out-of-stock="{% block_plain 'product' 'out_of_stock' %}">
     <div class="gallery{% if product.images.all|length < 2 %} gallery--single{% endif %}">
@@ -74,7 +74,7 @@
       <div class="pdp-buy" data-pdp-actions>
         <div class="qty-stepper">
           <button type="button" data-qty-decrement aria-label="Зменшити кількість" {% if not variant or not variant.stock_qty %}disabled{% endif %}>−</button>
-          <input type="number" value="1" min="1" max="99" data-qty-input aria-label="Кількість" inputmode="numeric" {% if not variant or not variant.stock_qty %}disabled{% endif %}>
+          <input type="number" value="1" min="1" max="{% if variant and variant.stock_qty %}{{ variant.stock_qty }}{% else %}1{% endif %}" data-qty-input aria-label="Кількість" inputmode="numeric" {% if not variant or not variant.stock_qty %}disabled{% endif %}>
           <button type="button" data-qty-increment aria-label="Збільшити кількість" {% if not variant or not variant.stock_qty %}disabled{% endif %}>+</button>
         </div>
 
@@ -83,7 +83,7 @@
             type="button"
             class="btn btn--primary"
             data-add-to-cart
-            data-variant-id="{{ variant.id }}"
+            data-variant-id="{% if variant %}{{ variant.id }}{% endif %}"
             {% if not variant or not variant.stock_qty %}disabled{% endif %}
           >{% block_plain 'product' 'add_cart' %}</button>
           <button
@@ -92,6 +92,7 @@
             data-lead-open
             data-lead-type="buy_one_click"
             data-product-id="{{ product.id }}"
+            data-variant-id="{% if variant %}{{ variant.id }}{% endif %}"
             {% if not variant or not variant.stock_qty %}disabled{% endif %}
           >{% block_plain 'product' 'one_click' %}</button>
           <button

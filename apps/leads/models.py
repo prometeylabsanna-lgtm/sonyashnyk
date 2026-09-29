@@ -29,6 +29,10 @@ class Lead(models.Model):
         "catalog.Product", verbose_name="Товар", null=True, blank=True,
         on_delete=models.SET_NULL, related_name="leads",
     )
+    variant = models.ForeignKey(
+        "catalog.ProductVariant", verbose_name="Варіант", null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="leads",
+    )
     source_page = models.CharField("Сторінка джерела", max_length=255, blank=True)
     status = models.CharField("Статус", max_length=16, choices=Status.choices, default=Status.NEW)
     created_at = models.DateTimeField("Створено", auto_now_add=True)

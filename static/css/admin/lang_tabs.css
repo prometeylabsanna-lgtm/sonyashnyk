@@ -85,10 +85,6 @@ html.dark .admin-lang-tabs__btn.is-active,
   gap: 0.75rem;
 }
 
-.site-content-editor__pair-help {
-  grid-column: 1 / -1;
-}
-
 @media (max-width: 599px) {
   .admin-lang-tabs__btn {
     flex: 1 1 auto;

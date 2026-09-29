@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable
-
-from django.urls import reverse_lazy
 
 
 @dataclass(frozen=True)

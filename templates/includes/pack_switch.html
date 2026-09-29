@@ -1,6 +1,6 @@
 {% load site_content %}
 {% if product.has_pack_choices %}
-{% with current=current|default:product.default_variant measure=product.pack_measure_label %}
+{% with current=current|default:product.offer_variant measure=product.pack_measure_label %}
 <div class="pack-switch{% if extra_class %} {{ extra_class }}{% endif %}" data-pack-switch role="radiogroup" aria-label="{{ measure }}">
   {% if measure %}<div class="pack-switch__label">{{ measure }}</div>{% endif %}
   <div class="pack-switch__options">
@@ -13,8 +13,9 @@
         data-pack-option
         data-variant-id="{{ option.id }}"
         data-price="{{ option.price }}"
-        data-old-price="{% if option.old_price %}{{ option.old_price }}{% endif %}"
+        data-old-price="{% if option.old_price and option.old_price > option.price %}{{ option.old_price }}{% endif %}"
         data-in-stock="{% if option.stock_qty %}1{% else %}0{% endif %}"
+        data-stock-qty="{{ option.stock_qty }}"
         data-sku="{% firstof option.sku_variant product.sku %}"
       >{{ option|loc_field:'label' }}</button>
     {% endfor %}

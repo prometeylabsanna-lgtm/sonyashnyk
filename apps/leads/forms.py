@@ -1,10 +1,8 @@
-import re
-
 from django import forms
 
-from .models import Lead
+from apps.core.utils import UA_PHONE_RE, normalize_ua_phone
 
-PHONE_RE = re.compile(r"^\+380\d{9}$")
+from .models import Lead
 
 
 class LeadForm(forms.ModelForm):
@@ -12,10 +10,11 @@ class LeadForm(forms.ModelForm):
 
     class Meta:
         model = Lead
-        fields = ["lead_type", "name", "phone", "email", "message", "product", "source_page"]
+        fields = ["lead_type", "name", "phone", "email", "message", "product", "variant", "source_page"]
         widgets = {
             "lead_type": forms.HiddenInput(),
             "product": forms.HiddenInput(),
+            "variant": forms.HiddenInput(),
             "source_page": forms.HiddenInput(),
             "name": forms.TextInput(attrs={"placeholder": "Ваше ім'я"}),
             "phone": forms.TextInput(attrs={"placeholder": "+380", "inputmode": "tel"}),
@@ -31,8 +30,8 @@ class LeadForm(forms.ModelForm):
         return value
 
     def clean_phone(self):
-        phone = self.cleaned_data.get("phone", "").replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
-        if phone and not PHONE_RE.match(phone):
+        phone = normalize_ua_phone(self.cleaned_data.get("phone", ""))
+        if phone and not UA_PHONE_RE.match(phone):
             raise forms.ValidationError("Введіть телефон у форматі +380XXXXXXXXX")
         return phone
 

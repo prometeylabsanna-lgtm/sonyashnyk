@@ -1,19 +1,57 @@
-from django.core.paginator import Paginator
-from django.db.models import Q
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.shortcuts import get_object_or_404, render
 
 from .category_tree import HOME_ROOT_SLUGS
-from .filters import apply_sorting, build_filter_context, filter_products
+from .filters import annotate_card_price, apply_sorting, build_filter_context, filter_products
 from .icons import attach_category_icons
 from .models import Category, Product
+from .search import search_products
 
 PRODUCTS_PER_PAGE = 12
 
 
 def _paginate(request, products):
+    """Повертає (page_obj, page_clamped). Занадто великий page → остання сторінка."""
     paginator = Paginator(products, PRODUCTS_PER_PAGE)
-    page_number = request.GET.get("page", 1)
-    return paginator.get_page(page_number)
+    raw = request.GET.get("page", 1)
+    page_clamped = False
+    try:
+        page_number = int(raw)
+    except (TypeError, ValueError):
+        page_number = 1
+        page_clamped = True
+
+    if paginator.num_pages and page_number > paginator.num_pages:
+        page_clamped = True
+        page_number = paginator.num_pages
+    if page_number < 1:
+        page_clamped = True
+        page_number = 1
+
+    try:
+        page_obj = paginator.page(page_number)
+    except (EmptyPage, PageNotAnInteger):
+        page_obj = paginator.page(1)
+        page_clamped = True
+    return page_obj, page_clamped
+
+
+def _catalog_context(request, *, products, category=None, **extra):
+    base = annotate_card_price(products)
+    filtered = filter_products(request, base)
+    sorted_qs = apply_sorting(request, filtered)
+    filter_ctx = build_filter_context(request, filtered, category=category, base_products=base)
+    page_obj, page_clamped = _paginate(request, sorted_qs)
+    return {
+        "category": category,
+        "products": page_obj,
+        "page_clamped": page_clamped and filtered.exists(),
+        "total_count": filtered.count(),
+        "current_sort": request.GET.get("sort", "popularity"),
+        "has_active_filters": filter_ctx["active_filters_count"] > 0,
+        **filter_ctx,
+        **extra,
+    }
 
 
 def catalog_index(request):
@@ -27,19 +65,14 @@ def catalog_index(request):
     root_categories = [cats_by_slug[s] for s in HOME_ROOT_SLUGS if s in cats_by_slug]
     attach_category_icons(root_categories)
     products = Product.objects.filter(is_active=True).for_cards()
-    products = filter_products(request, products)
-    products = apply_sorting(request, products)
-
-    context = {
-        "category": None,
-        "is_catalog_root": True,
-        "breadcrumbs": [],
-        "subcategories": root_categories,
-        "products": _paginate(request, products),
-        "total_count": products.count(),
-        "current_sort": request.GET.get("sort", "popularity"),
-        **build_filter_context(request, products, category=None),
-    }
+    context = _catalog_context(
+        request,
+        products=products,
+        category=None,
+        is_catalog_root=True,
+        breadcrumbs=[],
+        subcategories=root_categories,
+    )
     return render(request, "catalog/category.html", context)
 
 
@@ -55,37 +88,27 @@ def category(request, slug):
     products = Product.objects.filter(
         category_id__in=descendant_ids, is_active=True
     ).for_cards()
-    products = filter_products(request, products)
-    products = apply_sorting(request, products)
-
-    context = {
-        "category": current_category,
-        "breadcrumbs": current_category.breadcrumb_chain(),
-        "subcategories": subcategories,
-        "products": _paginate(request, products),
-        "total_count": products.count(),
-        "current_sort": request.GET.get("sort", "popularity"),
-        **build_filter_context(request, products, category=current_category),
-    }
+    context = _catalog_context(
+        request,
+        products=products,
+        category=current_category,
+        breadcrumbs=current_category.breadcrumb_chain(),
+        subcategories=subcategories,
+    )
     return render(request, "catalog/category.html", context)
 
 
 def sale(request):
     """Віртуальна категорія «Акції / знижки» — товари з is_sale=True."""
     products = Product.objects.filter(is_active=True, is_sale=True).for_cards()
-    products = filter_products(request, products)
-    products = apply_sorting(request, products)
-
-    context = {
-        "category": None,
-        "is_sale_page": True,
-        "breadcrumbs": [],
-        "subcategories": [],
-        "products": _paginate(request, products),
-        "total_count": products.count(),
-        "current_sort": request.GET.get("sort", "popularity"),
-        **build_filter_context(request, products, category=None),
-    }
+    context = _catalog_context(
+        request,
+        products=products,
+        category=None,
+        is_sale_page=True,
+        breadcrumbs=[],
+        subcategories=[],
+    )
     return render(request, "catalog/category.html", context)
 
 
@@ -108,23 +131,22 @@ def product_detail(request, slug):
 
 
 def search(request):
-    query = request.GET.get("q", "").strip()
-    products = Product.objects.none()
+    raw = request.GET.get("q", "")
+    base = Product.objects.filter(is_active=True).for_cards()
+    products, query = search_products(base, raw)
+    page_obj = None
+    page_clamped = False
+    total = 0
     if query:
-        products = Product.objects.filter(
-            Q(name__icontains=query)
-            | Q(name_ru__icontains=query)
-            | Q(sku__icontains=query)
-            | Q(short_description__icontains=query)
-            | Q(short_description_ru__icontains=query),
-            is_active=True,
-        ).for_cards()
-        products = apply_sorting(request, products)
+        products = apply_sorting(request, annotate_card_price(products))
+        total = products.count()
+        page_obj, page_clamped = _paginate(request, products)
 
     context = {
         "query": query,
-        "products": _paginate(request, products) if query else None,
-        "total_count": products.count() if query else 0,
+        "products": page_obj,
+        "page_clamped": page_clamped and total > 0,
+        "total_count": total,
     }
     return render(request, "catalog/search.html", context)
 
