@@ -67,7 +67,7 @@ def recent_product_actions_view(request):
 
 
 def patch_admin_recent_actions_urls() -> None:
-    """Підключити /admin/recent-product-actions/ один раз."""
+    """Підключити recent-product-actions під поточним префіксом адмінки."""
     if getattr(admin.site, "_sonyashnyk_recent_actions_patched", False):
         return
     original = admin.site.get_urls

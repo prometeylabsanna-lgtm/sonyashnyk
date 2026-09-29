@@ -21,7 +21,7 @@ def healthz(_request):
 
 urlpatterns = [
     path("healthz/", healthz, name="healthz"),
-    path("admin/", admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path("i18n/setlang/", set_language, name="set_language"),
 
     path("", core_views.home, name="home"),

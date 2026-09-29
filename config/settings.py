@@ -238,7 +238,23 @@ NOVA_POSHTA_API_KEY = config("NOVA_POSHTA_API_KEY", default="")
 CART_SESSION_KEY = "cart"
 PROMO_SESSION_KEY = "cart_promo"
 
-LOGIN_URL = "/admin/login/"
+# ERR-132: префікс адмінки лише з env. Порожнє значення і літерал admin заборонені.
+_admin_path = config("ADMIN_URL", default="manage").strip().strip("/")
+if (
+    not _admin_path
+    or _admin_path.lower() == "admin"
+    or "/" in _admin_path
+    or not _admin_path.replace("-", "").replace("_", "").isalnum()
+):
+    _admin_path = "manage"
+ADMIN_URL = f"{_admin_path}/"
+
+
+def _staff_link(suffix: str) -> str:
+    return f"/{ADMIN_URL}{suffix.lstrip('/')}"
+
+
+LOGIN_URL = "admin:login"
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
@@ -305,7 +321,7 @@ UNFOLD = {
                     {
                         "title": "Налаштування сайту",
                         "icon": "settings",
-                        "link": "/admin/core/sitesettings/",
+                        "link": _staff_link("core/sitesettings/"),
                     },
                 ],
             },
@@ -317,17 +333,17 @@ UNFOLD = {
                     {
                         "title": "1 рівень категорій",
                         "icon": "account_tree",
-                        "link": "/admin/catalog/rootcategory/",
+                        "link": _staff_link("catalog/rootcategory/"),
                     },
                     {
                         "title": "2 рівень категорій",
                         "icon": "subdirectory_arrow_right",
-                        "link": "/admin/catalog/subcategory/",
+                        "link": _staff_link("catalog/subcategory/"),
                     },
                     {
                         "title": "3 рівень категорій",
                         "icon": "more_horiz",
-                        "link": "/admin/catalog/subsubcategory/",
+                        "link": _staff_link("catalog/subsubcategory/"),
                     },
                 ],
             },
@@ -335,11 +351,11 @@ UNFOLD = {
                 "title": "Каталог",
                 "separator": True,
                 "items": [
-                    {"title": "Товари", "icon": "inventory_2", "link": "/admin/catalog/product/"},
+                    {"title": "Товари", "icon": "inventory_2", "link": _staff_link("catalog/product/")},
                     {
                         "title": "Недавні дії",
                         "icon": "history",
-                        "link": "/admin/recent-product-actions/",
+                        "link": _staff_link("recent-product-actions/"),
                     },
                 ],
             },
@@ -350,7 +366,7 @@ UNFOLD = {
                     {
                         "title": "Фільтри",
                         "icon": "tune",
-                        "link": "/admin/catalog/catalogfilter/",
+                        "link": _staff_link("catalog/catalogfilter/"),
                     },
                 ],
             },
@@ -358,24 +374,24 @@ UNFOLD = {
                 "title": "Продажі",
                 "separator": True,
                 "items": [
-                    {"title": "Замовлення", "icon": "shopping_cart", "link": "/admin/orders/order/"},
-                    {"title": "Промокоди", "icon": "local_offer", "link": "/admin/orders/promocode/"},
+                    {"title": "Замовлення", "icon": "shopping_cart", "link": _staff_link("orders/order/")},
+                    {"title": "Промокоди", "icon": "local_offer", "link": _staff_link("orders/promocode/")},
                 ],
             },
             {
                 "title": "Ліди",
                 "separator": True,
                 "items": [
-                    {"title": "Заявки", "icon": "support_agent", "link": "/admin/leads/lead/"},
+                    {"title": "Заявки", "icon": "support_agent", "link": _staff_link("leads/lead/")},
                 ],
             },
             {
                 "title": "Контент",
                 "separator": True,
                 "items": [
-                    {"title": "Переваги", "icon": "loyalty", "link": "/admin/core/highlightpoint/"},
-                    {"title": "Відгуки", "icon": "rate_review", "link": "/admin/core/review/"},
-                    {"title": "Сертифікати", "icon": "workspace_premium", "link": "/admin/pages/certificate/"},
+                    {"title": "Переваги", "icon": "loyalty", "link": _staff_link("core/highlightpoint/")},
+                    {"title": "Відгуки", "icon": "rate_review", "link": _staff_link("core/review/")},
+                    {"title": "Сертифікати", "icon": "workspace_premium", "link": _staff_link("pages/certificate/")},
                 ],
             },
         ],

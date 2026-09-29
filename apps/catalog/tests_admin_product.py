@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
+from django.urls import reverse
 
 from apps.catalog.models import Category, Product
 
@@ -22,9 +23,15 @@ class ProductAdminOpenTests(TestCase):
             base_price="10.00",
         )
 
+    def test_default_admin_prefix_is_closed(self):
+        closed = self.client.get("/admin/")
+        staff = self.client.get(reverse("admin:index"))
+        self.assertEqual(closed.status_code, 404)
+        self.assertEqual(staff.status_code, 200)
+
     def test_add_and_change_pages_open(self):
-        add = self.client.get("/admin/catalog/product/add/")
-        change = self.client.get(f"/admin/catalog/product/{self.product.pk}/change/")
+        add = self.client.get(reverse("admin:catalog_product_add"))
+        change = self.client.get(reverse("admin:catalog_product_change", args=[self.product.pk]))
         self.assertEqual(add.status_code, 200)
         self.assertEqual(change.status_code, 200)
         self.assertContains(change, "attr_")
@@ -55,7 +62,7 @@ class ProductAdminOpenTests(TestCase):
 
     def test_add_post_with_characteristics_does_not_500(self):
         response = self.client.post(
-            "/admin/catalog/product/add/",
+            reverse("admin:catalog_product_add"),
             {
                 "category": self.category.pk,
                 "sku": "ADM-POST",
