@@ -29,6 +29,10 @@ CSRF_TRUSTED_ORIGINS = config(
     default="https://*.vercel.app",
     cast=Csv(),
 )
+# TLS завершує nginx. Gunicorn слухає лише HTTP, інакше /healthz/ отримує 301.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = False
 
 # --- Applications ---------------------------------------------------------
 INSTALLED_APPS = [
@@ -141,6 +145,13 @@ if IS_VERCEL:
     SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
+else:
+    # На HTTP-дроплеті має бути False, інакше адмінка і кошик не тримають сесію.
+    # Після Let's Encrypt у .env виставити True.
+    SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
+    CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
     SESSION_COOKIE_SAMESITE = "Lax"
     CSRF_COOKIE_SAMESITE = "Lax"
 

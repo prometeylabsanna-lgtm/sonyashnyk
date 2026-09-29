@@ -1,0 +1,20 @@
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+media
+staticfiles
+.env
+.env.local
+.vercel
+.cursor
+node_modules
+*.md
+Соняшник_ головна сторінка

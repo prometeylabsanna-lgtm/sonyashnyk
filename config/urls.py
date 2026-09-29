@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
+from django.http import HttpResponse
 from django.urls import include, path
 from django.views.generic import TemplateView
 from django.views.i18n import set_language
@@ -14,7 +15,12 @@ from .sitemaps import CategorySitemap, ProductSitemap
 
 sitemaps = {"products": ProductSitemap, "categories": CategorySitemap}
 
+def healthz(_request):
+    return HttpResponse("ok", content_type="text/plain")
+
+
 urlpatterns = [
+    path("healthz/", healthz, name="healthz"),
     path("admin/", admin.site.urls),
     path("i18n/setlang/", set_language, name="set_language"),
 

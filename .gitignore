@@ -15,3 +15,5 @@ media/
 .idea/
 .vercel
 .env*
+!.env.example
+!.env.docker.example
