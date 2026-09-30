@@ -14,8 +14,14 @@ from apps.orders.monopay import (
     map_status,
     resolve_order_number,
 )
-from apps.orders.models import Order, PromoCode
-from apps.orders.stock import InsufficientStock, reserve_stock_for_items
+from apps.orders.models import Order, OrderItem, PromoCode
+from apps.orders.stock import (
+    InsufficientStock,
+    maybe_expire_order,
+    release_order_stock,
+    release_stale_monopay_orders,
+    reserve_stock_for_items,
+)
 
 
 class MonopayHelpersTests(SimpleTestCase):
@@ -295,8 +301,8 @@ class MonopayCallbackTests(TestCase):
         product = Product.objects.create(
             category=cat, sku="SKU-CB", name="Товар", base_price=Decimal("30.00"),
         )
-        ProductVariant.objects.create(
-            product=product, label="1", price=Decimal("30.00"), stock_qty=1, is_default=True,
+        self.variant = ProductVariant.objects.create(
+            product=product, label="1", price=Decimal("30.00"), stock_qty=0, is_default=True,
         )
         self.order = Order.objects.create(
             full_name="Тест",
@@ -305,6 +311,15 @@ class MonopayCallbackTests(TestCase):
             payment_method=Order.PaymentMethod.MONOPAY,
             subtotal=Decimal("30.00"),
             total=Decimal("30.00"),
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            product=product,
+            variant=self.variant,
+            product_name=product.name,
+            variant_label=self.variant.label,
+            price=Decimal("30.00"),
+            quantity=1,
         )
 
     def _post_callback(self, status, amount=3000):
@@ -336,6 +351,26 @@ class MonopayCallbackTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.order.refresh_from_db()
         self.assertEqual(self.order.payment_status, Order.PaymentStatus.PAID)
+        self.variant.refresh_from_db()
+        self.assertEqual(self.variant.stock_qty, 0)
+        self.assertFalse(self.order.stock_released)
+
+    def test_failure_restores_stock(self):
+        resp = self._post_callback("failure", amount=3000)
+        self.assertEqual(resp.status_code, 200)
+        self.order.refresh_from_db()
+        self.variant.refresh_from_db()
+        self.assertEqual(self.order.payment_status, Order.PaymentStatus.FAILED)
+        self.assertTrue(self.order.stock_released)
+        self.assertEqual(self.variant.stock_qty, 1)
+
+    def test_failure_idempotent(self):
+        self._post_callback("failure", amount=3000)
+        self._post_callback("expired", amount=3000)
+        self.variant.refresh_from_db()
+        self.order.refresh_from_db()
+        self.assertEqual(self.variant.stock_qty, 1)
+        self.assertTrue(self.order.stock_released)
 
     def test_reversed_sets_refunded(self):
         self.order.payment_status = Order.PaymentStatus.PAID
@@ -343,7 +378,82 @@ class MonopayCallbackTests(TestCase):
         resp = self._post_callback("reversed", amount=3000)
         self.assertEqual(resp.status_code, 200)
         self.order.refresh_from_db()
+        self.variant.refresh_from_db()
         self.assertEqual(self.order.payment_status, Order.PaymentStatus.REFUNDED)
+        self.assertTrue(self.order.stock_released)
+        self.assertEqual(self.variant.stock_qty, 1)
+
+
+@override_settings(MONOPAY_STOCK_RESERVE_MINUTES=60)
+class StockReleaseTests(TestCase):
+    def setUp(self):
+        cat = Category.objects.create(name="Кат", slug="cat-rel")
+        product = Product.objects.create(
+            category=cat, sku="SKU-REL", name="Товар", base_price=Decimal("20.00"),
+        )
+        self.variant = ProductVariant.objects.create(
+            product=product, label="1", price=Decimal("20.00"), stock_qty=0, is_default=True,
+        )
+        self.order = Order.objects.create(
+            full_name="Тест",
+            phone="+380671112233",
+            delivery_method=Order.DeliveryMethod.PICKUP,
+            payment_method=Order.PaymentMethod.MONOPAY,
+            payment_status=Order.PaymentStatus.PENDING,
+            subtotal=Decimal("20.00"),
+            total=Decimal("20.00"),
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            product=product,
+            variant=self.variant,
+            product_name=product.name,
+            variant_label="1",
+            price=Decimal("20.00"),
+            quantity=2,
+        )
+
+    def test_release_order_stock(self):
+        self.assertTrue(release_order_stock(self.order, mark_failed=True))
+        self.order.refresh_from_db()
+        self.variant.refresh_from_db()
+        self.assertTrue(self.order.stock_released)
+        self.assertEqual(self.order.payment_status, Order.PaymentStatus.FAILED)
+        self.assertEqual(self.variant.stock_qty, 2)
+        self.assertFalse(release_order_stock(self.order))
+
+    def test_stale_pending_releases(self):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        Order.objects.filter(pk=self.order.pk).update(
+            created_at=timezone.now() - timedelta(minutes=61),
+        )
+        self.order.refresh_from_db()
+        self.assertEqual(release_stale_monopay_orders(minutes=60), 1)
+        self.order.refresh_from_db()
+        self.variant.refresh_from_db()
+        self.assertTrue(self.order.stock_released)
+        self.assertEqual(self.variant.stock_qty, 2)
+
+    def test_fresh_pending_not_expired(self):
+        self.assertFalse(maybe_expire_order(self.order))
+        self.variant.refresh_from_db()
+        self.assertEqual(self.variant.stock_qty, 0)
+
+    def test_rereserve_after_release(self):
+        from apps.orders.stock import rereserve_order_stock
+
+        release_order_stock(self.order, mark_failed=True)
+        self.variant.refresh_from_db()
+        self.assertEqual(self.variant.stock_qty, 2)
+        rereserve_order_stock(self.order)
+        self.order.refresh_from_db()
+        self.variant.refresh_from_db()
+        self.assertFalse(self.order.stock_released)
+        self.assertEqual(self.order.payment_status, Order.PaymentStatus.PENDING)
+        self.assertEqual(self.variant.stock_qty, 0)
 
 
 class ZeroPriceAndLimitTests(TestCase):

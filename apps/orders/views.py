@@ -22,7 +22,7 @@ from .models import Order
 from .nova_poshta import is_configured as np_is_configured
 from .nova_poshta import search_cities, search_warehouses
 from .promo import apply_promo_code, clear_session_promo_code, resolve_promo
-from .stock import InsufficientStock
+from .stock import InsufficientStock, maybe_expire_order, release_order_stock, rereserve_order_stock
 
 
 def _safe_next(raw: str | None, fallback: str) -> str:
@@ -222,6 +222,8 @@ def checkout(request):
 
 def thank_you(request, order_number):
     order = get_accessible_order(request, order_number)
+    if maybe_expire_order(order):
+        order.refresh_from_db()
     can_pay_again = (
         order.payment_method == Order.PaymentMethod.MONOPAY
         and order.payment_status in (Order.PaymentStatus.FAILED, Order.PaymentStatus.PENDING)
@@ -244,6 +246,8 @@ def thank_you(request, order_number):
 def payment_status(request, order_number):
     """Легкий JSON для poll на thank-you (той самий access-gate)."""
     order = get_accessible_order(request, order_number)
+    if maybe_expire_order(order):
+        order.refresh_from_db()
     return JsonResponse({
         "ok": True,
         "order_number": order.order_number,
@@ -255,14 +259,28 @@ def payment_status(request, order_number):
 def pay(request, order_number):
     """Створює Monopay-інвойс і редіректить на pageUrl."""
     order = get_accessible_order(request, order_number)
+    if maybe_expire_order(order):
+        order.refresh_from_db()
     if order.payment_method != Order.PaymentMethod.MONOPAY:
         return redirect(order_url("orders_checkout:thank_you", order))
     if order.payment_status == Order.PaymentStatus.PAID:
+        return redirect(order_url("orders_checkout:thank_you", order))
+    if order.payment_status not in (
+        Order.PaymentStatus.PENDING,
+        Order.PaymentStatus.FAILED,
+    ):
         return redirect(order_url("orders_checkout:thank_you", order))
 
     if not monopay.is_configured():
         messages.error(request, "Онлайн-оплата тимчасово недоступна. Спробуйте пізніше або оберіть інший спосіб.")
         return redirect(order_url("orders_checkout:thank_you", order))
+
+    try:
+        rereserve_order_stock(order)
+    except InsufficientStock as exc:
+        messages.error(request, str(exc))
+        return redirect(order_url("orders_checkout:thank_you", order))
+    order.refresh_from_db()
 
     try:
         invoice = monopay.create_invoice(order)
@@ -311,10 +329,12 @@ def monopay_callback(request):
     elif mapped == Order.PaymentStatus.REFUNDED:
         order.payment_status = mapped
         order.save(update_fields=["payment_status"])
+        release_order_stock(order)
     elif mapped == Order.PaymentStatus.FAILED:
         if order.payment_status != Order.PaymentStatus.PAID:
             order.payment_status = mapped
             order.save(update_fields=["payment_status"])
+            release_order_stock(order)
 
     return HttpResponse("ok")
 

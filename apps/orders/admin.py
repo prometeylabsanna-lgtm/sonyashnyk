@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Count
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
@@ -12,6 +12,7 @@ from apps.core.admin_filters import (
 )
 
 from .models import Order, OrderItem, PromoCode
+from .stock import release_order_stock
 
 
 class OrderItemInline(TabularInline):
@@ -37,7 +38,7 @@ class NewOrdersFilter(CleanDropdownFilter):
 class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
     list_display = (
         "order_number", "full_name", "phone", "status_badge", "payment_badge",
-        "delivery_method", "total", "created_at",
+        "delivery_method", "total", "stock_released", "created_at",
     )
     list_filter = (
         NewOrdersFilter,
@@ -45,16 +46,17 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
         ("payment_status", CleanChoicesDropdownFilter),
         ("delivery_method", CleanChoicesDropdownFilter),
         ("payment_method", CleanChoicesDropdownFilter),
+        ("stock_released", CleanBooleanDropdownFilter),
     )
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("order_number", "full_name", "phone", "email", "city", "warehouse")
     readonly_fields = (
         "order_number", "subtotal", "discount_total", "total", "shipping_is_free", "created_at",
-        "np_city_ref", "np_warehouse_ref",
+        "np_city_ref", "np_warehouse_ref", "stock_released",
     )
     inlines = [OrderItemInline]
     list_per_page = 40
-    actions = ("mark_processing", "mark_shipped", "mark_done", "mark_paid")
+    actions = ("mark_processing", "mark_shipped", "mark_done", "mark_paid", "restore_stock")
 
     fieldsets = (
         ("Клієнт", {"fields": ("full_name", "phone", "email")}),
@@ -63,7 +65,7 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
             "shipping_is_free",
         )}),
         ("Оплата", {"fields": (
-            "payment_method", "payment_status", "promo_code",
+            "payment_method", "payment_status", "stock_released", "promo_code",
             "subtotal", "discount_total", "total",
         )}),
         ("Статус", {"fields": (
@@ -109,6 +111,25 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
     @admin.action(description="Оплата → Оплачено")
     def mark_paid(self, request, queryset):
         queryset.update(payment_status=Order.PaymentStatus.PAID)
+
+    @admin.action(description="Повернути залишок на склад")
+    def restore_stock(self, request, queryset):
+        """Разове повернення резерву (failed / refunded / pending). Не чіпає paid."""
+        restored = 0
+        skipped = 0
+        for order in queryset.prefetch_related("items"):
+            if order.payment_status == Order.PaymentStatus.PAID:
+                skipped += 1
+                continue
+            if release_order_stock(order):
+                restored += 1
+            else:
+                skipped += 1
+        self.message_user(
+            request,
+            f"Повернено залишок: {restored}. Пропущено: {skipped}.",
+            messages.SUCCESS if restored else messages.WARNING,
+        )
 
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}

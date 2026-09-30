@@ -231,6 +231,8 @@ SITE_URL = config("SITE_URL", default="http://127.0.0.1:8000")
 # Опційний аліас публічного URL (redirect/webhook Monopay).
 PUBLIC_BASE_URL = config("PUBLIC_BASE_URL", default="").strip()
 MONOPAY_TOKEN = config("MONOPAY_TOKEN", default="").strip()
+# Резерв залишку Monopay: після N хв pending → failed + повернення на склад.
+MONOPAY_STOCK_RESERVE_MINUTES = config("MONOPAY_STOCK_RESERVE_MINUTES", default=60, cast=int)
 NOVA_POSHTA_API_KEY = config("NOVA_POSHTA_API_KEY", default="")
 
 # Navkolo DNTrade (каталог / залишки). Без ключа sync_dntrade не стартує.

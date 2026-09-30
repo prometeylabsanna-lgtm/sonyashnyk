@@ -49,6 +49,11 @@ class Order(models.Model):
     payment_status = models.CharField(
         "Статус оплати", max_length=16, choices=PaymentStatus.choices, default=PaymentStatus.PENDING,
     )
+    stock_released = models.BooleanField(
+        "Залишок повернуто",
+        default=False,
+        help_text="True після повернення резерву (невдала / прострочена / refunded оплата).",
+    )
     status = models.CharField("Статус замовлення", max_length=16, choices=Status.choices, default=Status.NEW)
 
     comment = models.TextField("Коментар до замовлення", blank=True)

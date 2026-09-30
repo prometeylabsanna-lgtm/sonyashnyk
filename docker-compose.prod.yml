@@ -90,6 +90,43 @@ services:
           python manage.py sync_dntrade --purge-missing || echo "WARN: sync_dntrade failed"
         done
 
+  # Кожні 10 хв: прострочений / failed резерв Monopay → повернення залишку.
+  stock-cron:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DATABASE_URL: postgres://${DB_USER:-sonyashnyk}:${DB_PASSWORD}@db:5432/${DB_NAME:-sonyashnyk_db}
+      TZ: Europe/Kyiv
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "==> waiting for DB"
+        python - <<'PY'
+        import os, time, sys
+        import psycopg2
+        url = os.environ.get("DATABASE_URL", "").strip()
+        for _ in range(30):
+            try:
+                psycopg2.connect(url)
+                print("DB ready", flush=True)
+                break
+            except psycopg2.OperationalError:
+                time.sleep(2)
+        else:
+            sys.exit(1)
+        PY
+        while true; do
+          echo "==> release_monopay_stock $$(date -Iseconds)"
+          python manage.py release_monopay_stock --expired --failed || echo "WARN: release_monopay_stock failed"
+          sleep 600
+        done
+
 volumes:
   postgres_data:
   static_volume:

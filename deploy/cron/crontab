@@ -1,2 +1,4 @@
 # Щодня о 03:15 Europe/Kyiv (TZ контейнера)
 15 3 * * * /app/deploy/cron/sync-dntrade.sh
+# Кожні 10 хв: прострочений резерв Monopay → повернення залишку
+*/10 * * * * /app/deploy/cron/release-monopay-stock.sh
