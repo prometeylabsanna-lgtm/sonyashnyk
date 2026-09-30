@@ -368,7 +368,8 @@
 }
 
 .product-card__stock.is-out {
-  color: var(--c-danger);
+  color: #c62828;
+  font-weight: 600;
 }
 
 /* --- Адаптив: планшет / мобільний / iOS Safari --- */

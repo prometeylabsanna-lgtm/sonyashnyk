@@ -1,0 +1,49 @@
+/* Інлайни картки товару: «Додати ще» як помітна кнопка */
+
+.inline-related a.add-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.inline-related a.add-row:hover {
+  border-color: #c9a227;
+  background: #fffdf3;
+  color: #111827;
+}
+
+.inline-related a.add-row:focus-visible {
+  outline: 2px solid #c9a227;
+  outline-offset: 2px;
+}
+
+.inline-related a.add-row .material-symbols-outlined {
+  background: #c9a227;
+  color: #fff;
+}
+
+/* Delete інлайну — квадратна кнопка, не «гола» іконка */
+.inline-related td.delete > label,
+.inline-related td.delete > div {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  border-radius: 0.5rem;
+}
+
+.inline-related td.delete > label:hover,
+.inline-related td.delete > div:hover {
+  background: #fee2e2;
+}

@@ -151,7 +151,7 @@ class Product(models.Model):
         help_text="Рядки «назва → значення», наприклад «Обʼєм → 100 мл».",
     )
     characteristics_ru = models.JSONField(
-        "Характеристики (RU)",
+        "Характеристики",
         default=dict,
         blank=True,
         help_text="Ті самі характеристики російською, рядки «назва → значення».",

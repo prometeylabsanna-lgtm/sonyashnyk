@@ -1,15 +1,12 @@
-"""Окрема адмін-сторінка: недавні дії з товарами (LogEntry)."""
+"""Окрема адмін-сторінка: усі недавні дії (LogEntry)."""
 
 from __future__ import annotations
 
 from django.contrib import admin
 from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
-from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import render
 from django.urls import path, reverse
 from django.utils.html import format_html
-
-from apps.catalog.models import Product
 
 RECENT_LIMIT = 100
 
@@ -24,22 +21,29 @@ def _action_meta(flag: int) -> tuple[str, str]:
     return _ACTION_LABELS.get(flag, ("Дія", "other"))
 
 
+def _content_type_label(entry: LogEntry) -> str:
+    if not entry.content_type_id:
+        return "—"
+    name = entry.content_type.name or entry.content_type.model
+    return str(name).capitalize()
+
+
 def _object_link(entry: LogEntry) -> str:
     label = entry.object_repr or f"#{entry.object_id}"
     if entry.is_deletion() or not entry.object_id:
         return format_html('<span class="recent-actions__muted">{}</span>', label)
     try:
-        url = reverse("admin:catalog_product_change", args=[entry.object_id])
+        url = entry.get_admin_url()
     except Exception:
+        url = None
+    if not url:
         return format_html("<span>{}</span>", label)
     return format_html('<a href="{}">{}</a>', url, label)
 
 
-def recent_product_actions_view(request):
-    ct = ContentType.objects.get_for_model(Product)
+def recent_actions_view(request):
     entries = list(
-        LogEntry.objects.filter(content_type=ct)
-        .select_related("user")
+        LogEntry.objects.select_related("user", "content_type")
         .order_by("-action_time")[:RECENT_LIMIT]
     )
     rows = []
@@ -51,15 +55,15 @@ def recent_product_actions_view(request):
                 "user": entry.user.get_username() if entry.user_id else "—",
                 "action_label": label,
                 "action_css": css,
+                "content_type": _content_type_label(entry),
                 "object_html": _object_link(entry),
                 "message": entry.get_change_message() or "—",
             }
         )
     context = {
         **admin.site.each_context(request),
-        "title": "Недавні дії — товари",
+        "title": "Недавні дії",
         "rows": rows,
-        "opts": Product._meta,
         "has_view_permission": True,
         "products_url": reverse("admin:catalog_product_changelist"),
     }
@@ -76,7 +80,7 @@ def patch_admin_recent_actions_urls() -> None:
         return [
             path(
                 "recent-product-actions/",
-                admin.site.admin_view(recent_product_actions_view),
+                admin.site.admin_view(recent_actions_view),
                 name="catalog_recent_product_actions",
             ),
             *original(),

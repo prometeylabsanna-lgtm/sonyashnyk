@@ -11,7 +11,7 @@
   <div class="recent-actions__head">
     <div>
       <h1 class="text-font-important-light dark:text-font-important-dark">Недавні дії</h1>
-      <p class="recent-actions__hint">Останні зміни товарів у адмінці (додавання, редагування, видалення).</p>
+      <p class="recent-actions__hint">Усі останні зміни в адмінці (додавання, редагування, видалення).</p>
     </div>
     <a class="recent-actions__link" href="{{ products_url }}">До товарів</a>
   </div>
@@ -24,7 +24,8 @@
           <th>Коли</th>
           <th>Хто</th>
           <th>Дія</th>
-          <th>Товар</th>
+          <th>Тип</th>
+          <th>Обʼєкт</th>
           <th>Деталі</th>
         </tr>
       </thead>
@@ -36,6 +37,7 @@
           <td>
             <span class="recent-actions__badge recent-actions__badge--{{ row.action_css }}">{{ row.action_label }}</span>
           </td>
+          <td>{{ row.content_type }}</td>
           <td>{{ row.object_html }}</td>
           <td class="recent-actions__msg">{{ row.message }}</td>
         </tr>
@@ -45,7 +47,7 @@
   </div>
   {% else %}
   <div class="recent-actions__empty border border-base-200 dark:border-base-700 rounded-default">
-    <p>Поки немає записів. Зʼявляться після додавання чи зміни товарів у адмінці.</p>
+    <p>Поки немає записів. Зʼявляться після змін у адмінці.</p>
   </div>
   {% endif %}
 </div>

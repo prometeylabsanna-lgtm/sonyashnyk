@@ -1,6 +1,10 @@
 /**
  * Вкладки UA / RU в адмінці.
  * Поля з імʼям *_ru ховаються/показуються; решта завжди видимі.
+ *
+ * Важливо: у tabular-інлайнах рядок — це TR.form-row з полями обох мов.
+ * Ховати треба окремі комірки/поля, а не весь TR (інакше «Додати ще» додає
+ * невидимий рядок, а empty-form ламається).
  */
 (function () {
   "use strict";
@@ -9,21 +13,46 @@
   var ROOT_ATTR = "data-admin-lang-root";
 
   function isRuName(name) {
-    return typeof name === "string" && /_ru$/.test(name);
+    return typeof name === "string" && (/_ru$/.test(name) || /_ru_/.test(name));
   }
 
   function ukNameFromRu(name) {
+    if (/_ru_/.test(name)) {
+      return name.replace(/_ru_/, "_");
+    }
     return name.replace(/_ru$/, "");
   }
 
   function closestRow(el) {
-    return (
-      el.closest("[data-admin-lang]") ||
-      el.closest(".form-row") ||
-      el.closest(".site-content-editor__field") ||
-      el.closest("[class*='field-']") ||
-      el.parentElement
-    );
+    if (!el || !el.closest) return null;
+
+    // Уже позначений контейнер — лишаємось у ньому.
+    var marked = el.closest("[data-admin-lang]");
+    if (marked && marked.tagName !== "TR" && marked.tagName !== "TBODY") {
+      return marked;
+    }
+
+    // CMS-редактор
+    var cms = el.closest(".site-content-editor__field");
+    if (cms) return cms;
+
+    // Комірка/обгортка поля (tabular: td.field-*, stacked: .field-*)
+    var fieldBox = el.closest("[class*='field-']");
+    if (fieldBox && fieldBox.tagName !== "TR") {
+      return fieldBox;
+    }
+
+    // Звичайний stacked form-row (DIV), не TR таблиці
+    var formRow = el.closest(".form-row");
+    if (formRow && formRow.tagName !== "TR") {
+      return formRow;
+    }
+
+    // char-kv віджет
+    var charKv = el.closest("[data-char-kv]");
+    if (charKv) return charKv.closest("[class*='field-']") || charKv.parentElement || charKv;
+
+    return el.parentElement;
   }
 
   function findControl(root, name) {
@@ -36,22 +65,38 @@
   }
 
   function markPairs(root) {
-    var controls = root.querySelectorAll("input[name], textarea[name], select[name]");
+    // Старий баг: TR інлайну отримував data-admin-lang і ховався цілком
+    root.querySelectorAll("tr[data-admin-lang], tbody[data-admin-lang]").forEach(function (node) {
+      node.removeAttribute("data-admin-lang");
+      node.classList.remove("is-lang-hidden");
+    });
+
+    var controls = root.querySelectorAll(
+      "input[name], textarea[name], select[name], [data-char-kv-name]"
+    );
     var hasRu = false;
     controls.forEach(function (el) {
-      var name = el.getAttribute("name") || "";
+      var name = el.getAttribute("name") || el.getAttribute("data-char-kv-name") || "";
       if (!isRuName(name)) return;
       if (el.type === "hidden") return;
+      // Префікс empty-form теж маркуємо — але лише комірку, не TR.
       hasRu = true;
       var ruRow = closestRow(el);
-      if (ruRow && !ruRow.getAttribute("data-admin-lang")) {
+      if (ruRow && ruRow.tagName !== "TR" && !ruRow.getAttribute("data-admin-lang")) {
         ruRow.setAttribute("data-admin-lang", "ru");
       }
       var ukName = ukNameFromRu(name);
-      var ukEl = findControl(root, ukName);
+      var ukEl =
+        findControl(root, ukName) ||
+        root.querySelector('[data-char-kv-name="' + ukName.replace(/"/g, '\\"') + '"]');
       if (ukEl) {
         var ukRow = closestRow(ukEl);
-        if (ukRow && ukRow !== ruRow && !ukRow.getAttribute("data-admin-lang")) {
+        if (
+          ukRow &&
+          ukRow.tagName !== "TR" &&
+          ukRow !== ruRow &&
+          !ukRow.getAttribute("data-admin-lang")
+        ) {
           ukRow.setAttribute("data-admin-lang", "uk");
         }
       }
@@ -61,6 +106,11 @@
 
   function applyLang(root, lang) {
     root.querySelectorAll("[data-admin-lang]").forEach(function (node) {
+      // Ніколи не ховаємо цілий рядок tabular-інлайну
+      if (node.tagName === "TR" || node.tagName === "TBODY") {
+        node.classList.remove("is-lang-hidden");
+        return;
+      }
       var nodeLang = node.getAttribute("data-admin-lang");
       if (nodeLang === lang) {
         node.classList.remove("is-lang-hidden");
@@ -136,12 +186,30 @@
     applyLang(root, lang);
   }
 
+  function refreshAfterFormset(row) {
+    if (!row) return;
+    var form = row.closest("form") || document.querySelector("#content-main form");
+    if (!form) return;
+    // Зняти помилкові позначки з TR (старий баг)
+    if (row.tagName === "TR") {
+      row.classList.remove("is-lang-hidden");
+      row.removeAttribute("data-admin-lang");
+    }
+    markPairs(row);
+    applyLang(form, readLang());
+  }
+
   function boot() {
     document.querySelectorAll("[data-admin-lang-scope]").forEach(initRoot);
     document.querySelectorAll("#content-main, .site-content-editor").forEach(function (node) {
       var form = node.matches("form") ? node : node.querySelector("form");
       if (form) initRoot(form);
       else initRoot(node);
+    });
+
+    // Django admin: новий рядок інлайну
+    document.addEventListener("formset:added", function (event) {
+      refreshAfterFormset(event.target);
     });
   }
 

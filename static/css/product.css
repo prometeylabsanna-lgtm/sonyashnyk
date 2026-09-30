@@ -186,7 +186,7 @@
   margin-bottom: 22px;
 }
 
-.pdp-info__stock.is-out { color: var(--c-danger); }
+.pdp-info__stock.is-out { color: #c62828; }
 
 /* --- Купівля: qty + кнопки --- */
 .pdp-buy {

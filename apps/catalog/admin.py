@@ -272,6 +272,7 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
                 "css/admin_product_list.css",
                 "css/admin/lang_tabs.css",
                 "css/admin/cms_tinymce.css",
+                "css/admin/inline_controls.css",
             )
         }
         js = ("js/admin/lang_tabs.js",)

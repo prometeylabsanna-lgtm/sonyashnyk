@@ -111,8 +111,8 @@
 }
 
 @media (max-width: 767px) {
-  .recent-actions__table th:nth-child(5),
-  .recent-actions__table td:nth-child(5) {
+  .recent-actions__table th:nth-child(6),
+  .recent-actions__table td:nth-child(6) {
     display: none;
   }
 }
