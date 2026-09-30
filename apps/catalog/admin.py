@@ -194,8 +194,8 @@ class ProductVariantInline(TabularInline):
         if formfield is None:
             return None
         short_labels = {
-            "label": "Назва",
-            "label_ru": "Назва (RU)",
+            "label": "Обʼєм / вага",
+            "label_ru": "Обʼєм / вага (RU)",
             "sku_variant": "Код",
             "price": "Ціна",
             "old_price": "Стара",
@@ -203,6 +203,10 @@ class ProductVariantInline(TabularInline):
         }
         if db_field.name in short_labels:
             formfield.label = short_labels[db_field.name]
+        if db_field.name == "label":
+            formfield.help_text = "Наприклад: 100 мл, 1 л, 10 г, 500 г, 5 кг."
+        elif db_field.name == "label_ru":
+            formfield.help_text = ""
         return formfield
 
 
