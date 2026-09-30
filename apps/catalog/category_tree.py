@@ -238,7 +238,7 @@ MIXED_PACK_ROOT_SLUGS = frozenset({
 _PACK_LABELS = {
     "volume": ("Обʼєм", "Объём"),
     "weight": ("Вага", "Вес"),
-    "pieces": ("Кількість шт", "Количество шт"),
+    "pieces": ("Кількість", "Количество"),
 }
 _PACK_OPTION_LABELS = {
     "volume": ("100 мл", "500 мл", "1 л"),
@@ -260,6 +260,13 @@ _PIECE_UNIT_RE = re.compile(
     r"\d+(?:[.,]\d+)?\s*шт(?![а-яіїєґa-z])",
     re.IGNORECASE,
 )
+_BARE_UNITS = {
+    "шт": "pieces",
+    "кг": "weight",
+    "г": "weight",
+    "мл": "volume",
+    "л": "volume",
+}
 
 
 def category_slug_chain(category):
@@ -277,21 +284,32 @@ def category_slug_chain(category):
 
 def pack_unit_kind(pack_volume):
     """Обʼєм / вага / штуки за одиницею виміру."""
-    text = pack_volume or ""
+    text = (pack_volume or "").strip()
+    if not text:
+        return None
     if _WEIGHT_UNIT_RE.search(text):
         return "weight"
     if _VOLUME_UNIT_RE.search(text):
         return "volume"
     if _PIECE_UNIT_RE.search(text):
         return "pieces"
-    return None
+    bare = text.lower().replace(".", "").replace(" ", "")
+    return _BARE_UNITS.get(bare)
+
+
+def pack_volume_worth_showing(pack_volume):
+    """Чи показувати рядок фасування: голі «шт»/«кг» з ERP не дублюємо."""
+    text = (pack_volume or "").strip()
+    if not text:
+        return False
+    return bool(re.search(r"\d", text))
 
 
 def pack_measure_kind(category, pack_volume):
-    """Який підпис показувати: обʼєм, вага або кількість штук.
+    """Який підпис показувати: обʼєм, вага або кількість.
 
     Ґрунти — завжди обʼєм. Вагове насіння — вага.
-    Решта насіння та посадковий матеріал — кількість штук.
+    Решта насіння та посадковий матеріал — кількість.
     Добрива і засоби захисту: сухі (г/кг) — вага, рідкі — обʼєм.
     """
     unit_kind = pack_unit_kind(pack_volume)
@@ -321,7 +339,7 @@ def pack_option_labels(kind):
 
 
 def pack_measure_label(category, pack_volume):
-    """Підпис біля варіантів: Обʼєм / Вага / Кількість шт."""
+    """Підпис біля варіантів: Обʼєм / Вага / Кількість."""
     from apps.core.i18n_utils import is_ru
 
     labels = _PACK_LABELS.get(pack_measure_kind(category, pack_volume), _PACK_LABELS["pieces"])

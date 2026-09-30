@@ -51,10 +51,21 @@ class PackMeasureLabelTests(TestCase):
 
     def test_labels_uk_and_ru(self):
         root = _category("Ґрунти", "grunti-ta-vse-dlia-posadki")
+        seeds = _category("Насіння", "nasinnia")
         with translation.override("uk"):
             self.assertEqual(pack_measure_label(root, "10 л"), "Обʼєм")
+            self.assertEqual(pack_measure_label(seeds, "10 шт"), "Кількість")
         with translation.override("ru"):
             self.assertEqual(pack_measure_label(root, "10 л"), "Объём")
+            self.assertEqual(pack_measure_label(seeds, "10 шт"), "Количество")
+
+    def test_bare_unit_pack_volume_hidden(self):
+        from apps.catalog.category_tree import pack_volume_worth_showing
+
+        self.assertFalse(pack_volume_worth_showing("шт"))
+        self.assertFalse(pack_volume_worth_showing("кг"))
+        self.assertTrue(pack_volume_worth_showing("10 шт"))
+        self.assertTrue(pack_volume_worth_showing("1 кг"))
 
     def test_product_property(self):
         root = _category("Насіння 2", "nasinnia-2")
@@ -173,6 +184,23 @@ class PackSwitchTests(TestCase):
         self.assertGreater(offer.stock_qty, 0)
         self.assertNotEqual(offer.id, default.id)
 
+    def test_sorting_puts_in_stock_first(self):
+        from apps.catalog.filters import annotate_card_price, apply_sorting
+
+        empty = _product(self.category, "H-EMPTY", "Ураган порожній", "100 мл", "90.00")
+        ProductVariant.objects.create(
+            product=empty, label="100 мл", price="90.00", stock_qty=0, is_default=True,
+        )
+        request = RequestFactory().get("/katalog/", {"sort": "price_asc"})
+        qs = list(
+            apply_sorting(
+                request,
+                annotate_card_price(Product.objects.filter(is_active=True, category=self.category)),
+            )
+        )
+        self.assertEqual(qs[0].id, self.product.id)
+        self.assertEqual(qs[-1].id, empty.id)
+
     def test_old_price_hidden_when_not_higher(self):
         variant = self.product.offer_variant
         variant.old_price = variant.price
@@ -241,7 +269,8 @@ class SizePackRewriteTests(TestCase):
         self.assertEqual(labels, ["5 шт", "10 шт", "20 шт"])
         self.assertEqual(product.pack_volume, "5 шт")
         html = render_to_string("includes/product_card.html", {"product": product})
-        self.assertIn("Кількість шт", html)
+        self.assertIn("Кількість", html)
+        self.assertNotIn("Кількість шт", html)
         self.assertNotIn("Фасування", html)
         self.assertNotIn(">S<", html)
         self.assertNotIn("Потужність", html)

@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.db.models import Prefetch
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
@@ -311,7 +312,12 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
             super()
             .get_queryset(request)
             .select_related("category")
-            .prefetch_related("images")
+            .prefetch_related(
+                Prefetch(
+                    "images",
+                    queryset=ProductImage.objects.order_by("order", "id"),
+                )
+            )
             .distinct()
         )
 

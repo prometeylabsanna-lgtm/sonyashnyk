@@ -206,6 +206,12 @@ class Product(models.Model):
         return pack_measure_label(self.category, self.pack_volume)
 
     @property
+    def show_pack_volume(self):
+        from .category_tree import pack_volume_worth_showing
+
+        return pack_volume_worth_showing(self.pack_volume)
+
+    @property
     def pack_variants(self):
         """Префетчений список варіантів — без зайвих запитів на картках."""
         return list(self.variants.all())

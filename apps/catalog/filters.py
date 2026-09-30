@@ -175,14 +175,24 @@ def annotate_has_image(products):
     )
 
 
+def annotate_has_stock(products):
+    """Товари з хоча б одним варіантом у наявності."""
+    return products.annotate(
+        has_stock=Exists(
+            ProductVariant.objects.filter(product_id=OuterRef("pk"), stock_qty__gt=0)
+        )
+    )
+
+
 def apply_sorting(request, products):
     sort_key = request.GET.get("sort", "popularity")
     order_fields = SORT_OPTIONS.get(sort_key, SORT_OPTIONS["popularity"])
+    products = annotate_has_stock(products)
     if sort_key == "popularity" or sort_key not in SORT_OPTIONS:
         products = annotate_sold_qty(products)
         products = annotate_has_image(products)
-        return products.order_by("-has_image", *order_fields)
-    return products.order_by(*order_fields)
+        return products.order_by("-has_stock", "-has_image", *order_fields)
+    return products.order_by("-has_stock", *order_fields)
 
 
 def _ordered_values_for_filter(cf, products):

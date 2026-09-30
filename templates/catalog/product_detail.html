@@ -55,7 +55,7 @@
       <div class="pdp-info__meta">{% block_plain 'product' 'sku_label' %} <span data-pack-sku>{% firstof variant.sku_variant product.sku %}</span>{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
       {% if product.has_pack_choices %}
         {% include "includes/pack_switch.html" with product=product current=variant extra_class="pack-switch--pdp" %}
-      {% elif product.pack_volume %}
+      {% elif product.show_pack_volume %}
         <div class="pdp-info__volume">{{ product.pack_measure_label }}: {{ product.pack_volume }}</div>
       {% endif %}
 

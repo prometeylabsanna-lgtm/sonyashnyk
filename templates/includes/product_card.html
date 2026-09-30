@@ -44,7 +44,7 @@
     <a href="{{ product.get_absolute_url }}" class="product-card__name">{{ pname }}</a>
     {% if product.has_pack_choices %}
       {% include "includes/pack_switch.html" with product=product current=variant extra_class="pack-switch--card" %}
-    {% elif product.pack_volume %}
+    {% elif product.show_pack_volume %}
       <div class="product-card__volume">{{ product.pack_measure_label }}: {{ product.pack_volume }}</div>
     {% endif %}
 
