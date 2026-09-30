@@ -1,7 +1,7 @@
 import json
 
 from django.contrib import messages
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,10 +9,9 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.catalog.models import ProductVariant
 
-from . import liqpay
+from . import monopay
 from .access import (
     get_accessible_order,
-    mock_payment_allowed,
     order_url,
     remember_order,
 )
@@ -208,7 +207,7 @@ def checkout(request):
                 return redirect(reverse("orders_checkout:page"))
 
             access = remember_order(request, order)
-            if order.payment_method == Order.PaymentMethod.LIQPAY:
+            if order.payment_method == Order.PaymentMethod.MONOPAY:
                 return redirect(order_url("orders_checkout:pay", order, access))
             return redirect(order_url("orders_checkout:thank_you", order, access))
     else:
@@ -236,14 +235,14 @@ def checkout(request):
 def thank_you(request, order_number):
     order = get_accessible_order(request, order_number)
     can_pay_again = (
-        order.payment_method == Order.PaymentMethod.LIQPAY
+        order.payment_method == Order.PaymentMethod.MONOPAY
         and order.payment_status in (Order.PaymentStatus.FAILED, Order.PaymentStatus.PENDING)
     )
     pay_again_url = ""
     if can_pay_again:
         pay_again_url = order_url("orders_checkout:pay", order)
     status_url = ""
-    if order.payment_method == Order.PaymentMethod.LIQPAY and order.payment_status == Order.PaymentStatus.PENDING:
+    if order.payment_method == Order.PaymentMethod.MONOPAY and order.payment_status == Order.PaymentStatus.PENDING:
         status_url = order_url("orders_checkout:payment_status", order)
     return render(request, "orders/thank_you.html", {
         "order": order,
@@ -266,75 +265,57 @@ def payment_status(request, order_number):
 
 
 def pay(request, order_number):
-    """Сторінка оплати LiqPay (реальний form-post або mock без ключів)."""
+    """Створює Monopay-інвойс і редіректить на pageUrl."""
     order = get_accessible_order(request, order_number)
-    if order.payment_method != Order.PaymentMethod.LIQPAY:
+    if order.payment_method != Order.PaymentMethod.MONOPAY:
         return redirect(order_url("orders_checkout:thank_you", order))
     if order.payment_status == Order.PaymentStatus.PAID:
         return redirect(order_url("orders_checkout:thank_you", order))
 
-    if liqpay.is_configured():
-        form_data = liqpay.build_checkout_form(order)
-        return render(request, "orders/liqpay_redirect.html", {
-            "order": order,
-            "liqpay_url": form_data["url"],
-            "liqpay_data": form_data["data"],
-            "liqpay_signature": form_data["signature"],
-        })
-
-    if not mock_payment_allowed():
-        raise Http404()
-    return render(request, "orders/liqpay_mock.html", {
-        "order": order,
-        "access_token": request.GET.get("t") or "",
-    })
-
-
-@require_POST
-def pay_mock(request, order_number):
-    """Локальний sandbox без ключів LiqPay: симуляція success/fail."""
-    if not mock_payment_allowed():
-        raise Http404()
-    order = get_accessible_order(request, order_number)
-    if order.payment_method != Order.PaymentMethod.LIQPAY:
+    if not monopay.is_configured():
+        messages.error(request, "Онлайн-оплата тимчасово недоступна. Спробуйте пізніше або оберіть інший спосіб.")
         return redirect(order_url("orders_checkout:thank_you", order))
-    if liqpay.is_configured():
-        return redirect(order_url("orders_checkout:pay", order))
 
-    action = (request.POST.get("action") or "").strip().lower()
-    if action == "success":
-        order.payment_status = Order.PaymentStatus.PAID
-    else:
-        order.payment_status = Order.PaymentStatus.FAILED
-    order.save(update_fields=["payment_status"])
-    return redirect(order_url("orders_checkout:thank_you", order))
+    try:
+        invoice = monopay.create_invoice(order)
+    except monopay.MonopayError:
+        messages.error(request, "Не вдалося створити оплату Monobank. Спробуйте ще раз.")
+        return redirect(order_url("orders_checkout:thank_you", order))
+
+    return render(request, "orders/monopay_redirect.html", {
+        "order": order,
+        "page_url": invoice["page_url"],
+    })
 
 
 @csrf_exempt
 @require_POST
-def liqpay_callback(request):
-    """Server-to-server callback від LiqPay."""
-    data = request.POST.get("data", "")
-    signature = request.POST.get("signature", "")
-    if not liqpay.verify_signature(data, signature):
+def monopay_callback(request):
+    """Server-to-server webhook від Monobank Acquiring."""
+    body = request.body or b""
+    x_sign = request.headers.get("X-Sign") or request.META.get("HTTP_X_SIGN", "")
+    if not monopay.verify_webhook(body, x_sign):
         return HttpResponseBadRequest("invalid signature")
 
     try:
-        payload = liqpay.decode_data(data)
-    except (ValueError, TypeError, json.JSONDecodeError):
+        payload = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
         return HttpResponseBadRequest("invalid data")
 
-    order_id = payload.get("order_id")
+    if not isinstance(payload, dict):
+        return HttpResponseBadRequest("invalid data")
+
+    order_id = monopay.resolve_order_number(payload)
     if not order_id:
-        return HttpResponseBadRequest("missing order_id")
+        return HttpResponseBadRequest("missing reference")
 
     order = Order.objects.filter(order_number=order_id).first()
     if not order:
         return HttpResponseBadRequest("order not found")
 
-    mapped = liqpay.map_status(payload.get("status", ""))
+    mapped = monopay.map_status(payload.get("status", ""))
     if mapped == Order.PaymentStatus.PAID:
-        if not liqpay.amount_matches_order(payload, order):
+        if not monopay.amount_matches_order(payload, order):
             return HttpResponseBadRequest("amount mismatch")
         if order.payment_status != Order.PaymentStatus.PAID:
             order.payment_status = mapped

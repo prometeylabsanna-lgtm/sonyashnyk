@@ -9,8 +9,7 @@ urlpatterns = [
     path("dyakuyemo/<str:order_number>/", views.thank_you, name="thank_you"),
     path("status/<str:order_number>/", views.payment_status, name="payment_status"),
     path("oplata/<str:order_number>/", views.pay, name="pay"),
-    path("oplata/<str:order_number>/mock/", views.pay_mock, name="pay_mock"),
-    path("liqpay/callback/", views.liqpay_callback, name="liqpay_callback"),
+    path("monopay/callback/", views.monopay_callback, name="monopay_callback"),
     path("np/mista/", views.np_cities, name="np_cities"),
     path("np/viddilennya/", views.np_warehouses, name="np_warehouses"),
 ]

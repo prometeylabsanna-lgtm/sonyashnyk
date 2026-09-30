@@ -2,7 +2,6 @@
 
 from urllib.parse import urlencode
 
-from django.conf import settings
 from django.core import signing
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -56,9 +55,3 @@ def order_url(viewname: str, order: Order, access_token: str | None = None) -> s
     url = reverse(viewname, args=[order.order_number])
     token = access_token or make_order_access_token(order.order_number)
     return f"{url}?{urlencode({'t': token})}"
-
-
-def mock_payment_allowed() -> bool:
-    if getattr(settings, "LIQPAY_PUBLIC_KEY", "") and getattr(settings, "LIQPAY_PRIVATE_KEY", ""):
-        return False
-    return bool(getattr(settings, "LIQPAY_ALLOW_MOCK", settings.DEBUG))

@@ -54,7 +54,7 @@
         pickup: "delivery_choice_pickup",
       },
       payment_method: {
-        liqpay: "payment_choice_liqpay",
+        monopay: "payment_choice_monopay",
         cod: "payment_choice_cod",
         bank: "payment_choice_bank",
         cash_pickup: "payment_choice_cash",

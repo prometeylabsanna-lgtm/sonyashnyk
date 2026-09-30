@@ -16,7 +16,7 @@ class Order(models.Model):
         PICKUP = "pickup", "Самовивіз"
 
     class PaymentMethod(models.TextChoices):
-        LIQPAY = "liqpay", "Оплата карткою (LiqPay)"
+        MONOPAY = "monopay", "Оплата карткою (Monobank)"
         COD = "cod", "Оплата при отриманні (післяплата)"
         BANK = "bank", "Оплата на розрахунковий рахунок"
         CASH_PICKUP = "cash_pickup", "Оплата при самовивозі"

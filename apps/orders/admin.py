@@ -114,7 +114,7 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
         extra_context = extra_context or {}
         new_count = Order.objects.filter(status=Order.Status.NEW).count()
         unpaid = Order.objects.filter(
-            payment_method=Order.PaymentMethod.LIQPAY,
+            payment_method=Order.PaymentMethod.MONOPAY,
             payment_status=Order.PaymentStatus.PENDING,
         ).count()
         extra_context["title"] = f"Замовлення — нових: {new_count}, очікують оплату: {unpaid}"

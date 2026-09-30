@@ -24,13 +24,13 @@
       <h1 class="h1">{% block_plain 'thankyou' 'page_title' %}</h1>
       <p class="thank-you__order">Номер замовлення: №{{ order.order_number }}</p>
 
-      {% if order.payment_method == "liqpay" and order.payment_status == "pending" %}
+      {% if order.payment_method == "monopay" and order.payment_status == "pending" %}
         <p class="thank-you__hint">
-          Очікуємо підтвердження оплати LiqPay.
+          Очікуємо підтвердження оплати Monobank.
           Якщо гроші вже списалися — зачекайте: статус оновиться автоматично.
           Не оплачуйте повторно, поки статус «очікує».
         </p>
-      {% elif order.payment_method == "liqpay" and order.payment_status == "paid" %}
+      {% elif order.payment_method == "monopay" and order.payment_status == "paid" %}
         <p class="thank-you__hint">Оплату отримано. Найближчим часом менеджер підтвердить відправку.</p>
       {% elif order.payment_method == "bank" %}
         <p class="thank-you__hint">{% if LANGUAGE_CODE == 'ru' %}Реквизиты для оплаты на расчётный счёт отправит менеджер после подтверждения заказа.{% else %}Реквізити для оплати на розрахунковий рахунок надішле менеджер після підтвердження замовлення.{% endif %}</p>

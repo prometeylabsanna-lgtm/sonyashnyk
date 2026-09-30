@@ -226,13 +226,11 @@ SITE_PHONE_RAW = "+380671234567"
 SITE_WORKING_HOURS = "Пн–Сб 9:00–18:00"
 FREE_SHIPPING_THRESHOLD = 1500
 
-# Платіж / логістика (ключі з .env; без ключів — mock / ручний fallback)
+# Платіж / логістика (ключі з .env)
 SITE_URL = config("SITE_URL", default="http://127.0.0.1:8000")
-LIQPAY_PUBLIC_KEY = config("LIQPAY_PUBLIC_KEY", default="")
-LIQPAY_PRIVATE_KEY = config("LIQPAY_PRIVATE_KEY", default="")
-LIQPAY_SANDBOX = config("LIQPAY_SANDBOX", default=True, cast=bool)
-# Mock-оплата без ключів — лише локально (за замовчуванням = DEBUG).
-LIQPAY_ALLOW_MOCK = config("LIQPAY_ALLOW_MOCK", default=DEBUG, cast=bool)
+# Опційний аліас публічного URL (redirect/webhook Monopay).
+PUBLIC_BASE_URL = config("PUBLIC_BASE_URL", default="").strip()
+MONOPAY_TOKEN = config("MONOPAY_TOKEN", default="").strip()
 NOVA_POSHTA_API_KEY = config("NOVA_POSHTA_API_KEY", default="")
 
 # Navkolo DNTrade (каталог / залишки). Без ключа sync_dntrade не стартує.

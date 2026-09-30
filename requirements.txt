@@ -8,4 +8,5 @@ whitenoise==6.11.0
 django-unfold==0.106.1
 django-storages==1.14.6
 boto3==1.40.36
+ecdsa==0.19.1
 

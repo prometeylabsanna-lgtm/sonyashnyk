@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Оплата Monobank — {{ site_name }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/checkout.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="thank-you">
+    <h1 class="h1">Переходимо до оплати</h1>
+    <p class="thank-you__order">Замовлення №{{ order.order_number }}</p>
+    <p class="thank-you__hint">Зачекайте, відкривається сторінка Monobank…</p>
+    <p class="thank-you__actions">
+      <a id="monopay-checkout-link" class="btn btn--primary" href="{{ page_url }}">Сплатити через Monobank</a>
+    </p>
+  </div>
+</div>
+<script>
+  window.location.replace("{{ page_url|escapejs }}");
+</script>
+{% endblock %}
