@@ -177,12 +177,16 @@ class ProductVariantInline(TabularInline):
     fields = (
         "label", "label_ru", "sku_variant", "price", "old_price",
         "stock_qty", "max_per_order", "is_default", "order",
+        "dntrade_product_id", "dntrade_code",
     )
+    readonly_fields = ("dntrade_product_id", "dntrade_code")
 
 
 class ProductImageInline(TabularInline):
     model = ProductImage
     extra = 1
+    fields = ("image", "source_url", "alt", "alt_ru", "order")
+    readonly_fields = ("source_url",)
 
 
 @admin.register(Product)
@@ -217,6 +221,7 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
         ]
         return (
             "category", "sku", "name", "name_ru", "slug",
+            "dntrade_product_id", "dntrade_code", "dntrade_synced_at",
             "short_description", "short_description_ru",
             "description", "description_ru", "characteristics", "characteristics_ru",
             *attr_fields,
@@ -224,6 +229,8 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
             "base_price", "old_price",
             "is_own_production", "is_hit", "is_new", "is_sale", "is_active",
         )
+
+    readonly_fields = ("dntrade_product_id", "dntrade_code", "dntrade_synced_at")
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         # attr_* додаються у ProductAdminForm.__init__, їх немає на моделі.

@@ -107,6 +107,26 @@ class Product(models.Model):
         Category, verbose_name="Категорія", on_delete=models.PROTECT, related_name="products",
     )
     sku = models.CharField("Код товару (SKU)", max_length=64, unique=True)
+    dntrade_product_id = models.CharField(
+        "DNTrade product_id",
+        max_length=64,
+        blank=True,
+        default="",
+        db_index=True,
+        help_text="UUID товару в Navkolo DNTrade.",
+    )
+    dntrade_code = models.BigIntegerField(
+        "DNTrade code",
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Числовий код товару в DNTrade.",
+    )
+    dntrade_synced_at = models.DateTimeField(
+        "Остання синхронізація DNTrade",
+        null=True,
+        blank=True,
+    )
     name = models.CharField("Назва на сайті", max_length=255)
     name_ru = models.CharField("Назва на сайті (RU)", max_length=255, blank=True, default="")
     slug = models.SlugField(
@@ -274,6 +294,19 @@ class ProductVariant(models.Model):
     )
     label_ru = models.CharField("Назва варіанту (RU)", max_length=80, blank=True, default="")
     sku_variant = models.CharField("Код варіанту", max_length=64, blank=True)
+    dntrade_product_id = models.CharField(
+        "DNTrade product_id",
+        max_length=64,
+        blank=True,
+        default="",
+        db_index=True,
+    )
+    dntrade_code = models.BigIntegerField(
+        "DNTrade code",
+        null=True,
+        blank=True,
+        db_index=True,
+    )
     price = models.DecimalField("Ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField("Стара ціна", max_digits=10, decimal_places=2, blank=True, null=True)
     stock_qty = models.PositiveIntegerField("Залишок", default=0)
@@ -300,6 +333,13 @@ class ProductImage(models.Model):
 
     product = models.ForeignKey(Product, verbose_name="Товар", on_delete=models.CASCADE, related_name="images")
     image = WebPImageField("Зображення", upload_to="products/", blank=True, null=True)
+    source_url = models.URLField(
+        "URL джерела (DNTrade)",
+        max_length=500,
+        blank=True,
+        default="",
+        help_text="Щоб не качати те саме фото щодня.",
+    )
     alt = models.CharField("Alt-текст", max_length=255, blank=True)
     alt_ru = models.CharField("Alt-текст (RU)", max_length=255, blank=True, default="")
     order = models.PositiveIntegerField("Порядок", default=0)

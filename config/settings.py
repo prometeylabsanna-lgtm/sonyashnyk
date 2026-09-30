@@ -235,6 +235,12 @@ LIQPAY_SANDBOX = config("LIQPAY_SANDBOX", default=True, cast=bool)
 LIQPAY_ALLOW_MOCK = config("LIQPAY_ALLOW_MOCK", default=DEBUG, cast=bool)
 NOVA_POSHTA_API_KEY = config("NOVA_POSHTA_API_KEY", default="")
 
+# Navkolo DNTrade (каталог / залишки). Без ключа sync_dntrade не стартує.
+DNTRADE_API_KEY = config("DNTRADE_API_KEY", default="").strip()
+DNTRADE_BASE_URL = config("DNTRADE_BASE_URL", default="https://api.dntrade.com.ua").strip()
+# Склад для списку товарів і категорій (рекомендовано «Основний»).
+DNTRADE_STORE_ID = config("DNTRADE_STORE_ID", default="").strip()
+
 CART_SESSION_KEY = "cart"
 PROMO_SESSION_KEY = "cart_promo"
 

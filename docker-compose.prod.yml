@@ -51,6 +51,46 @@ services:
       web:
         condition: service_started
 
+  # Щоденний sync каталогу з Navkolo DNTrade (раз на ~24 год після старту).
+  dntrade-cron:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DATABASE_URL: postgres://${DB_USER:-sonyashnyk}:${DB_PASSWORD}@db:5432/${DB_NAME:-sonyashnyk_db}
+      TZ: Europe/Kyiv
+    volumes:
+      - media_volume:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "==> waiting for DB"
+        python - <<'PY'
+        import os, time, sys
+        import psycopg2
+        url = os.environ.get("DATABASE_URL", "").strip()
+        for _ in range(30):
+            try:
+                psycopg2.connect(url)
+                print("DB ready")
+                break
+            except psycopg2.OperationalError:
+                time.sleep(2)
+        else:
+            sys.exit(1)
+        PY
+        while true; do
+          echo "==> sync_dntrade $(date -Iseconds)"
+          python manage.py sync_dntrade || echo "WARN: sync_dntrade failed"
+          echo "==> next run in 24h"
+          sleep 86400
+        done
+
 volumes:
   postgres_data:
   static_volume:
