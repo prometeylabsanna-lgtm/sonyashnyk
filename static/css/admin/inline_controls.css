@@ -47,3 +47,38 @@
 .inline-related td.delete > div:hover {
   background: #fee2e2;
 }
+
+/* Компактні числові колонки варіантів — менше горизонтального скролу */
+.inline-group .field-price input,
+.inline-group .field-old_price input,
+.inline-group .field-stock_qty input,
+.inline-group .field-max_per_order input {
+  width: 5.25rem;
+  max-width: 5.25rem;
+  min-width: 4.5rem;
+}
+
+.inline-group .field-sku_variant input {
+  width: 7.5rem;
+  max-width: 7.5rem;
+}
+
+.inline-group .field-label input,
+.inline-group .field-label_ru input {
+  width: 8.5rem;
+  max-width: 9.5rem;
+}
+
+.inline-group .field-is_default {
+  min-width: 4.5rem;
+  text-align: center;
+}
+
+.inline-group .tabular th.column-price,
+.inline-group .tabular th.column-old_price,
+.inline-group .tabular th.column-stock_qty,
+.inline-group .tabular th.column-max_per_order,
+.inline-group .tabular th.column-is_default {
+  white-space: normal;
+  max-width: 6.5rem;
+}

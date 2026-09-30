@@ -64,6 +64,20 @@
     );
   }
 
+  function syncTableHeader(cell, lang) {
+    if (!cell || cell.tagName !== "TD") return;
+    var tr = cell.parentElement;
+    var table = cell.closest("table");
+    if (!tr || !table) return;
+    var idx = Array.prototype.indexOf.call(tr.children, cell);
+    if (idx < 0) return;
+    table.querySelectorAll("thead tr").forEach(function (headRow) {
+      var th = headRow.children[idx];
+      if (!th) return;
+      th.setAttribute("data-admin-lang", lang);
+    });
+  }
+
   function markPairs(root) {
     // Старий баг: TR інлайну отримував data-admin-lang і ховався цілком
     root.querySelectorAll("tr[data-admin-lang], tbody[data-admin-lang]").forEach(function (node) {
@@ -84,6 +98,7 @@
       var ruRow = closestRow(el);
       if (ruRow && ruRow.tagName !== "TR" && !ruRow.getAttribute("data-admin-lang")) {
         ruRow.setAttribute("data-admin-lang", "ru");
+        syncTableHeader(ruRow, "ru");
       }
       var ukName = ukNameFromRu(name);
       var ukEl =
@@ -98,6 +113,7 @@
           !ukRow.getAttribute("data-admin-lang")
         ) {
           ukRow.setAttribute("data-admin-lang", "uk");
+          syncTableHeader(ukRow, "uk");
         }
       }
     });

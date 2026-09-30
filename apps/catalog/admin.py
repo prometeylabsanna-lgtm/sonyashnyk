@@ -28,7 +28,7 @@ from . import filter_admin  # noqa: E402,F401
 class CategoryLevelAdmin(ImagePreviewMixin, TopDropdownFiltersMixin, ModelAdmin):
     """Спільна база для рівнів меню."""
 
-    list_display = ("name", "erp_name", "parent", "order", "is_active", "icon_thumb")
+    list_display = ("icon_thumb", "name", "erp_name", "parent", "order", "is_active")
     list_filter = (("is_active", CleanBooleanDropdownFilter),)
     list_filter_options = horizontal_options_for(list_filter)
     search_fields = ("name", "erp_name", "slug")
@@ -93,7 +93,7 @@ class RootCategoryAdmin(CategoryLevelAdmin):
     form = RootCategoryForm
     for_nav_preview = True
     category_level = 1
-    list_display = ("name", "erp_name", "order", "is_active", "icon_thumb")
+    list_display = ("icon_thumb", "name", "erp_name", "order", "is_active")
     fields = (
         "level_hint",
         "name", "name_ru", "erp_name", "slug",
@@ -174,12 +174,41 @@ class CategoryAdmin(CategoryLevelAdmin):
 class ProductVariantInline(TabularInline):
     model = ProductVariant
     extra = 1
+    # label_ru ховається вкладкою RU (заголовок синхронізується в lang_tabs.js).
+    # order / DNTrade прибрані — менше скролу; DNTrade лишається на картці товару.
     fields = (
-        "label", "label_ru", "sku_variant", "price", "old_price",
-        "stock_qty", "max_per_order", "is_default", "order",
-        "dntrade_product_id", "dntrade_code",
+        "label",
+        "label_ru",
+        "sku_variant",
+        "price",
+        "old_price",
+        "stock_qty",
+        "max_per_order",
+        "is_default",
     )
-    readonly_fields = ("dntrade_product_id", "dntrade_code")
+    ordering = ("order", "id")
+    verbose_name = "Варіант"
+    verbose_name_plural = "Варіанти товару"
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if formfield is None:
+            return None
+        short_labels = {
+            "label": "Назва",
+            "label_ru": "Назва (RU)",
+            "sku_variant": "Код",
+            "price": "Ціна",
+            "old_price": "Стара",
+            "stock_qty": "Залишок",
+            "max_per_order": "Макс./зам.",
+            "is_default": "За замовч.",
+        }
+        if db_field.name in short_labels:
+            formfield.label = short_labels[db_field.name]
+        if db_field.name == "max_per_order":
+            formfield.help_text = "Порожньо — без ліміту."
+        return formfield
 
 
 class ProductImageInline(TabularInline):
@@ -288,25 +317,25 @@ class ProductAdmin(TopDropdownFiltersMixin, ModelAdmin):
 
     @admin.display(description="")
     def image_thumb(self, obj):
-        image = None
+        """Те саме джерело, що й картка на сайті: перше ProductImage.image."""
+        url = None
         for item in obj.images.all():
-            if not item.image:
+            field = getattr(item, "image", None)
+            name = getattr(field, "name", "") if field else ""
+            if not name:
                 continue
             try:
-                if item.image.storage.exists(item.image.name):
-                    image = item.image
-                    break
+                url = field.url
             except Exception:
                 continue
-        if not image:
-            return "—"
-        try:
-            url = image.url
-        except Exception:
+            if url:
+                break
+        if not url:
             return "—"
         return format_html(
             '<img src="{}" alt="" width="40" height="40" '
             'class="admin-product-thumb" '
+            'loading="lazy" decoding="async" '
             'style="width:40px;height:40px;object-fit:cover;'
             'border-radius:4px;background:#f3f4f6;display:block">',
             url,

@@ -1,6 +1,7 @@
 """Форми адмінки каталогу."""
 
 from django import forms
+from unfold.widgets import UnfoldAdminSelectWidget
 
 from apps.core.admin_site_content_widgets import CmsTinyMCEWidget
 from .admin_widgets import CharacteristicsKeyValueWidget
@@ -54,7 +55,7 @@ class ProductAdminForm(forms.ModelForm):
         for cf in self._catalog_filters:
             fname = _attr_field_name(cf.slug)
             current = current_by_slug.get(cf.slug, "")
-            choices = [("", "—")]
+            choices = [("", "Оберіть…")]
             seen = set()
             for value in (
                 CatalogFilterValue.objects.filter(catalog_filter=cf, is_active=True)
@@ -71,6 +72,7 @@ class ProductAdminForm(forms.ModelForm):
                 choices=choices,
                 initial=current,
                 help_text="Значення з довідника «Фільтри».",
+                widget=UnfoldAdminSelectWidget,
             )
 
         # Старі CharField ховаємо — керування через attr_*
