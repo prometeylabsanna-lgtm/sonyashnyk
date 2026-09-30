@@ -4,6 +4,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.db.models import (
     DecimalField,
+    Exists,
     F,
     IntegerField,
     OuterRef,
@@ -18,7 +19,7 @@ from django.db.models.functions import Coalesce
 from .category_tree import category_allows_catalog_filter
 from .category_tree import pack_unit_kind
 from .filter_models import CatalogFilter, CatalogFilterValue
-from .models import ProductVariant
+from .models import ProductImage, ProductVariant
 
 SORT_OPTIONS = {
     "popularity": ("-sold_qty", "-is_hit", "-id"),
@@ -165,11 +166,22 @@ def filter_products(request, products, *, skip_slugs=None):
     return products
 
 
+def annotate_has_image(products):
+    """Товари з реальним файлом фото — вище в «популярності»."""
+    return products.annotate(
+        has_image=Exists(
+            ProductImage.objects.filter(product_id=OuterRef("pk")).exclude(image="")
+        )
+    )
+
+
 def apply_sorting(request, products):
     sort_key = request.GET.get("sort", "popularity")
     order_fields = SORT_OPTIONS.get(sort_key, SORT_OPTIONS["popularity"])
     if sort_key == "popularity" or sort_key not in SORT_OPTIONS:
         products = annotate_sold_qty(products)
+        products = annotate_has_image(products)
+        return products.order_by("-has_image", *order_fields)
     return products.order_by(*order_fields)
 
 
