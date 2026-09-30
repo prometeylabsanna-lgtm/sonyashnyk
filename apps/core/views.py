@@ -68,6 +68,21 @@ def home(request):
             "featured_review": featured_review,
             "side_reviews": side_reviews,
         }
+        # Після імпорту з DNTrade прапорців хіт/новинка може не бути —
+        # показуємо свіжі товари в наявності, щоб головна не була порожньою.
+        if not context["hit_products"]:
+            context["hit_products"] = list(
+                Product.objects.filter(is_active=True, variants__stock_qty__gt=0)
+                .for_cards()
+                .distinct()
+                .order_by("-updated_at")[:8]
+            )
+        if not context["new_products"]:
+            context["new_products"] = list(
+                Product.objects.filter(is_active=True)
+                .for_cards()
+                .order_by("-created_at")[:8]
+            )
         return render(request, "core/home.html", context)
     except (OperationalError, ProgrammingError):
         reset_database_reachable_cache()

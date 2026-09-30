@@ -53,6 +53,11 @@ class Command(BaseCommand):
             help="Не завантажувати фото.",
         )
         parser.add_argument(
+            "--force-images",
+            action="store_true",
+            help="Перекачати всі фото, навіть якщо URL не змінились.",
+        )
+        parser.add_argument(
             "--purge-missing",
             action="store_true",
             help="Видалити з сайту DNTrade-товари, яких немає в поточному імпорті.",
@@ -79,6 +84,7 @@ class Command(BaseCommand):
             f"limit={options['limit']}, offset={options['offset']}, "
             f"dry_run={options['dry_run']}, "
             f"skip_images={options['skip_images']}, "
+            f"force_images={options['force_images']}, "
             f"purge_missing={options['purge_missing']})"
         )
 
@@ -90,6 +96,7 @@ class Command(BaseCommand):
                 limit=options["limit"],
                 offset=options["offset"],
                 skip_images=options["skip_images"],
+                force_images=options["force_images"],
                 purge_missing=options["purge_missing"],
                 progress=lambda msg: self.stdout.write(f"  … {msg}"),
             )

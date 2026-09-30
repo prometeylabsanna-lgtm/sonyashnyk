@@ -58,6 +58,7 @@ def sync_catalog(
     limit: int | None = None,
     offset: int = 0,
     skip_images: bool = False,
+    force_images: bool = False,
     purge_missing: bool = False,
     progress=None,
 ) -> DntradeSyncStats:
@@ -145,6 +146,7 @@ def sync_catalog(
                 stats=stats,
                 dry_run=dry_run,
                 skip_images=skip_images,
+                force_images=force_images,
             )
         except Exception as exc:
             msg = f"{payload.get('code')}/{payload.get('sku')}: {exc}"
@@ -194,6 +196,7 @@ def _sync_root_product(
     stats: DntradeSyncStats,
     dry_run: bool,
     skip_images: bool,
+    force_images: bool = False,
 ) -> None:
     title = (payload.get("title") or "").strip()
     if not title:
@@ -259,7 +262,9 @@ def _sync_root_product(
         stats.variants_upserted += 1
 
     if not skip_images:
-        stats.images_downloaded += sync_product_images(product, payload, dry_run=False)
+        stats.images_downloaded += sync_product_images(
+            product, payload, dry_run=False, force=force_images,
+        )
 
 
 def _upsert_product(
@@ -278,7 +283,13 @@ def _upsert_product(
     product = _find_product(product_id=product_id, sku=sku, code=code)
     created = product is None
     if created:
-        product = Product(sku=_unique_sku(sku), category=category, base_price=price, name=title)
+        product = Product(
+            sku=_unique_sku(sku),
+            category=category,
+            base_price=price,
+            name=title,
+            is_new=True,
+        )
 
     product.dntrade_product_id = product_id or product.dntrade_product_id
     product.dntrade_code = code

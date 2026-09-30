@@ -10,6 +10,7 @@ from io import BytesIO
 from pathlib import Path
 
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.db import transaction
 from PIL import Image
 
@@ -33,13 +34,32 @@ def collect_image_urls(product_payload: dict) -> list[str]:
     return urls
 
 
-def sync_product_images(product: Product, product_payload: dict, *, dry_run: bool = False) -> int:
-    """Повна заміна фото, якщо набір URL змінився. Повертає кількість завантажених."""
+def _image_file_missing(img: ProductImage) -> bool:
+    name = getattr(img.image, "name", "") or ""
+    if not name:
+        return True
+    try:
+        return not default_storage.exists(name)
+    except Exception:
+        return True
+
+
+def sync_product_images(
+    product: Product,
+    product_payload: dict,
+    *,
+    dry_run: bool = False,
+    force: bool = False,
+) -> int:
+    """Оновлює фото. Перекачує, якщо URL змінились, файлів немає на диску, або force=True."""
     urls = collect_image_urls(product_payload)
     existing = list(product.images.order_by("order", "id"))
     existing_urls = [img.source_url for img in existing if img.source_url]
+    missing_files = any(_image_file_missing(img) for img in existing)
 
-    if existing_urls == urls:
+    if not force and existing_urls == urls and urls and not missing_files:
+        return 0
+    if not force and not urls and not existing:
         return 0
 
     if dry_run:
