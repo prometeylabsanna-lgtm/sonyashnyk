@@ -122,6 +122,7 @@ def render_cms_rich(value: str) -> str:
     text = value.replace("\r\n", "\n").replace("\r", "\n").strip()
     if not text:
         return ""
+    text = _normalize_cms_markup(text)
     if _TAG_RE.search(text):
         return sanitize_cms_html(text)
     parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
@@ -137,6 +138,18 @@ def render_cms_rich(value: str) -> str:
         if escaped:
             out.append(f"<p>{escaped}</p>")
     return "".join(out)
+
+
+def _normalize_cms_markup(text: str) -> str:
+    """Повертає справжні теги, якщо TinyMCE/адмінка зберегла &lt;p&gt; замість <p>."""
+    if _TAG_RE.search(text):
+        return text
+    if "&lt;" not in text or not re.search(r"&lt;/?[a-zA-Z]", text):
+        return text
+    unescaped = html.unescape(text)
+    if _TAG_RE.search(unescaped):
+        return unescaped
+    return text
 
 
 _SENTENCE_SPLIT_RE = re.compile(

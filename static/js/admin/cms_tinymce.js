@@ -36,9 +36,17 @@
     return parts.length ? parts : [text];
   }
 
+  function unescapeEntities(text) {
+    var raw = String(text || "");
+    if (!/&lt;\/?[a-z]/i.test(raw)) return raw;
+    var el = document.createElement("textarea");
+    el.innerHTML = raw;
+    return el.value;
+  }
+
   /** Звичайний текст → HTML з <p>. Порожні рядки / речення → окремі абзаци. */
   function plainToHtml(raw) {
-    var text = String(raw || "")
+    var text = unescapeEntities(raw)
       .replace(/\r\n/g, "\n")
       .replace(/\r/g, "\n")
       .trim();
