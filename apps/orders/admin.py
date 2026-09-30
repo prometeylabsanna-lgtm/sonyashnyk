@@ -53,6 +53,7 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
     readonly_fields = (
         "order_number", "subtotal", "discount_total", "total", "shipping_is_free", "created_at",
         "np_city_ref", "np_warehouse_ref", "stock_released",
+        "monopay_invoice_id", "monopay_invoice_at",
     )
     inlines = [OrderItemInline]
     list_per_page = 40
@@ -65,7 +66,8 @@ class OrderAdmin(TopDropdownFiltersMixin, ModelAdmin):
             "shipping_is_free",
         )}),
         ("Оплата", {"fields": (
-            "payment_method", "payment_status", "stock_released", "promo_code",
+            "payment_method", "payment_status", "stock_released",
+            "monopay_invoice_id", "monopay_invoice_at", "promo_code",
             "subtotal", "discount_total", "total",
         )}),
         ("Статус", {"fields": (

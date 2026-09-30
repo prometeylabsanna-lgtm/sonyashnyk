@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
+from django.utils import timezone
+
 from apps.catalog.models import ProductVariant
 
 from . import monopay
@@ -22,7 +24,7 @@ from .models import Order
 from .nova_poshta import is_configured as np_is_configured
 from .nova_poshta import search_cities, search_warehouses
 from .promo import apply_promo_code, clear_session_promo_code, resolve_promo
-from .stock import InsufficientStock, maybe_expire_order, release_order_stock, rereserve_order_stock
+from .stock import InsufficientStock, apply_monopay_status, maybe_expire_order, rereserve_order_stock
 
 
 def _safe_next(raw: str | None, fallback: str) -> str:
@@ -288,6 +290,10 @@ def pay(request, order_number):
         messages.error(request, "Не вдалося створити оплату Monobank. Спробуйте ще раз.")
         return redirect(order_url("orders_checkout:thank_you", order))
 
+    order.monopay_invoice_id = invoice["invoice_id"]
+    order.monopay_invoice_at = timezone.now()
+    order.save(update_fields=["monopay_invoice_id", "monopay_invoice_at"])
+
     return render(request, "orders/monopay_redirect.html", {
         "order": order,
         "page_url": invoice["page_url"],
@@ -319,23 +325,16 @@ def monopay_callback(request):
     if not order:
         return HttpResponseBadRequest("order not found")
 
-    mapped = monopay.map_status(payload.get("status", ""))
-    if mapped == Order.PaymentStatus.PAID:
-        if not monopay.amount_matches_order(payload, order):
-            return HttpResponseBadRequest("amount mismatch")
-        if order.payment_status != Order.PaymentStatus.PAID:
-            order.payment_status = mapped
-            order.save(update_fields=["payment_status"])
-    elif mapped == Order.PaymentStatus.REFUNDED:
-        order.payment_status = mapped
-        order.save(update_fields=["payment_status"])
-        release_order_stock(order)
-    elif mapped == Order.PaymentStatus.FAILED:
-        if order.payment_status != Order.PaymentStatus.PAID:
-            order.payment_status = mapped
-            order.save(update_fields=["payment_status"])
-            release_order_stock(order)
+    invoice_id = (payload.get("invoiceId") or "").strip()
+    if invoice_id and invoice_id != order.monopay_invoice_id:
+        order.monopay_invoice_id = invoice_id
+        order.save(update_fields=["monopay_invoice_id"])
 
+    mapped = monopay.map_status(payload.get("status", ""))
+    if mapped == Order.PaymentStatus.PAID and not monopay.amount_matches_order(payload, order):
+        return HttpResponseBadRequest("amount mismatch")
+
+    apply_monopay_status(order, payload.get("status", ""), payload=payload)
     return HttpResponse("ok")
 
 

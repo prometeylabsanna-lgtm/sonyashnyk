@@ -7,6 +7,7 @@ import hashlib
 import json
 import logging
 import urllib.error
+import urllib.parse
 import urllib.request
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 API_BASE = "https://api.monobank.ua"
 CREATE_INVOICE_URL = f"{API_BASE}/api/merchant/invoice/create"
+STATUS_INVOICE_URL = f"{API_BASE}/api/merchant/invoice/status"
 PUBKEY_URL = f"{API_BASE}/api/merchant/pubkey"
 CCY_UAH = 980
 REQUEST_TIMEOUT = 20
@@ -38,6 +40,11 @@ class MonopayError(Exception):
 
 def is_configured() -> bool:
     return bool((getattr(settings, "MONOPAY_TOKEN", "") or "").strip())
+
+
+def invoice_validity_seconds() -> int:
+    minutes = max(1, int(getattr(settings, "MONOPAY_STOCK_RESERVE_MINUTES", 15) or 15))
+    return minutes * 60
 
 
 def _site_url() -> str:
@@ -103,6 +110,7 @@ def create_invoice(order) -> dict[str, str]:
     payload = {
         "amount": amount_to_kopiyky(order.total),
         "ccy": CCY_UAH,
+        "validity": invoice_validity_seconds(),
         "merchantPaymInfo": {
             "reference": order.order_number,
             "destination": f"Замовлення {order.order_number} — Соняшник",
@@ -117,6 +125,15 @@ def create_invoice(order) -> dict[str, str]:
     if not invoice_id or not page_url:
         raise MonopayError("Monopay не повернув invoiceId/pageUrl")
     return {"invoice_id": invoice_id, "page_url": page_url}
+
+
+def get_invoice_status(invoice_id: str) -> dict[str, Any]:
+    """GET /api/merchant/invoice/status — потрібно, бо webhook НЕ приходить на expired."""
+    invoice_id = (invoice_id or "").strip()
+    if not invoice_id:
+        raise MonopayError("Порожній invoiceId")
+    url = f"{STATUS_INVOICE_URL}?invoiceId={urllib.parse.quote(invoice_id)}"
+    return _api_request("GET", url)
 
 
 def fetch_pubkey_pem() -> str:

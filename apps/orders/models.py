@@ -54,6 +54,8 @@ class Order(models.Model):
         default=False,
         help_text="True після повернення резерву (невдала / прострочена / refunded оплата).",
     )
+    monopay_invoice_id = models.CharField("Monopay invoiceId", max_length=64, blank=True, default="")
+    monopay_invoice_at = models.DateTimeField("Monopay інвойс створено", null=True, blank=True)
     status = models.CharField("Статус замовлення", max_length=16, choices=Status.choices, default=Status.NEW)
 
     comment = models.TextField("Коментар до замовлення", blank=True)

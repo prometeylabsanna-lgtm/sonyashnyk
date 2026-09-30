@@ -140,6 +140,9 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(pay_page.status_code, 200)
         self.assertContains(pay_page, "https://pay.mbnk.biz/test")
         mock_create.assert_called_once()
+        order.refresh_from_db()
+        self.assertEqual(order.monopay_invoice_id, "inv-1")
+        self.assertIsNotNone(order.monopay_invoice_at)
 
     def test_monopay_without_token_redirects_thank_you(self):
         self._add_to_cart()
@@ -384,7 +387,7 @@ class MonopayCallbackTests(TestCase):
         self.assertEqual(self.variant.stock_qty, 1)
 
 
-@override_settings(MONOPAY_STOCK_RESERVE_MINUTES=60)
+@override_settings(MONOPAY_STOCK_RESERVE_MINUTES=15)
 class StockReleaseTests(TestCase):
     def setUp(self):
         cat = Category.objects.create(name="Кат", slug="cat-rel")
@@ -402,6 +405,7 @@ class StockReleaseTests(TestCase):
             payment_status=Order.PaymentStatus.PENDING,
             subtotal=Decimal("20.00"),
             total=Decimal("20.00"),
+            monopay_invoice_id="inv-rel",
         )
         OrderItem.objects.create(
             order=self.order,
@@ -428,10 +432,11 @@ class StockReleaseTests(TestCase):
         from django.utils import timezone
 
         Order.objects.filter(pk=self.order.pk).update(
-            created_at=timezone.now() - timedelta(minutes=61),
+            created_at=timezone.now() - timedelta(minutes=16),
+            monopay_invoice_at=timezone.now() - timedelta(minutes=16),
         )
         self.order.refresh_from_db()
-        self.assertEqual(release_stale_monopay_orders(minutes=60), 1)
+        self.assertEqual(release_stale_monopay_orders(minutes=15), 1)
         self.order.refresh_from_db()
         self.variant.refresh_from_db()
         self.assertTrue(self.order.stock_released)
@@ -454,6 +459,24 @@ class StockReleaseTests(TestCase):
         self.assertFalse(self.order.stock_released)
         self.assertEqual(self.order.payment_status, Order.PaymentStatus.PENDING)
         self.assertEqual(self.variant.stock_qty, 0)
+
+    @patch("apps.orders.monopay.get_invoice_status")
+    @patch("apps.orders.monopay.is_configured", return_value=True)
+    def test_sync_expired_releases_stock(self, _cfg, mock_status):
+        from apps.orders.stock import sync_order_from_monopay
+
+        mock_status.return_value = {
+            "invoiceId": "inv-rel",
+            "status": "expired",
+            "amount": 2000,
+            "ccy": 980,
+        }
+        self.assertTrue(sync_order_from_monopay(self.order))
+        self.order.refresh_from_db()
+        self.variant.refresh_from_db()
+        self.assertEqual(self.order.payment_status, Order.PaymentStatus.FAILED)
+        self.assertTrue(self.order.stock_released)
+        self.assertEqual(self.variant.stock_qty, 2)
 
 
 class ZeroPriceAndLimitTests(TestCase):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 
 from django.conf import settings
@@ -9,6 +10,8 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.catalog.models import ProductVariant
+
+logger = logging.getLogger(__name__)
 
 
 class InsufficientStock(Exception):
@@ -56,7 +59,11 @@ def reserve_stock_for_items(cart_items: list[dict]) -> None:
 
 
 def reserve_minutes() -> int:
-    return max(1, int(getattr(settings, "MONOPAY_STOCK_RESERVE_MINUTES", 60) or 60))
+    return max(1, int(getattr(settings, "MONOPAY_STOCK_RESERVE_MINUTES", 15) or 15))
+
+
+def _reserve_anchor(order):
+    return order.monopay_invoice_at or order.created_at
 
 
 @transaction.atomic
@@ -128,29 +135,96 @@ def rereserve_order_stock(order) -> None:
     locked.save(update_fields=["stock_released", "payment_status"])
 
 
-def release_stale_monopay_orders(*, minutes: int | None = None) -> int:
-    """Pending Monopay старші за N хв → failed + повернення залишку. Повертає кількість."""
+def apply_monopay_status(order, mono_status: str, *, payload: dict | None = None) -> bool:
+    """Застосовує статус Mono до замовлення. True якщо щось змінилось."""
+    from . import monopay
     from .models import Order
 
-    cutoff = timezone.now() - timedelta(minutes=minutes if minutes is not None else reserve_minutes())
-    stale_ids = list(
+    mapped = monopay.map_status(mono_status)
+    if mapped is None:
+        return False
+
+    if mapped == Order.PaymentStatus.PAID:
+        if payload is not None and not monopay.amount_matches_order(payload, order):
+            return False
+        if order.payment_status == Order.PaymentStatus.PAID:
+            return False
+        order.payment_status = mapped
+        order.save(update_fields=["payment_status"])
+        return True
+
+    if mapped == Order.PaymentStatus.REFUNDED:
+        if order.payment_status == Order.PaymentStatus.REFUNDED and order.stock_released:
+            return False
+        order.payment_status = mapped
+        order.save(update_fields=["payment_status"])
+        release_order_stock(order)
+        return True
+
+    if mapped == Order.PaymentStatus.FAILED:
+        if order.payment_status == Order.PaymentStatus.PAID:
+            return False
+        if order.payment_status == Order.PaymentStatus.FAILED and order.stock_released:
+            return False
+        order.payment_status = mapped
+        order.save(update_fields=["payment_status"])
+        release_order_stock(order)
+        return True
+
+    return False
+
+
+def sync_order_from_monopay(order) -> bool:
+    """Poll статусу інвойсу (критично: Mono не шле webhook на expired)."""
+    from . import monopay
+    from .models import Order
+
+    if order.payment_method != Order.PaymentMethod.MONOPAY:
+        return False
+    if order.payment_status not in (
+        Order.PaymentStatus.PENDING,
+        Order.PaymentStatus.FAILED,
+    ):
+        return False
+    if not order.monopay_invoice_id or not monopay.is_configured():
+        return False
+    try:
+        data = monopay.get_invoice_status(order.monopay_invoice_id)
+    except monopay.MonopayError as exc:
+        logger.info("Monopay status sync skip %s: %s", order.order_number, exc)
+        return False
+    return apply_monopay_status(order, data.get("status", ""), payload=data)
+
+
+def release_stale_monopay_orders(*, minutes: int | None = None) -> int:
+    """Pending Monopay: poll Mono + TTL → failed + повернення залишку."""
+    from .models import Order
+
+    mins = minutes if minutes is not None else reserve_minutes()
+    cutoff = timezone.now() - timedelta(minutes=mins)
+    pending = list(
         Order.objects.filter(
             payment_method=Order.PaymentMethod.MONOPAY,
             payment_status=Order.PaymentStatus.PENDING,
             stock_released=False,
-            created_at__lt=cutoff,
-        ).values_list("pk", flat=True)
+        ).order_by("id")[:200]
     )
     released = 0
-    for pk in stale_ids:
-        order = Order.objects.get(pk=pk)
-        if release_order_stock(order, mark_failed=True):
-            released += 1
+    for order in pending:
+        if sync_order_from_monopay(order):
+            order.refresh_from_db()
+            if order.stock_released or order.payment_status != Order.PaymentStatus.PENDING:
+                released += 1
+                continue
+        anchor = _reserve_anchor(order)
+        if anchor and anchor < cutoff:
+            if release_order_stock(order, mark_failed=True):
+                released += 1
     return released
 
 
 def maybe_expire_order(order) -> bool:
-    """Якщо Monopay pending і прострочений — повернути залишок. Інакше False."""
+    """Poll Mono + TTL для pending Monopay. True якщо статус/залишок змінено."""
     from .models import Order
 
     if order.payment_method != Order.PaymentMethod.MONOPAY:
@@ -159,7 +233,14 @@ def maybe_expire_order(order) -> bool:
         return False
     if order.stock_released:
         return False
-    age = timezone.now() - order.created_at
-    if age < timedelta(minutes=reserve_minutes()):
+
+    if sync_order_from_monopay(order):
+        order.refresh_from_db()
+        return True
+
+    anchor = _reserve_anchor(order)
+    if not anchor:
+        return False
+    if timezone.now() - anchor < timedelta(minutes=reserve_minutes()):
         return False
     return release_order_stock(order, mark_failed=True)
