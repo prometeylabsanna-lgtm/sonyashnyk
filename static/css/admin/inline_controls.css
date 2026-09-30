@@ -68,15 +68,9 @@
   max-width: 9.5rem;
 }
 
-.inline-group .field-is_default {
-  min-width: 4.5rem;
-  text-align: center;
-}
-
 .inline-group .tabular th.column-price,
 .inline-group .tabular th.column-old_price,
-.inline-group .tabular th.column-stock_qty,
-.inline-group .tabular th.column-is_default {
+.inline-group .tabular th.column-stock_qty {
   white-space: normal;
   max-width: 6.5rem;
 }

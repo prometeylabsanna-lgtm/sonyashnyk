@@ -103,11 +103,6 @@ def place_order(request, form) -> Order:
             raise CheckoutError(
                 f"«{variant.product.name}» ({variant.label}) недоступний для замовлення (ціна)."
             )
-        if variant.max_per_order is not None and qty > variant.max_per_order:
-            raise CheckoutError(
-                f"Максимум {variant.max_per_order} шт. «{variant.product.name}» "
-                f"({variant.label}) в одному замовленні."
-            )
         if variant.stock_qty < qty:
             raise InsufficientStock(
                 f"Недостатньо «{variant.product.name}» ({variant.label}): "

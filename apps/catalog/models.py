@@ -316,12 +316,6 @@ class ProductVariant(models.Model):
     price = models.DecimalField("Ціна", max_digits=10, decimal_places=2)
     old_price = models.DecimalField("Стара ціна", max_digits=10, decimal_places=2, blank=True, null=True)
     stock_qty = models.PositiveIntegerField("Залишок", default=0)
-    max_per_order = models.PositiveIntegerField(
-        "Макс. шт. в одному замовленні",
-        null=True,
-        blank=True,
-        help_text="Порожньо — без ліміту («в одні руки»).",
-    )
     is_default = models.BooleanField("Варіант за замовчуванням", default=False)
     order = models.PositiveIntegerField("Порядок", default=0)
 

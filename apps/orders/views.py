@@ -92,12 +92,6 @@ def cart_add(request):
     cart = Cart(request)
     current = int(cart.cart.get(str(variant.id), 0) or 0)
     desired = current + quantity
-    if variant.max_per_order is not None and desired > variant.max_per_order:
-        msg = f"Максимум {variant.max_per_order} шт. в одному замовленні."
-        if request.headers.get("x-requested-with") == "fetch":
-            return JsonResponse({"ok": False, "error": msg}, status=400)
-        messages.error(request, msg)
-        return redirect(next_url)
     if desired > variant.stock_qty:
         msg = f"Недостатньо на складі: доступно {variant.stock_qty} шт."
         if request.headers.get("x-requested-with") == "fetch":
@@ -132,12 +126,6 @@ def cart_update(request, variant_id):
     )
     if quantity > 0 and variant.price <= 0:
         msg = "Цей товар зараз недоступний для замовлення."
-        if request.headers.get("x-requested-with") == "fetch":
-            return JsonResponse({"ok": False, "error": msg}, status=400)
-        messages.error(request, msg)
-        return redirect(reverse("orders_cart:page"))
-    if quantity > 0 and variant.max_per_order is not None and quantity > variant.max_per_order:
-        msg = f"Максимум {variant.max_per_order} шт. в одному замовленні."
         if request.headers.get("x-requested-with") == "fetch":
             return JsonResponse({"ok": False, "error": msg}, status=400)
         messages.error(request, msg)

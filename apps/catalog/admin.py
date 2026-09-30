@@ -184,7 +184,6 @@ class ProductVariantInline(TabularInline):
         "price",
         "old_price",
         "stock_qty",
-        "is_default",
     )
     ordering = ("order", "id")
     verbose_name = "Варіант"
@@ -201,7 +200,6 @@ class ProductVariantInline(TabularInline):
             "price": "Ціна",
             "old_price": "Стара",
             "stock_qty": "Залишок",
-            "is_default": "За замовч.",
         }
         if db_field.name in short_labels:
             formfield.label = short_labels[db_field.name]

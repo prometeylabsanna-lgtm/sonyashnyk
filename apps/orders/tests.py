@@ -355,13 +355,6 @@ class ZeroPriceAndLimitTests(TestCase):
         self.free_v = ProductVariant.objects.create(
             product=self.free, label="1", price=Decimal("0"), stock_qty=5, is_default=True,
         )
-        self.limited = Product.objects.create(
-            category=cat, sku="SKU-LIM", name="Ліміт", base_price=Decimal("50.00"),
-        )
-        self.limited_v = ProductVariant.objects.create(
-            product=self.limited, label="1", price=Decimal("50.00"), stock_qty=10,
-            max_per_order=2, is_default=True,
-        )
         self.client = Client()
 
     def test_zero_price_rejected(self):
@@ -372,21 +365,6 @@ class ZeroPriceAndLimitTests(TestCase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(self.client.session.get("cart", {}), {})
-
-    def test_max_per_order_enforced(self):
-        ok = self.client.post(
-            reverse("orders_cart:add"),
-            {"variant_id": self.limited_v.id, "quantity": 2},
-            HTTP_X_REQUESTED_WITH="fetch",
-        )
-        self.assertEqual(ok.status_code, 200)
-        over = self.client.post(
-            reverse("orders_cart:add"),
-            {"variant_id": self.limited_v.id, "quantity": 1},
-            HTTP_X_REQUESTED_WITH="fetch",
-        )
-        self.assertEqual(over.status_code, 400)
-        self.assertEqual(self.client.session["cart"][str(self.limited_v.id)], 2)
 
 
 class PaymentStatusEndpointTests(TestCase):
