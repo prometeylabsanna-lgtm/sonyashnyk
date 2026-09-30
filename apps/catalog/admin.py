@@ -184,7 +184,6 @@ class ProductVariantInline(TabularInline):
         "price",
         "old_price",
         "stock_qty",
-        "max_per_order",
         "is_default",
     )
     ordering = ("order", "id")
@@ -202,13 +201,10 @@ class ProductVariantInline(TabularInline):
             "price": "Ціна",
             "old_price": "Стара",
             "stock_qty": "Залишок",
-            "max_per_order": "Макс./зам.",
             "is_default": "За замовч.",
         }
         if db_field.name in short_labels:
             formfield.label = short_labels[db_field.name]
-        if db_field.name == "max_per_order":
-            formfield.help_text = "Порожньо — без ліміту."
         return formfield
 
 

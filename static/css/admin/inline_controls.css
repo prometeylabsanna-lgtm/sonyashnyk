@@ -51,8 +51,7 @@
 /* Компактні числові колонки варіантів — менше горизонтального скролу */
 .inline-group .field-price input,
 .inline-group .field-old_price input,
-.inline-group .field-stock_qty input,
-.inline-group .field-max_per_order input {
+.inline-group .field-stock_qty input {
   width: 5.25rem;
   max-width: 5.25rem;
   min-width: 4.5rem;
@@ -77,7 +76,6 @@
 .inline-group .tabular th.column-price,
 .inline-group .tabular th.column-old_price,
 .inline-group .tabular th.column-stock_qty,
-.inline-group .tabular th.column-max_per_order,
 .inline-group .tabular th.column-is_default {
   white-space: normal;
   max-width: 6.5rem;
