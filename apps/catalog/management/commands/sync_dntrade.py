@@ -3,8 +3,8 @@
 Приклади:
   python3 manage.py sync_dntrade --list-stores
   python3 manage.py sync_dntrade --dry-run --limit 20
-  python3 manage.py sync_dntrade --skip-images
-  python3 manage.py sync_dntrade
+  python3 manage.py sync_dntrade --skip-images --purge-missing   # без фото
+  python3 manage.py sync_dntrade --purge-missing                 # з фото (cron 03:15 Kyiv)
 """
 
 from __future__ import annotations
@@ -13,11 +13,11 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.catalog.dntrade.client import DntradeApiError, DntradeClient
-from apps.catalog.dntrade.sync import sync_catalog
+from apps.catalog.dntrade.sync import DEFAULT_CATALOG_STORE_ID, sync_catalog
 
 
 class Command(BaseCommand):
-    help = "Імпорт товарів / цін / залишків / фото з Navkolo DNTrade."
+    help = "Імпорт товарів / цін / залишків / фото з Navkolo DNTrade (склад Перемоги)."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--store-id",
             default="",
-            help="UUID складу для каталогу (інакше DNTRADE_STORE_ID з .env).",
+            help="UUID складу для каталогу (інакше DNTRADE_STORE_ID / Перемоги 5).",
         )
         parser.add_argument(
             "--limit",
@@ -52,6 +52,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Не завантажувати фото.",
         )
+        parser.add_argument(
+            "--purge-missing",
+            action="store_true",
+            help="Видалити з сайту DNTrade-товари, яких немає в поточному імпорті.",
+        )
 
     def handle(self, *args, **options):
         try:
@@ -63,28 +68,29 @@ class Command(BaseCommand):
             self._print_stores(client)
             return
 
-        store_id = (options["store_id"] or getattr(settings, "DNTRADE_STORE_ID", "") or "").strip()
-        if not store_id:
-            self.stdout.write(self.style.WARNING(
-                "DNTRADE_STORE_ID порожній — товари без store_id часто без категорій. "
-                "Спочатку: python3 manage.py sync_dntrade --list-stores"
-            ))
+        store_id = (
+            options["store_id"]
+            or getattr(settings, "DNTRADE_STORE_ID", "")
+            or DEFAULT_CATALOG_STORE_ID
+        ).strip()
 
         self.stdout.write(
-            f"Старт sync DNTrade (store={store_id or '—'}, "
+            f"Старт sync DNTrade (store={store_id}, "
             f"limit={options['limit']}, offset={options['offset']}, "
             f"dry_run={options['dry_run']}, "
-            f"skip_images={options['skip_images']})"
+            f"skip_images={options['skip_images']}, "
+            f"purge_missing={options['purge_missing']})"
         )
 
         try:
             stats = sync_catalog(
                 client=client,
-                store_id=store_id or None,
+                store_id=store_id,
                 dry_run=options["dry_run"],
                 limit=options["limit"],
                 offset=options["offset"],
                 skip_images=options["skip_images"],
+                purge_missing=options["purge_missing"],
                 progress=lambda msg: self.stdout.write(f"  … {msg}"),
             )
         except DntradeApiError as exc:
@@ -98,6 +104,8 @@ class Command(BaseCommand):
             f"variants={stats.variants_upserted}, "
             f"images={stats.images_downloaded}, "
             f"skipped={stats.skipped}, "
+            f"excluded={stats.skipped_excluded}, "
+            f"purged={stats.purged}, "
             f"errors={len(stats.errors)}"
         ))
         for err in stats.errors[:20]:
@@ -108,18 +116,12 @@ class Command(BaseCommand):
         if not stores:
             self.stdout.write("Складів немає.")
             return
-        self.stdout.write("Склади DNTrade (вкажіть DNTRADE_STORE_ID у .env):")
+        self.stdout.write("Склади DNTrade (DNTRADE_STORE_ID у .env):")
         for store in stores:
             sell = "sell" if store.get("is_sell") else "stock"
             self.stdout.write(
                 f"  {store.get('id')}  |  {store.get('title')}  |  "
                 f"{sell}  |  status={store.get('status')}  |  {store.get('address') or '—'}"
             )
-        current = getattr(settings, "DNTRADE_STORE_ID", "") or ""
-        if current:
-            self.stdout.write(f"\nПоточний DNTRADE_STORE_ID={current}")
-        else:
-            self.stdout.write(
-                "\nРекомендація для каталогу: "
-                "A8C66C69-8DDC-4711-96EC-1D079C3FD303 (Основний)"
-            )
+        current = getattr(settings, "DNTRADE_STORE_ID", "") or DEFAULT_CATALOG_STORE_ID
+        self.stdout.write(f"\nПоточний / дефолт: {current} (Перемоги 5)")

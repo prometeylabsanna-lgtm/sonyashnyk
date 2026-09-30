@@ -1,4 +1,4 @@
-"""Мапінг категорій DNTrade → Category сайту."""
+"""Мапінг категорій DNTrade → Category сайту + фільтр офлайн-груп."""
 
 from __future__ import annotations
 
@@ -10,6 +10,23 @@ from apps.catalog.models import Category
 IMPORT_CATEGORY_NAME = "Імпорт"
 IMPORT_CATEGORY_SLUG = "import"
 
+# Групи з Перемоги, які на сайт не йдуть (офлайн / службові).
+_EXCLUDED_EXACT = {
+    "послуги",
+    "подарунки",
+    "подарунки лоза дерево",
+    "упаковка-фурнітура",
+    "квіти штучні",
+    "декор для дому, подарунки",
+    "пром фас",
+    "пром насіння фас",
+}
+_EXCLUDED_PREFIXES = (
+    "декор",
+    "пром ",
+    "подарунки",
+)
+
 # Відомі розбіжності назв DNTrade ↔ дерево сайту
 _ALIASES: dict[str, str] = {
     "редис та редька": "редис, редька",
@@ -19,7 +36,20 @@ _ALIASES: dict[str, str] = {
     "газон насіння": "газонні трави",
     "квіти насіння": "насіння квітів",
     "насіння квітів": "насіння квітів",
-    "послуги": "імпорт",
+    "овочі насіння": "насіння овочів",
+    "полив крапельний": "полив крапельний",
+    "полив шланги": "шланги",
+    "полив з ч, зєднувачі": "запчастини, зʼєднувані",
+    "полив з\\ч, зєднувачі": "запчастини, зʼєднувані",
+    "грунти": "субстрати",
+    "добрива": "добрива, стимулятори росту",
+    "регулятори росту": "добрива, стимулятори росту",
+    "біо- засоби": "мікробіологічні добрива, біопрепарати",
+    "саджанціі, циб.квіти": "цибулини, бульби квітів",
+    "саджанціі,циб.квіти": "цибулини, бульби квітів",
+    "садова кераміка": "керамічні горщики",
+    "горщики кераміка": "керамічні горщики",
+    "горщики пластмаса": "пластикові горщики",
 }
 
 
@@ -32,6 +62,23 @@ def normalize_category_key(value: str | None) -> str:
     text = re.sub(r"\s+", " ", text).strip()
     text = re.sub(r"\s*,\s*", ", ", text)
     return text
+
+
+def category_title_from_payload(dntrade_category: dict | None) -> str:
+    if isinstance(dntrade_category, dict):
+        return (dntrade_category.get("title") or "").strip()
+    return ""
+
+
+def is_excluded_category(dntrade_category: dict | None) -> bool:
+    """True — групу не синхронимо на сайт."""
+    title = category_title_from_payload(dntrade_category)
+    if not title:
+        return False
+    key = normalize_category_key(title)
+    if key in _EXCLUDED_EXACT:
+        return True
+    return any(key.startswith(prefix) for prefix in _EXCLUDED_PREFIXES)
 
 
 class CategoryResolver:
@@ -72,9 +119,7 @@ class CategoryResolver:
         return cat
 
     def resolve(self, dntrade_category: dict | None) -> Category:
-        title = ""
-        if isinstance(dntrade_category, dict):
-            title = (dntrade_category.get("title") or "").strip()
+        title = category_title_from_payload(dntrade_category)
         if not title:
             return self.ensure_import_category()
 

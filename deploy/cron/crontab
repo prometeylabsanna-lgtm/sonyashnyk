@@ -1,2 +1,2 @@
-# supercronic schedule: щодня о 03:15 (UTC+3 ≈ 00:15 UTC — залежить від TZ контейнера)
+# Щодня о 03:15 Europe/Kyiv (TZ контейнера)
 15 3 * * * /app/deploy/cron/sync-dntrade.sh

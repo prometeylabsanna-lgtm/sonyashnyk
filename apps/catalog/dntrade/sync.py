@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from apps.catalog.models import Product, ProductVariant
 
-from .categories import CategoryResolver
+from .categories import CategoryResolver, is_excluded_category
 from .client import DntradeClient
 from .images import sync_product_images
 
@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 RETAIL_PRICE_ID = 2
 RETAIL_PRICE_TITLE = "роздрібна"
+# Склад «Перемоги 5» — асортимент для сайту (без електро/буд офлайн).
+DEFAULT_CATALOG_STORE_ID = "9043f685-1aa5-49d5-af2d-c8777cf814f5"
 
 
 @dataclass
@@ -30,6 +32,8 @@ class DntradeSyncStats:
     variants_upserted: int = 0
     images_downloaded: int = 0
     skipped: int = 0
+    skipped_excluded: int = 0
+    purged: int = 0
     errors: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
@@ -40,6 +44,8 @@ class DntradeSyncStats:
             "variants_upserted": self.variants_upserted,
             "images_downloaded": self.images_downloaded,
             "skipped": self.skipped,
+            "skipped_excluded": self.skipped_excluded,
+            "purged": self.purged,
             "errors": list(self.errors[:50]),
         }
 
@@ -52,22 +58,36 @@ def sync_catalog(
     limit: int | None = None,
     offset: int = 0,
     skip_images: bool = False,
+    purge_missing: bool = False,
     progress=None,
 ) -> DntradeSyncStats:
     """Повний імпорт: товари, варіанти (parent_id), ціни, залишки, контент, фото."""
     stats = DntradeSyncStats()
     client = client or DntradeClient()
-    store_id = (store_id or getattr(settings, "DNTRADE_STORE_ID", "") or "").strip() or None
+    store_id = (
+        (store_id or getattr(settings, "DNTRADE_STORE_ID", "") or "").strip()
+        or DEFAULT_CATALOG_STORE_ID
+    )
     categories = CategoryResolver()
     categories.ensure_import_category()
 
     if progress:
-        progress("Завантаження товарів з DNTrade…")
-    products = list(client.iter_products(store_id=store_id, limit=limit, offset=offset))
-    stats.products_fetched = len(products)
+        progress(f"Завантаження товарів з DNTrade (store={store_id})…")
+    raw_products = list(client.iter_products(store_id=store_id, limit=limit, offset=offset))
+    stats.products_fetched = len(raw_products)
+
+    products: list[dict] = []
+    for payload in raw_products:
+        if is_excluded_category(payload.get("category")):
+            stats.skipped_excluded += 1
+            continue
+        products.append(payload)
 
     if progress:
-        progress(f"Товарів з API: {len(products)}. Завантаження залишків…")
+        progress(
+            f"Товарів з API: {len(raw_products)}, після виключень: {len(products)}, "
+            f"відсіяно груп: {stats.skipped_excluded}. Завантаження залишків…"
+        )
     # При --limit не тягнемо всі баланси (інший порядок у API) — беремо balance з товару.
     if limit is None:
         stock_map = _build_stock_map(client, limit=None)
@@ -107,7 +127,15 @@ def sync_catalog(
         and not _norm_id(p.get("parent_id"))
     ]
 
+    seen_ids: set[str] = set()
     for idx, payload in enumerate(roots, start=1):
+        pid = _norm_id(payload.get("product_id"))
+        if pid:
+            seen_ids.add(pid)
+        for child in children_by_parent.get(pid, []):
+            cid = _norm_id(child.get("product_id"))
+            if cid:
+                seen_ids.add(cid)
         try:
             _sync_root_product(
                 payload,
@@ -125,7 +153,36 @@ def sync_catalog(
         if progress and idx % 100 == 0:
             progress(f"Оброблено коренів: {idx}/{len(roots)}")
 
+    if purge_missing and limit is None and offset == 0:
+        stats.purged = _purge_missing_products(seen_ids, dry_run=dry_run, progress=progress)
+
     return stats
+
+
+def _purge_missing_products(
+    seen_ids: set[str],
+    *,
+    dry_run: bool,
+    progress=None,
+) -> int:
+    """Видаляє товари з dntrade_product_id, яких немає в поточному імпорті."""
+    qs = Product.objects.exclude(dntrade_product_id="").exclude(dntrade_product_id__isnull=True)
+    to_delete = []
+    for pid, pk in qs.values_list("dntrade_product_id", "pk"):
+        if _norm_id(pid) not in seen_ids:
+            to_delete.append(pk)
+    if progress:
+        progress(f"До видалення (поза Перемоги / виключені групи): {len(to_delete)}")
+    if dry_run or not to_delete:
+        return len(to_delete)
+    # Пачками, щоб не тримати гігантський queryset
+    deleted = 0
+    batch = 500
+    for i in range(0, len(to_delete), batch):
+        chunk = to_delete[i : i + batch]
+        n, _ = Product.objects.filter(pk__in=chunk).delete()
+        deleted += n
+    return len(to_delete)
 
 
 def _sync_root_product(
