@@ -24,6 +24,9 @@ from .models import Order
 from .nova_poshta import is_configured as np_is_configured
 from .nova_poshta import search_cities, search_warehouses
 from .promo import apply_promo_code, clear_session_promo_code, resolve_promo
+from .ukrposhta import is_address_configured as up_is_configured
+from .ukrposhta import search_cities as up_search_cities
+from .ukrposhta import search_warehouses as up_search_warehouses
 from .stock import InsufficientStock, apply_monopay_status, maybe_expire_order, rereserve_order_stock
 
 
@@ -218,6 +221,9 @@ def checkout(request):
         "np_api_enabled": np_is_configured(),
         "np_cities_url": reverse("orders_checkout:np_cities"),
         "np_warehouses_url": reverse("orders_checkout:np_warehouses"),
+        "up_api_enabled": up_is_configured(),
+        "up_cities_url": reverse("orders_checkout:up_cities"),
+        "up_warehouses_url": reverse("orders_checkout:up_warehouses"),
     }
     return render(request, "orders/checkout.html", context)
 
@@ -352,4 +358,20 @@ def np_warehouses(request):
     delivery = request.GET.get("kind", "branch")
     kind = "locker" if delivery == "locker" else "branch"
     result = search_warehouses(city_ref, q, kind=kind)
+    return JsonResponse(result)
+
+
+@require_GET
+def up_cities(request):
+    q = request.GET.get("q", "")
+    result = up_search_cities(q)
+    return JsonResponse(result)
+
+
+@require_GET
+def up_warehouses(request):
+    city_ref = request.GET.get("city_ref", "")
+    region_id = request.GET.get("region_id", "")
+    q = request.GET.get("q", "")
+    result = up_search_warehouses(city_ref, q, region_id=region_id)
     return JsonResponse(result)

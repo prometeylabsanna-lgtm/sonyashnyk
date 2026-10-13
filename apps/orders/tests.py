@@ -539,7 +539,7 @@ class PaymentStatusEndpointTests(TestCase):
 
 class NpWarehouseValidateTests(TestCase):
     @override_settings(NOVA_POSHTA_API_KEY="test-key")
-    @patch("apps.orders.forms.warehouse_exists", return_value=False)
+    @patch("apps.orders.forms.np_warehouse_exists", return_value=False)
     def test_form_rejects_stale_warehouse(self, _mock):
         from apps.orders.forms import CheckoutForm
 
@@ -559,3 +559,57 @@ class NpWarehouseValidateTests(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn("warehouse", form.errors)
+
+
+class UkrposhtaValidateTests(TestCase):
+    @override_settings(UKRPOSHTA_BEARER_ECOM="test-bearer")
+    @patch("apps.orders.forms.up_warehouse_exists", return_value=False)
+    def test_form_rejects_stale_up_warehouse(self, _mock):
+        from apps.orders.forms import CheckoutForm
+
+        form = CheckoutForm(data={
+            "full_name": "Тест",
+            "phone": "+380671112233",
+            "email": "",
+            "delivery_method": "ukrposhta",
+            "city": "Київ",
+            "warehouse": "Київ 1 (01001)",
+            "up_city_id": "29713",
+            "up_region_id": "286",
+            "up_postindex": "01001",
+            "payment_method": "cod",
+            "comment": "",
+            "promo_code": "",
+            "agreed_to_data_processing": True,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn("warehouse", form.errors)
+
+    @override_settings(UKRPOSHTA_BEARER_ECOM="")
+    def test_up_cities_fallback_without_key(self):
+        from apps.orders.ukrposhta import search_cities
+
+        result = search_cities("Київ")
+        self.assertTrue(result["fallback"])
+        self.assertEqual(result["items"], [])
+
+    @override_settings(UKRPOSHTA_BEARER_ECOM="test-bearer")
+    @patch("apps.orders.ukrposhta._get_json")
+    def test_up_cities_parses_entries(self, mock_get):
+        from apps.orders.ukrposhta import search_cities
+
+        mock_get.return_value = {
+            "Entries": {
+                "Entry": {
+                    "CITY_ID": "29713",
+                    "CITY_UA": "Київ",
+                    "REGION_UA": "Київ",
+                    "REGION_ID": "286",
+                    "DISTRICT_UA": "Київ",
+                }
+            }
+        }
+        result = search_cities("Киї")
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["items"][0]["ref"], "29713")
+        self.assertIn("Київ", result["items"][0]["name"])

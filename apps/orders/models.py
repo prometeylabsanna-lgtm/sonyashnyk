@@ -44,6 +44,13 @@ class Order(models.Model):
     warehouse = models.CharField("Відділення / адреса", max_length=200, blank=True)
     np_city_ref = models.CharField("NP CityRef", max_length=64, blank=True)
     np_warehouse_ref = models.CharField("NP WarehouseRef", max_length=64, blank=True)
+    up_city_id = models.CharField("УП City ID", max_length=32, blank=True)
+    up_region_id = models.CharField("УП Region ID", max_length=32, blank=True)
+    up_postindex = models.CharField("УП індекс відділення", max_length=16, blank=True)
+    up_shipment_uuid = models.CharField("УП UUID відправлення", max_length=64, blank=True, default="")
+    up_barcode = models.CharField("УП ШКІ (ТТН)", max_length=32, blank=True, default="")
+    up_status = models.CharField("УП статус", max_length=255, blank=True, default="")
+    up_status_at = models.DateTimeField("УП статус оновлено", null=True, blank=True)
 
     payment_method = models.CharField("Спосіб оплати", max_length=16, choices=PaymentMethod.choices)
     payment_status = models.CharField(

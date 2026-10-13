@@ -14,12 +14,20 @@
     var warehouseInput = document.querySelector("[data-np-warehouse-input]");
     var cityRef = document.querySelector("[data-np-city-ref]");
     var warehouseRef = document.querySelector("[data-np-warehouse-ref]");
+    var upCityId = document.querySelector("[data-up-city-id]");
+    var upRegionId = document.querySelector("[data-up-region-id]");
+    var upPostindex = document.querySelector("[data-up-postindex]");
     var cityList = document.querySelector('[data-search-select="city"] [data-search-list]');
     var warehouseList = document.querySelector('[data-search-select="warehouse"] [data-search-list]');
+    var npHint = document.querySelector('[data-delivery-hint="np"]');
+    var upHint = document.querySelector('[data-delivery-hint="up"]');
 
     var npEnabled = form && form.getAttribute("data-np-enabled") === "1";
+    var upEnabled = form && form.getAttribute("data-up-enabled") === "1";
     var citiesUrl = form && form.getAttribute("data-np-cities-url");
     var warehousesUrl = form && form.getAttribute("data-np-warehouses-url");
+    var upCitiesUrl = form && form.getAttribute("data-up-cities-url");
+    var upWarehousesUrl = form && form.getAttribute("data-up-warehouses-url");
     var debounce = (window.SonyashnykUtils && window.SonyashnykUtils.debounce) || function (fn, wait) {
       var t;
       return function () {
@@ -36,13 +44,24 @@
 
     function deliveryMeta(value) {
       var map = {
-        np_branch: { cityKey: "delivery_city", warehouseKey: "delivery_np_branch", showWh: true, kind: "branch" },
-        np_locker: { cityKey: "delivery_city", warehouseKey: "delivery_np_locker", showWh: true, kind: "locker" },
-        np_courier: { cityKey: "delivery_city", warehouseKey: "delivery_np_courier", showWh: true, kind: "courier" },
-        ukrposhta: { cityKey: "delivery_city", warehouseKey: "delivery_ukrposhta", showWh: true, kind: "manual" },
-        pickup: { cityKey: "", warehouseKey: "", showWh: false, kind: "none" },
+        np_branch: { cityKey: "delivery_city", warehouseKey: "delivery_np_branch", showWh: true, kind: "branch", api: "np" },
+        np_locker: { cityKey: "delivery_city", warehouseKey: "delivery_np_locker", showWh: true, kind: "locker", api: "np" },
+        np_courier: { cityKey: "delivery_city", warehouseKey: "delivery_np_courier", showWh: true, kind: "courier", api: "np" },
+        ukrposhta: { cityKey: "delivery_city", warehouseKey: "delivery_ukrposhta", showWh: true, kind: upEnabled ? "branch" : "manual", api: "up" },
+        pickup: { cityKey: "", warehouseKey: "", showWh: false, kind: "none", api: "" },
       };
       return map[value] || map.np_branch;
+    }
+
+    function clearNpRefs() {
+      if (cityRef) cityRef.value = "";
+      if (warehouseRef) warehouseRef.value = "";
+    }
+
+    function clearUpRefs() {
+      if (upCityId) upCityId.value = "";
+      if (upRegionId) upRegionId.value = "";
+      if (upPostindex) upPostindex.value = "";
     }
 
     var CHOICE_I18N = {
@@ -115,16 +134,19 @@
       fieldsBlock.classList.toggle("is-visible", showFields);
       if (cityLabel && meta.cityKey) cityLabel.textContent = tr(meta.cityKey);
       if (warehouseLabel && meta.warehouseKey) warehouseLabel.textContent = tr(meta.warehouseKey);
+      var apiReady = (meta.api === "np" && npEnabled) || (meta.api === "up" && upEnabled);
       if (warehouseInput) {
         if (meta.kind === "courier") {
           warehouseInput.placeholder = tr("ph_warehouse_courier");
-        } else if (npEnabled) {
+        } else if (apiReady) {
           warehouseInput.placeholder = tr("ph_warehouse_pick");
         } else {
           warehouseInput.placeholder = tr("ph_warehouse_manual");
         }
       }
       if (cityInput) cityInput.placeholder = tr("ph_city");
+      if (npHint) npHint.hidden = !(meta.api === "np" && !npEnabled);
+      if (upHint) upHint.hidden = !(meta.api === "up" && !upEnabled);
       hideList(cityList);
       hideList(warehouseList);
     }
@@ -172,38 +194,59 @@
     }
 
     function searchCities(query) {
-      if (!npEnabled || !citiesUrl || query.length < 2) {
+      var meta = deliveryMeta(currentDelivery());
+      var useUp = meta.api === "up";
+      var enabled = useUp ? upEnabled : npEnabled;
+      var url = useUp ? upCitiesUrl : citiesUrl;
+      if (!enabled || !url || query.length < 2 || meta.kind === "none") {
         hideList(cityList);
         return;
       }
-      fetchJson(citiesUrl + "?q=" + encodeURIComponent(query)).then(function (data) {
+      fetchJson(url + "?q=" + encodeURIComponent(query)).then(function (data) {
         if (data.fallback) {
           hideList(cityList);
           return;
         }
         renderList(cityList, data.items || [], function (item) {
           if (cityInput) cityInput.value = item.name;
-          if (cityRef) cityRef.value = item.ref;
           if (warehouseInput) warehouseInput.value = "";
-          if (warehouseRef) warehouseRef.value = "";
+          if (useUp) {
+            clearNpRefs();
+            if (upCityId) upCityId.value = item.ref || "";
+            if (upRegionId) upRegionId.value = item.region_id || "";
+            if (upPostindex) upPostindex.value = "";
+          } else {
+            clearUpRefs();
+            if (cityRef) cityRef.value = item.ref || "";
+            if (warehouseRef) warehouseRef.value = "";
+          }
         });
       }).catch(function () { hideList(cityList); });
     }
 
     function searchWarehouses(query) {
       var meta = deliveryMeta(currentDelivery());
-      if (!npEnabled || !warehousesUrl || meta.kind === "courier" || meta.kind === "manual") {
+      if (meta.kind === "courier" || meta.kind === "manual" || meta.kind === "none") {
         hideList(warehouseList);
         return;
       }
-      if (!cityRef || !cityRef.value) {
+      var useUp = meta.api === "up";
+      var enabled = useUp ? upEnabled : npEnabled;
+      var urlBase = useUp ? upWarehousesUrl : warehousesUrl;
+      var cityValue = useUp ? (upCityId && upCityId.value) : (cityRef && cityRef.value);
+      if (!enabled || !urlBase || !cityValue) {
         hideList(warehouseList);
         return;
       }
-      var url = warehousesUrl
-        + "?city_ref=" + encodeURIComponent(cityRef.value)
-        + "&kind=" + encodeURIComponent(meta.kind)
+      var url = urlBase
+        + "?city_ref=" + encodeURIComponent(cityValue)
         + "&q=" + encodeURIComponent(query || "");
+      if (useUp && upRegionId && upRegionId.value) {
+        url += "&region_id=" + encodeURIComponent(upRegionId.value);
+      }
+      if (!useUp) {
+        url += "&kind=" + encodeURIComponent(meta.kind);
+      }
       fetchJson(url).then(function (data) {
         if (data.fallback) {
           hideList(warehouseList);
@@ -211,15 +254,21 @@
         }
         renderList(warehouseList, data.items || [], function (item) {
           if (warehouseInput) warehouseInput.value = item.name;
-          if (warehouseRef) warehouseRef.value = item.ref;
+          if (useUp) {
+            if (upPostindex) upPostindex.value = item.ref || item.postindex || "";
+            if (warehouseRef) warehouseRef.value = "";
+          } else {
+            if (warehouseRef) warehouseRef.value = item.ref || "";
+            if (upPostindex) upPostindex.value = "";
+          }
         });
       }).catch(function () { hideList(warehouseList); });
     }
 
     radios.forEach(function (radio) {
       radio.addEventListener("change", function () {
-        if (cityRef) cityRef.value = "";
-        if (warehouseRef) warehouseRef.value = "";
+        clearNpRefs();
+        clearUpRefs();
         if (cityInput) cityInput.value = "";
         if (warehouseInput) warehouseInput.value = "";
         updateDeliveryUI();
@@ -232,19 +281,22 @@
 
     if (cityInput) {
       cityInput.addEventListener("input", debounce(function () {
-        if (cityRef) cityRef.value = "";
-        if (warehouseRef) warehouseRef.value = "";
+        clearNpRefs();
+        clearUpRefs();
         if (warehouseInput) warehouseInput.value = "";
         searchCities(cityInput.value.trim());
       }, 280));
       cityInput.addEventListener("focus", function () {
-        if (npEnabled && cityInput.value.trim().length >= 2) searchCities(cityInput.value.trim());
+        var meta = deliveryMeta(currentDelivery());
+        var enabled = meta.api === "up" ? upEnabled : npEnabled;
+        if (enabled && cityInput.value.trim().length >= 2) searchCities(cityInput.value.trim());
       });
     }
 
     if (warehouseInput) {
       warehouseInput.addEventListener("input", debounce(function () {
         if (warehouseRef) warehouseRef.value = "";
+        if (upPostindex) upPostindex.value = "";
         searchWarehouses(warehouseInput.value.trim());
       }, 280));
       warehouseInput.addEventListener("focus", function () {

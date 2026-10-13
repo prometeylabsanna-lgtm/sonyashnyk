@@ -12,4 +12,6 @@ urlpatterns = [
     path("monopay/callback/", views.monopay_callback, name="monopay_callback"),
     path("np/mista/", views.np_cities, name="np_cities"),
     path("np/viddilennya/", views.np_warehouses, name="np_warehouses"),
+    path("up/mista/", views.up_cities, name="up_cities"),
+    path("up/viddilennya/", views.up_warehouses, name="up_warehouses"),
 ]

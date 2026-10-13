@@ -4,7 +4,9 @@ from apps.core.utils import UA_PHONE_RE, normalize_ua_phone
 
 from .models import Order
 from .nova_poshta import is_configured as np_is_configured
-from .nova_poshta import warehouse_exists
+from .nova_poshta import warehouse_exists as np_warehouse_exists
+from .ukrposhta import is_address_configured as up_is_configured
+from .ukrposhta import warehouse_exists as up_warehouse_exists
 
 
 class CheckoutForm(forms.ModelForm):
@@ -14,6 +16,7 @@ class CheckoutForm(forms.ModelForm):
             "full_name", "phone", "email",
             "delivery_method", "city", "warehouse",
             "np_city_ref", "np_warehouse_ref",
+            "up_city_id", "up_region_id", "up_postindex",
             "payment_method", "comment", "promo_code",
             "agreed_to_data_processing",
         ]
@@ -37,6 +40,9 @@ class CheckoutForm(forms.ModelForm):
             }),
             "np_city_ref": forms.HiddenInput(attrs={"data-np-city-ref": True}),
             "np_warehouse_ref": forms.HiddenInput(attrs={"data-np-warehouse-ref": True}),
+            "up_city_id": forms.HiddenInput(attrs={"data-up-city-id": True}),
+            "up_region_id": forms.HiddenInput(attrs={"data-up-region-id": True}),
+            "up_postindex": forms.HiddenInput(attrs={"data-up-postindex": True}),
             "comment": forms.Textarea(attrs={"rows": 3, "placeholder": "Коментар до замовлення (необов'язково)"}),
             "promo_code": forms.TextInput(attrs={"placeholder": "Промокод (якщо є)"}),
         }
@@ -72,6 +78,9 @@ class CheckoutForm(forms.ModelForm):
         warehouse = (cleaned.get("warehouse") or "").strip()
         city_ref = (cleaned.get("np_city_ref") or "").strip()
         warehouse_ref = (cleaned.get("np_warehouse_ref") or "").strip()
+        up_city_id = (cleaned.get("up_city_id") or "").strip()
+        up_region_id = (cleaned.get("up_region_id") or "").strip()
+        up_postindex = (cleaned.get("up_postindex") or "").strip()
 
         if delivery and delivery != Order.DeliveryMethod.PICKUP and not city:
             self.add_error("city", "Вкажіть місто доставки")
@@ -96,10 +105,22 @@ class CheckoutForm(forms.ModelForm):
                 self.add_error("warehouse", "Оберіть відділення зі списку підказок")
             elif city_ref and warehouse_ref and not self.errors.get("warehouse"):
                 kind = "locker" if delivery == Order.DeliveryMethod.NP_LOCKER else "branch"
-                if not warehouse_exists(city_ref, warehouse_ref, kind=kind):
+                if not np_warehouse_exists(city_ref, warehouse_ref, kind=kind):
                     self.add_error(
                         "warehouse",
                         "Оберіть відділення зі списку ще раз — воно більше недоступне.",
+                    )
+
+        if up_is_configured() and delivery == Order.DeliveryMethod.UKRPOSHTA:
+            if city and not up_city_id:
+                self.add_error("city", "Оберіть місто зі списку підказок Укрпошти")
+            if warehouse and not up_postindex:
+                self.add_error("warehouse", "Оберіть відділення Укрпошти зі списку підказок")
+            elif up_postindex and not self.errors.get("warehouse"):
+                if not up_warehouse_exists(up_city_id, up_postindex, region_id=up_region_id):
+                    self.add_error(
+                        "warehouse",
+                        "Оберіть відділення Укрпошти зі списку ще раз — воно більше недоступне.",
                     )
 
         if payment == Order.PaymentMethod.CASH_PICKUP and delivery != Order.DeliveryMethod.PICKUP:

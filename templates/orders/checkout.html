@@ -13,7 +13,10 @@
   <form method="post" novalidate class="checkout-form" style="margin-top:24px"
         data-np-enabled="{{ np_api_enabled|yesno:'1,0' }}"
         data-np-cities-url="{{ np_cities_url }}"
-        data-np-warehouses-url="{{ np_warehouses_url }}">
+        data-np-warehouses-url="{{ np_warehouses_url }}"
+        data-up-enabled="{{ up_api_enabled|yesno:'1,0' }}"
+        data-up-cities-url="{{ up_cities_url }}"
+        data-up-warehouses-url="{{ up_warehouses_url }}">
     {% csrf_token %}
     <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
     <div class="checkout">
@@ -54,11 +57,16 @@
               <div class="search-select" data-search-select="city">
                 {{ form.city }}
                 {{ form.np_city_ref }}
+                {{ form.up_city_id }}
+                {{ form.up_region_id }}
                 <ul class="search-select__list" data-search-list hidden></ul>
               </div>
               {% for e in form.city.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
               {% if not np_api_enabled %}
-                <span class="field__hint" data-i18n="checkout_np_hint">API НП ще не підключено — введіть місто вручну.</span>
+                <span class="field__hint" data-delivery-hint="np" data-i18n="checkout_np_hint">API НП ще не підключено — введіть місто вручну.</span>
+              {% endif %}
+              {% if not up_api_enabled %}
+                <span class="field__hint" data-delivery-hint="up" data-i18n="checkout_up_hint" hidden>API Укрпошти ще не підключено — введіть місто і № відділення вручну.</span>
               {% endif %}
             </div>
             <div class="field {% if form.warehouse.errors %}field--error{% endif %}" data-warehouse-field>
@@ -66,6 +74,7 @@
               <div class="search-select" data-search-select="warehouse">
                 {{ form.warehouse }}
                 {{ form.np_warehouse_ref }}
+                {{ form.up_postindex }}
                 <ul class="search-select__list" data-search-list hidden></ul>
               </div>
               {% for e in form.warehouse.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
@@ -138,4 +147,4 @@
 {% endif %}
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/checkout.js' %}?v=pay-20260921" defer></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/checkout.js' %}?v=up-20261013" defer></script>{% endblock %}
