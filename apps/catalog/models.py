@@ -28,14 +28,14 @@ class Category(models.Model):
         null=True, blank=True, on_delete=models.CASCADE, related_name="children",
     )
     image = WebPImageField(
-        "Іконка категорії",
+        "Іконка верхньої панелі",
         upload_to="categories/",
         blank=True,
         null=True,
         help_text=(
-            "Завантажте іконку або залиште порожньою. "
-            "Головні розділи — тоді буде стандартна іконка сайту; "
-            "підрозділи — соняшник."
+            "Іконка в меню зверху. Якщо порожньо — стандартна з сайту. "
+            "Фото плиток на головній — у CMS «Головна — Категорії». "
+            "Для підрозділів без фото — соняшник."
         ),
     )
     description = models.TextField("Опис", blank=True)

@@ -36,6 +36,10 @@ CONTENT_SECTIONS_HOME: tuple[ContentSection, ...] = (
         title="Головна — Категорії",
         sidebar_icon="grid_view",
         preview_url="/",
+        description=(
+            "Тексти секції та фото 8 плиток на головній. "
+            "Іконки верхньої панелі — окремо в «Меню → 1 рівень категорій»."
+        ),
         visibility_key="categories_section_visible",
         blocks=_b(
             "home",
@@ -43,10 +47,36 @@ CONTENT_SECTIONS_HOME: tuple[ContentSection, ...] = (
             "categories_title",
             "categories_link_label",
             "categories_link",
+            "categories_tile_nasinnia_image",
+            "categories_tile_dobryva_image",
+            "categories_tile_zakhyst_image",
+            "categories_tile_instrument_image",
+            "categories_tile_polyv_image",
+            "categories_tile_posadkovyi_image",
+            "categories_tile_gorshchyky_image",
+            "categories_tile_grunty_image",
         ),
         field_groups=(
             FieldGroup("Видимість", ("categories_section_visible",)),
             FieldGroup("Тексти", ("categories_title", "categories_link_label", "categories_link")),
+            FieldGroup(
+                "Фото плиток",
+                (
+                    "categories_tile_nasinnia_image",
+                    "categories_tile_dobryva_image",
+                    "categories_tile_zakhyst_image",
+                    "categories_tile_instrument_image",
+                    "categories_tile_polyv_image",
+                    "categories_tile_posadkovyi_image",
+                    "categories_tile_gorshchyky_image",
+                    "categories_tile_grunty_image",
+                ),
+                description=(
+                    "Квадратні ілюстрації карток на головній. "
+                    "Порожнє поле — стандартне фото сайту. "
+                    "Іконки меню зверху не змінюються."
+                ),
+            ),
         ),
         admin_model_name="homecategoriessettings",
     ),

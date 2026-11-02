@@ -8,9 +8,9 @@ from .models import Category
 
 
 def _attach_nav_icon(cat):
-    """Пріоритет: Category.image → статичний fallback за slug."""
+    """Пріоритет: Category.image → статичний fallback за slug (лише шапка)."""
     cat.nav_icon_url = category_icon_url(cat, for_nav=True)
-    cat.nav_icon_custom = category_icon_is_custom(cat)
+    cat.nav_icon_custom = category_icon_is_custom(cat, for_nav=True)
 
 
 def nav_categories(request):

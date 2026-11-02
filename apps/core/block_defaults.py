@@ -60,6 +60,19 @@ _reg("home", "categories_section_visible", "1", label="Показувати ка
 _reg("home", "categories_title", "Категорії каталогу", label="Заголовок", inline=True)
 _reg("home", "categories_link_label", "Усі категорії", label="Текст посилання", inline=True)
 _reg("home", "categories_link", "/katalog/", label="Посилання", content_type="url")
+# 8 плиток на головній (окремо від іконок шапки Category.image)
+for _tile_key, _tile_label, _tile_path in (
+    ("categories_tile_nasinnia_image", "Насіння", "img/home/categories/nasinnya.webp"),
+    ("categories_tile_dobryva_image", "Добрива та стимулятори росту", "img/home/categories/dobryva.webp"),
+    ("categories_tile_zakhyst_image", "Засоби захисту рослин", "img/home/categories/zakhyst.webp"),
+    ("categories_tile_instrument_image", "Садовий інструмент", "img/home/categories/instrument.webp"),
+    ("categories_tile_polyv_image", "Полив та оприскувачі", "img/home/categories/polyv.webp"),
+    ("categories_tile_posadkovyi_image", "Посадковий матеріал", "img/home/categories/posadkovyi.webp"),
+    ("categories_tile_gorshchyky_image", "Горщики", "img/home/categories/gorshchyky.webp"),
+    ("categories_tile_grunty_image", "Ґрунти та все для посадки", "img/home/categories/grunty.webp"),
+):
+    _reg("home", _tile_key, "", label=f"Плитка: {_tile_label}", content_type="image")
+    STATIC_FALLBACKS[("home", _tile_key)] = _tile_path
 
 # --- Home: hits ---
 _reg("home", "hits_section_visible", "1", label="Показувати хіти")

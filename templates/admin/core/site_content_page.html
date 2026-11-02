@@ -61,8 +61,8 @@
           <div class="site-content-editor__field">
             <label class="text-font-important-light dark:text-font-important-dark" for="{{ field.id_for_label }}">{{ field.label }}</label>
             {% if item.preview_url %}
-              <div class="site-content-editor__img-preview">
-                <img src="{{ item.preview_url }}" alt="" width="240" height="160" loading="lazy" decoding="async">
+              <div class="site-content-editor__img-preview{% if item.preview_contain %} site-content-editor__img-preview--contain{% endif %}">
+                <img src="{{ item.preview_url }}" alt="" width="{% if item.preview_contain %}160{% else %}240{% endif %}" height="{% if item.preview_contain %}160{% else %}160{% endif %}" loading="lazy" decoding="async">
                 {% if item.preview_fallback %}
                   <p class="text-font-subtle-light dark:text-font-subtle-dark site-content-editor__help">Зараз на сайті — стандартне фото. Завантажте своє, щоб замінити.</p>
                 {% endif %}
