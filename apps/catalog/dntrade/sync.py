@@ -4,6 +4,8 @@
 і службові id DNTrade. Назва, описи, категорія, pack_volume і фото лишаються
 як у каталозі — порожній фідер їх не затирає, ручне очищення не заповнюється знову.
 Новий товар: початковий імпорт контенту і фото.
+--purge-missing не видаляє рядки: відсутні у непорожньому фіді стають неактивними
+і знову вмикаються, коли повертаються зі status=1.
 """
 
 from __future__ import annotations
@@ -169,42 +171,46 @@ def sync_catalog(
             progress(f"Оброблено коренів: {idx}/{len(roots)}")
 
     if purge_missing and limit is None and offset == 0:
-        # Порожній фід (збій API без винятку) не має знести весь каталог.
-        # Непорожній фід, з якого всі групи виключені, як і раніше чистить відсутні id.
+        # Порожній фід (збій API без винятку) не ховає весь каталог.
+        # Непорожній, навіть частковий: відсутні id лишаються в базі, але не на вітрині.
         if stats.products_fetched == 0:
             msg = "purge пропущено: DNTrade повернув 0 товарів"
             logger.error(msg)
             stats.errors.append(msg)
         else:
-            stats.purged = _purge_missing_products(seen_ids, dry_run=dry_run, progress=progress)
+            stats.purged = _hide_missing_products(seen_ids, dry_run=dry_run, progress=progress)
 
     return stats
 
 
-def _purge_missing_products(
+def _hide_missing_products(
     seen_ids: set[str],
     *,
     dry_run: bool,
     progress=None,
 ) -> int:
-    """Видаляє товари з dntrade_product_id, яких немає в поточному імпорті."""
+    """Знімає з вітрини DNTrade-товари, яких немає у фіді. Рядки, варіанти і фото лишаються."""
     qs = Product.objects.exclude(dntrade_product_id="").exclude(dntrade_product_id__isnull=True)
-    to_delete = []
-    for pid, pk in qs.values_list("dntrade_product_id", "pk"):
-        if norm_id(pid) not in seen_ids:
-            to_delete.append(pk)
+    missing_ids = [
+        pk
+        for pid, pk in qs.values_list("dntrade_product_id", "pk")
+        if norm_id(pid) not in seen_ids
+    ]
     if progress:
-        progress(f"До видалення (поза Перемоги / виключені групи): {len(to_delete)}")
-    if dry_run or not to_delete:
-        return len(to_delete)
-    # Пачками, щоб не тримати гігантський queryset
-    deleted = 0
+        progress(f"Немає у фіді, зняти з вітрини без видалення: {len(missing_ids)}")
+    if not missing_ids:
+        return 0
+    hidden = 0
+    now = timezone.now()
     batch = 500
-    for i in range(0, len(to_delete), batch):
-        chunk = to_delete[i : i + batch]
-        n, _ = Product.objects.filter(pk__in=chunk).delete()
-        deleted += n
-    return len(to_delete)
+    for i in range(0, len(missing_ids), batch):
+        chunk = missing_ids[i : i + batch]
+        active = Product.objects.filter(pk__in=chunk, is_active=True)
+        if dry_run:
+            hidden += active.count()
+        else:
+            hidden += active.update(is_active=False, updated_at=now)
+    return hidden
 
 
 def _sync_root_product(

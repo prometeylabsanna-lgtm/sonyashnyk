@@ -4,7 +4,7 @@
   python3 manage.py sync_dntrade --list-stores
   python3 manage.py sync_dntrade --dry-run --limit 20
   python3 manage.py sync_dntrade --skip-images --purge-missing   # без фото
-  python3 manage.py sync_dntrade --purge-missing                 # з фото (cron 03:15 Kyiv)
+  python3 manage.py sync_dntrade --purge-missing                 # cron 03:15 Kyiv: немає у фіді → неактивні, без видалення
 """
 
 from __future__ import annotations
@@ -19,7 +19,8 @@ from apps.catalog.dntrade.sync import DEFAULT_CATALOG_STORE_ID, sync_catalog
 class Command(BaseCommand):
     help = (
         "Імпорт з Navkolo DNTrade (склад Перемоги). "
-        "Новий товар — повністю; наявний — ціна і залишок, без заміни контенту і фото."
+        "Новий товар — повністю; наявний — ціна і залишок, без заміни контенту і фото. "
+        "Відсутні у фіді стають неактивними."
     )
 
     def add_arguments(self, parser):
@@ -63,7 +64,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--purge-missing",
             action="store_true",
-            help="Видалити з сайту DNTrade-товари, яких немає в поточному імпорті.",
+            help="Відсутні у фіді DNTrade-товари зняти з вітрини, не видаляючи рядки і фото.",
         )
 
     def handle(self, *args, **options):
