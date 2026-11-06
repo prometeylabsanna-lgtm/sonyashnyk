@@ -10,7 +10,6 @@ from io import BytesIO
 from pathlib import Path
 
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.db import transaction
 from PIL import Image
 
@@ -34,16 +33,6 @@ def collect_image_urls(product_payload: dict) -> list[str]:
     return urls
 
 
-def _image_file_missing(img: ProductImage) -> bool:
-    name = getattr(img.image, "name", "") or ""
-    if not name:
-        return True
-    try:
-        return not default_storage.exists(name)
-    except Exception:
-        return True
-
-
 def sync_product_images(
     product: Product,
     product_payload: dict,
@@ -51,15 +40,16 @@ def sync_product_images(
     dry_run: bool = False,
     force: bool = False,
 ) -> int:
-    """Оновлює фото. Перекачує, якщо URL змінились, файлів немає на диску, або force=True."""
+    """Качає фото в порожню галерею. Наявні фото не замінює, доки force=False.
+
+    Порожній список URL від постачальника галерею не видаляє.
+    """
     urls = collect_image_urls(product_payload)
     existing = list(product.images.order_by("order", "id"))
-    existing_urls = [img.source_url for img in existing if img.source_url]
-    missing_files = any(_image_file_missing(img) for img in existing)
 
-    if not force and existing_urls == urls and urls and not missing_files:
+    if not urls:
         return 0
-    if not force and not urls and not existing:
+    if existing and not force:
         return 0
 
     if dry_run:
@@ -67,7 +57,8 @@ def sync_product_images(
 
     downloaded = 0
     with transaction.atomic():
-        product.images.all().delete()
+        if existing:
+            product.images.all().delete()
         for order, url in enumerate(urls):
             content = _download_webp(url, product.sku or str(product.pk), order)
             if content is None:

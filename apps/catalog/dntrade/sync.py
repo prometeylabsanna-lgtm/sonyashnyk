@@ -1,10 +1,16 @@
-"""Синхронізація каталогу сайту з DNTrade."""
+"""Синхронізація каталогу сайту з DNTrade.
+
+Наявний товар: оновлюються ціна, залишок, активність (лише якщо status заданий)
+і службові id DNTrade. Назва, описи, категорія, pack_volume і фото лишаються
+як у каталозі — порожній фідер їх не затирає, ручне очищення не заповнюється знову.
+Новий товар: початковий імпорт контенту і фото.
+"""
 
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from typing import Any
 
 from django.conf import settings
@@ -15,11 +21,18 @@ from apps.catalog.models import Product, ProductVariant
 from .categories import CategoryResolver, is_excluded_category
 from .client import DntradeClient
 from .images import sync_product_images
+from .payload import (
+    build_stock_map,
+    norm_id,
+    parse_code,
+    payload_is_active,
+    resolve_sku,
+    retail_price,
+    stock_for,
+)
 
 logger = logging.getLogger(__name__)
 
-RETAIL_PRICE_ID = 2
-RETAIL_PRICE_TITLE = "роздрібна"
 # Склад «Перемоги 5» — асортимент для сайту (без електро/буд офлайн).
 DEFAULT_CATALOG_STORE_ID = "9043f685-1aa5-49d5-af2d-c8777cf814f5"
 
@@ -91,11 +104,11 @@ def sync_catalog(
         )
     # При --limit не тягнемо всі баланси (інший порядок у API) — беремо balance з товару.
     if limit is None:
-        stock_map = _build_stock_map(client, limit=None)
+        stock_map = build_stock_map(client, limit=None)
     else:
         stock_map = {}
         for payload in products:
-            pid = _norm_id(payload.get("product_id"))
+            pid = norm_id(payload.get("product_id"))
             if not pid:
                 continue
             try:
@@ -103,44 +116,44 @@ def sync_catalog(
             except (TypeError, ValueError):
                 stock_map[pid] = 0
 
-    by_id = {str(p.get("product_id") or "").upper(): p for p in products if p.get("product_id")}
+    by_id = {norm_id(p.get("product_id")): p for p in products if p.get("product_id")}
     children_by_parent: dict[str, list[dict]] = {}
     for payload in products:
-        parent_id = _norm_id(payload.get("parent_id"))
+        parent_id = norm_id(payload.get("parent_id"))
         if parent_id:
             children_by_parent.setdefault(parent_id, []).append(payload)
 
     for payload in products:
-        pid = _norm_id(payload.get("product_id"))
+        pid = norm_id(payload.get("product_id"))
         if not pid:
             continue
         for mod in payload.get("modifications") or []:
-            mid = _norm_id(mod.get("product_id"))
+            mid = norm_id(mod.get("product_id"))
             if mid and mid in by_id:
                 kids = children_by_parent.setdefault(pid, [])
                 if by_id[mid] not in kids:
                     kids.append(by_id[mid])
 
-    child_ids = { _norm_id(c.get("product_id")) for kids in children_by_parent.values() for c in kids }
+    child_ids = {norm_id(c.get("product_id")) for kids in children_by_parent.values() for c in kids}
     roots = [
         p for p in products
-        if _norm_id(p.get("product_id")) and _norm_id(p.get("product_id")) not in child_ids
-        and not _norm_id(p.get("parent_id"))
+        if norm_id(p.get("product_id")) and norm_id(p.get("product_id")) not in child_ids
+        and not norm_id(p.get("parent_id"))
     ]
 
     seen_ids: set[str] = set()
     for idx, payload in enumerate(roots, start=1):
-        pid = _norm_id(payload.get("product_id"))
+        pid = norm_id(payload.get("product_id"))
         if pid:
             seen_ids.add(pid)
         for child in children_by_parent.get(pid, []):
-            cid = _norm_id(child.get("product_id"))
+            cid = norm_id(child.get("product_id"))
             if cid:
                 seen_ids.add(cid)
         try:
             _sync_root_product(
                 payload,
-                children=children_by_parent.get(_norm_id(payload.get("product_id")), []),
+                children=children_by_parent.get(norm_id(payload.get("product_id")), []),
                 stock_map=stock_map,
                 categories=categories,
                 stats=stats,
@@ -156,7 +169,14 @@ def sync_catalog(
             progress(f"Оброблено коренів: {idx}/{len(roots)}")
 
     if purge_missing and limit is None and offset == 0:
-        stats.purged = _purge_missing_products(seen_ids, dry_run=dry_run, progress=progress)
+        # Порожній фід (збій API без винятку) не має знести весь каталог.
+        # Непорожній фід, з якого всі групи виключені, як і раніше чистить відсутні id.
+        if stats.products_fetched == 0:
+            msg = "purge пропущено: DNTrade повернув 0 товарів"
+            logger.error(msg)
+            stats.errors.append(msg)
+        else:
+            stats.purged = _purge_missing_products(seen_ids, dry_run=dry_run, progress=progress)
 
     return stats
 
@@ -171,7 +191,7 @@ def _purge_missing_products(
     qs = Product.objects.exclude(dntrade_product_id="").exclude(dntrade_product_id__isnull=True)
     to_delete = []
     for pid, pk in qs.values_list("dntrade_product_id", "pk"):
-        if _norm_id(pid) not in seen_ids:
+        if norm_id(pid) not in seen_ids:
             to_delete.append(pk)
     if progress:
         progress(f"До видалення (поза Перемоги / виключені групи): {len(to_delete)}")
@@ -199,27 +219,29 @@ def _sync_root_product(
     force_images: bool = False,
 ) -> None:
     title = (payload.get("title") or "").strip()
-    if not title:
-        stats.skipped += 1
-        return
-
     sku = resolve_sku(payload)
-    product_id = _norm_id(payload.get("product_id"))
-    code = _parse_code(payload.get("code"))
-    category = categories.resolve(payload.get("category"))
+    product_id = norm_id(payload.get("product_id"))
+    code = parse_code(payload.get("code"))
     price = retail_price(payload)
     stock = stock_for(payload, stock_map)
-    is_active = int(payload.get("status") or 0) == 1
+    is_active = payload_is_active(payload)
     short_description = (payload.get("short_description") or "")[:255]
     description = payload.get("description") or ""
     pack_volume = (payload.get("unit_title") or "")[:80]
+
+    existing = _find_product(product_id=product_id, sku=sku, code=code)
+    if existing is None and not title:
+        stats.skipped += 1
+        return
 
     if dry_run:
         stats.products_updated += 1
         stats.variants_upserted += max(1, len(children))
         return
 
+    category = existing.category if existing is not None else categories.resolve(payload.get("category"))
     product, created = _upsert_product(
+        existing=existing,
         product_id=product_id,
         code=code,
         sku=sku,
@@ -261,7 +283,9 @@ def _sync_root_product(
         _upsert_default_variant(product, sku=sku, price=price, stock=stock, code=code, product_id=product_id)
         stats.variants_upserted += 1
 
-    if not skip_images:
+    # Фото наявного товару не перекачуємо: інакше інший або порожній URL зносить галерею.
+    # --force-images лишається явною ручною заміною.
+    if not skip_images and (created or force_images):
         stats.images_downloaded += sync_product_images(
             product, payload, dry_run=False, force=force_images,
         )
@@ -269,39 +293,43 @@ def _sync_root_product(
 
 def _upsert_product(
     *,
+    existing: Product | None,
     product_id: str,
     code: int | None,
     sku: str,
     title: str,
     category,
-    price: Decimal,
+    price: Decimal | None,
     short_description: str,
     description: str,
     pack_volume: str,
-    is_active: bool,
+    is_active: bool | None,
 ) -> tuple[Product, bool]:
-    product = _find_product(product_id=product_id, sku=sku, code=code)
-    created = product is None
+    created = existing is None
     if created:
         product = Product(
             sku=_unique_sku(sku),
             category=category,
-            base_price=price,
-            name=title,
+            base_price=price if price is not None else Decimal("0.00"),
+            name=(title or sku or "Товар")[:255],
+            short_description=short_description,
+            description=description,
+            pack_volume=pack_volume,
             is_new=True,
+            is_active=True if is_active is None else is_active,
         )
+    else:
+        product = existing
+        if price is not None:
+            product.base_price = price
+        if is_active is not None:
+            product.is_active = is_active
 
-    product.dntrade_product_id = product_id or product.dntrade_product_id
-    product.dntrade_code = code
-    product.name = title[:255]
-    product.category = category
-    product.base_price = price
-    product.short_description = short_description
-    product.description = description
-    product.pack_volume = pack_volume
-    product.is_active = is_active
+    if product_id:
+        product.dntrade_product_id = product_id
+    if code is not None:
+        product.dntrade_code = code
     product.dntrade_synced_at = timezone.now()
-    # SKU не міняємо для існуючих, якщо вже заданий і збігається по id
     if created or not product.sku:
         product.sku = _unique_sku(sku, exclude_pk=product.pk if product.pk else None)
     product.save()
@@ -312,7 +340,7 @@ def _upsert_default_variant(
     product: Product,
     *,
     sku: str,
-    price: Decimal,
+    price: Decimal | None,
     stock: int,
     code: int | None,
     product_id: str,
@@ -321,14 +349,22 @@ def _upsert_default_variant(
     if variant is None:
         variant = product.variants.order_by("order", "id").first()
     if variant is None:
-        variant = ProductVariant(product=product, label=product.pack_volume or "1 шт", is_default=True)
+        variant = ProductVariant(
+            product=product,
+            label=(product.pack_volume or "1 шт")[:80],
+            is_default=True,
+        )
 
-    variant.label = (product.pack_volume or variant.label or "1 шт")[:80]
-    variant.sku_variant = sku[:64]
-    variant.price = price
+    if variant.pk is None:
+        variant.label = (product.pack_volume or "1 шт")[:80]
+    variant.sku_variant = (sku or variant.sku_variant or "")[:64]
+    if price is not None or variant.pk is None:
+        variant.price = price if price is not None else product.base_price
     variant.stock_qty = max(0, stock)
-    variant.dntrade_product_id = product_id
-    variant.dntrade_code = code
+    if product_id:
+        variant.dntrade_product_id = product_id
+    if code is not None:
+        variant.dntrade_code = code
     variant.is_default = True
     variant.order = 0
     variant.save()
@@ -344,8 +380,8 @@ def _upsert_variant_from_child(
     order: int,
     is_default: bool,
 ) -> ProductVariant:
-    child_id = _norm_id(child.get("product_id"))
-    code = _parse_code(child.get("code"))
+    child_id = norm_id(child.get("product_id"))
+    code = parse_code(child.get("code"))
     sku = resolve_sku(child)
     label = (child.get("title") or child.get("unit_title") or sku or "варіант")[:80]
     price = retail_price(child)
@@ -358,16 +394,21 @@ def _upsert_variant_from_child(
         variant = product.variants.filter(sku_variant=sku).first()
     if variant is None and code is not None:
         variant = product.variants.filter(dntrade_code=code).first()
-    if variant is None:
-        variant = ProductVariant(product=product)
+    created = variant is None
+    if created:
+        variant = ProductVariant(product=product, label=label)
 
     variant.product = product
-    variant.label = label
-    variant.sku_variant = sku[:64]
-    variant.price = price
+    if created:
+        variant.label = label
+    variant.sku_variant = (sku or variant.sku_variant or "")[:64]
+    if price is not None or created:
+        variant.price = price if price is not None else product.base_price
     variant.stock_qty = max(0, stock)
-    variant.dntrade_product_id = child_id
-    variant.dntrade_code = code
+    if child_id:
+        variant.dntrade_product_id = child_id
+    if code is not None:
+        variant.dntrade_code = code
     variant.is_default = is_default
     variant.order = order
     variant.save()
@@ -403,72 +444,3 @@ def _unique_sku(sku: str, exclude_pk: int | None = None) -> str:
         candidate = f"{base[:64 - len(suffix)]}{suffix}"
         n += 1
     return candidate
-
-
-def resolve_sku(payload: dict) -> str:
-    sku = (payload.get("sku") or "").strip()
-    if sku:
-        return sku[:64]
-    code = payload.get("code")
-    if code is not None and str(code).strip() != "":
-        return str(code)[:64]
-    pid = _norm_id(payload.get("product_id"))
-    return (pid or "unknown")[:64]
-
-
-def retail_price(payload: dict) -> Decimal:
-    for row in payload.get("prices") or []:
-        title = str(row.get("price_title") or "").strip().lower()
-        price_id = row.get("price_id")
-        if price_id == RETAIL_PRICE_ID or title == RETAIL_PRICE_TITLE:
-            return _to_decimal(row.get("price"))
-    return _to_decimal(payload.get("price"))
-
-
-def stock_for(payload: dict, stock_map: dict[str, int]) -> int:
-    pid = _norm_id(payload.get("product_id"))
-    if pid and pid in stock_map:
-        return max(0, stock_map[pid])
-    try:
-        return max(0, int(payload.get("balance") or 0))
-    except (TypeError, ValueError):
-        return 0
-
-
-def _build_stock_map(client: DntradeClient, *, limit: int | None) -> dict[str, int]:
-    """Сумарний залишок по всіх складах (негативні → 0 на рівні суми)."""
-    result: dict[str, int] = {}
-    for row in client.iter_balances(limit=limit):
-        pid = _norm_id(row.get("product_id"))
-        if not pid:
-            continue
-        total = 0
-        for store in row.get("stores") or []:
-            try:
-                total += int(store.get("balance") or 0)
-            except (TypeError, ValueError):
-                continue
-        result[pid] = max(0, total)
-    return result
-
-
-def _norm_id(value: Any) -> str:
-    if value is None:
-        return ""
-    return str(value).strip().upper()
-
-
-def _parse_code(value: Any) -> int | None:
-    if value is None or value == "":
-        return None
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return None
-
-
-def _to_decimal(value: Any) -> Decimal:
-    try:
-        return Decimal(str(value if value is not None else "0")).quantize(Decimal("0.01"))
-    except (InvalidOperation, TypeError, ValueError):
-        return Decimal("0.00")

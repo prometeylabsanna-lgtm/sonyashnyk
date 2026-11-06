@@ -17,7 +17,10 @@ from apps.catalog.dntrade.sync import DEFAULT_CATALOG_STORE_ID, sync_catalog
 
 
 class Command(BaseCommand):
-    help = "Імпорт товарів / цін / залишків / фото з Navkolo DNTrade (склад Перемоги)."
+    help = (
+        "Імпорт з Navkolo DNTrade (склад Перемоги). "
+        "Новий товар — повністю; наявний — ціна і залишок, без заміни контенту і фото."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
