@@ -1,8 +1,8 @@
 """Синхронізація каталогу сайту з DNTrade.
 
-Наявний товар: оновлюються ціна, залишок, активність (лише якщо status заданий)
-і службові id DNTrade. Назва, описи, категорія, pack_volume і фото лишаються
-як у каталозі — порожній фідер їх не затирає, ручне очищення не заповнюється знову.
+Наявний товар: ціна, відомий залишок (явний 0 теж), активність лише за заданим
+status і службові id DNTrade. Пропуск рядка в непорожніх балансах залишок не
+затирає. Назва, описи, категорія, pack_volume і фото лишаються як у каталозі.
 Новий товар: початковий імпорт контенту і фото.
 --purge-missing не видаляє рядки: відсутні у непорожньому фіді стають неактивними
 і знову вмикаються, коли повертаються зі status=1.
@@ -347,7 +347,7 @@ def _upsert_default_variant(
     *,
     sku: str,
     price: Decimal | None,
-    stock: int,
+    stock: int | None,
     code: int | None,
     product_id: str,
 ) -> ProductVariant:
@@ -366,7 +366,8 @@ def _upsert_default_variant(
     variant.sku_variant = (sku or variant.sku_variant or "")[:64]
     if price is not None or variant.pk is None:
         variant.price = price if price is not None else product.base_price
-    variant.stock_qty = max(0, stock)
+    if stock is not None or variant.pk is None:
+        variant.stock_qty = max(0, stock or 0)
     if product_id:
         variant.dntrade_product_id = product_id
     if code is not None:
@@ -410,7 +411,8 @@ def _upsert_variant_from_child(
     variant.sku_variant = (sku or variant.sku_variant or "")[:64]
     if price is not None or created:
         variant.price = price if price is not None else product.base_price
-    variant.stock_qty = max(0, stock)
+    if stock is not None or created:
+        variant.stock_qty = max(0, stock or 0)
     if child_id:
         variant.dntrade_product_id = child_id
     if code is not None:
