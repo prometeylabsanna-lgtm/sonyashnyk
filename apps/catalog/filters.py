@@ -195,25 +195,46 @@ def apply_sorting(request, products):
     return products.order_by("-has_stock", *order_fields)
 
 
+def _facet_label(value):
+    """Порожній рядок і NULL не є опцією фільтра. Дані в БД не змінюємо."""
+    if not isinstance(value, str):
+        return ""
+    return value.strip()
+
+
 def _ordered_values_for_filter(cf, products):
-    dict_ordered = [v.value for v in cf.values.all()]
-    product_vals = set(
+    dict_ordered = []
+    known = set()
+    for raw in (item.value for item in cf.values.all()):
+        text = _facet_label(raw)
+        if not text or text in known:
+            continue
+        known.add(text)
+        dict_ordered.append(text)
+
+    product_vals = set()
+    for raw in (
         products.filter(filter_attrs__catalog_filter=cf)
-        .exclude(filter_attrs__value="")
         .values_list("filter_attrs__value", flat=True)
         .distinct()
-    )
+    ):
+        text = _facet_label(raw)
+        if text:
+            product_vals.add(text)
+
     if cf.slug in ("volume", "weight", "pieces"):
-        product_vals.update(
-            label
-            for label in products.exclude(variants__label="")
-            .values_list("variants__label", flat=True)
-            .distinct()
-            if pack_unit_kind(label) == cf.slug
-            or (pack_unit_kind(label) is None and cf.slug == "pieces")
-        )
-    result = [v for v in dict_ordered if v in product_vals]
-    orphans = sorted(v for v in product_vals if v not in set(dict_ordered))
+        # LEFT JOIN дає NULL і для товару без варіанта, і для label IS NULL.
+        # exclude("") такий NULL не відсікає, а для «штук» він потрапляв у sorted().
+        for raw in products.values_list("variants__label", flat=True).distinct():
+            text = _facet_label(raw)
+            if not text:
+                continue
+            kind = pack_unit_kind(text)
+            if kind == cf.slug or (kind is None and cf.slug == "pieces"):
+                product_vals.add(text)
+
+    result = [value for value in dict_ordered if value in product_vals]
+    orphans = sorted(value for value in product_vals if value not in known)
     return result + orphans
 
 
