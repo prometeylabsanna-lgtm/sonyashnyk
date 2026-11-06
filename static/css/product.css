@@ -137,6 +137,15 @@
   line-height: 1.2;
 }
 
+.pdp-info__lead {
+  margin: 0 0 12px;
+  max-width: 40rem;
+  font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+  line-height: 1.5;
+  color: var(--c-body);
+  overflow-wrap: anywhere;
+}
+
 .pdp-info__meta {
   font-size: 13px;
   color: var(--c-muted);
@@ -397,6 +406,10 @@
     font-size: clamp(1.35rem, 4vw, 1.75rem);
   }
 
+  .pdp-info__lead {
+    max-width: none;
+  }
+
   .pack-switch--pdp .pack-switch__btn {
     min-height: 38px;
   }
@@ -444,6 +457,12 @@
     padding: 0 8px;
     font-size: 10px;
     letter-spacing: 0.02em;
+  }
+
+  .pdp-info__lead {
+    margin-bottom: 10px;
+    font-size: 0.9375rem;
+    line-height: 1.45;
   }
 
   .pdp-actions__wish {

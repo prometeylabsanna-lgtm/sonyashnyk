@@ -52,6 +52,11 @@
         {% if product.is_own_production %}<span class="badge badge--own">{% block_plain 'product' 'badge_own' %}</span>{% endif %}
       </div>
       <h1 class="h1 pdp-info__title">{{ product|loc_field:'name' }}</h1>
+      {% with short=product|loc_field:'short_description' %}
+        {% if short %}
+          <p class="pdp-info__lead">{{ short }}</p>
+        {% endif %}
+      {% endwith %}
       <div class="pdp-info__meta">{% block_plain 'product' 'sku_label' %} <span data-pack-sku>{% firstof variant.sku_variant product.sku %}</span>{% if product.brand %} · {{ product.brand }}{% endif %}{% if product.country_of_origin %} · {{ product.country_of_origin }}{% endif %}</div>
       {% if product.has_pack_choices %}
         {% include "includes/pack_switch.html" with product=product current=variant extra_class="pack-switch--pdp" %}
@@ -113,11 +118,12 @@
       </div>
 
       <div class="pdp-desc">
-        <h2 class="pdp-desc__title">{% block_plain 'product' 'desc_title' %}</h2>
-        <div class="pdp-desc__body cms-richtext">
-          {% firstof product|loc_field:'description' product|loc_field:'short_description' as desc %}
-          {{ desc|cms_rich }}
-        </div>
+        {% with desc=product|loc_field:'description' %}
+          {% if desc %}
+            <h2 class="pdp-desc__title">{% block_plain 'product' 'desc_title' %}</h2>
+            <div class="pdp-desc__body cms-richtext">{{ desc|cms_rich }}</div>
+          {% endif %}
+        {% endwith %}
 
         {% if product.characteristics %}
         <table class="spec-table">
