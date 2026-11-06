@@ -14,21 +14,13 @@ SECRET_KEY = config(
     default="django-insecure-dev-key-change-me-in-production",
 )
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
-# Vercel завжди виставляє VERCEL=1
-IS_VERCEL = config("VERCEL", default=False, cast=bool)
 ALLOWED_HOSTS = config(
     "DJANGO_ALLOWED_HOSTS",
-    default="127.0.0.1,localhost,.vercel.app",
+    default="127.0.0.1,localhost",
     cast=Csv(),
 )
-if IS_VERCEL and "*" not in ALLOWED_HOSTS and ".vercel.app" not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS = list(ALLOWED_HOSTS) + [".vercel.app"]
-
-CSRF_TRUSTED_ORIGINS = config(
-    "DJANGO_CSRF_TRUSTED_ORIGINS",
-    default="https://*.vercel.app",
-    cast=Csv(),
-)
+_csrf_origins = config("DJANGO_CSRF_TRUSTED_ORIGINS", default="")
+CSRF_TRUSTED_ORIGINS = [item.strip() for item in _csrf_origins.split(",") if item.strip()]
 # TLS завершує nginx. Gunicorn слухає лише HTTP, інакше /healthz/ отримує 301.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
@@ -90,12 +82,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # --- Database -------------------------------------------------------------
-# Postgres: DATABASE_URL або DB_*. На Vercel без URL — лише демо-SQLite в /tmp
-# (не зберігає товари/фото між інстансами).
+# Postgres: DATABASE_URL має пріоритет, інакше DB_*.
 from urllib.parse import unquote, urlparse
 
 DATABASE_URL = config("DATABASE_URL", default="").strip()
-USE_EPHEMERAL_SQLITE = False
 
 
 def _postgres_from_url(url: str) -> dict:
@@ -110,20 +100,12 @@ def _postgres_from_url(url: str) -> dict:
         "HOST": parsed.hostname or "",
         "PORT": str(parsed.port or "5432"),
         "CONN_MAX_AGE": 0,
-        "OPTIONS": {"connect_timeout": 5, "sslmode": "require"} if IS_VERCEL else {"connect_timeout": 3},
+        "OPTIONS": {"connect_timeout": 3},
     }
 
 
 if DATABASE_URL:
     DATABASES = {"default": _postgres_from_url(DATABASE_URL)}
-elif IS_VERCEL:
-    USE_EPHEMERAL_SQLITE = True
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": "/tmp/sonyashnyk.sqlite3",
-        }
-    }
 else:
     DATABASES = {
         "default": {
@@ -140,20 +122,12 @@ else:
         }
     }
 
-if IS_VERCEL:
-    # Cookie-сесія потрібна при ефемерній БД; з Postgres теж ок.
-    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
-else:
-    # На HTTP-дроплеті має бути False, інакше адмінка і кошик не тримають сесію.
-    # Після Let's Encrypt у .env виставити True.
-    SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
-    CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
-    SESSION_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_SAMESITE = "Lax"
+# На HTTP-дроплеті має бути False, інакше адмінка і кошик не тримають сесію.
+# Після Let's Encrypt у .env виставити True.
+SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=False, cast=bool)
+CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=False, cast=bool)
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
 
 # --- Passwords --------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
@@ -190,15 +164,10 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
-# На Vercel без collectstatic у CI — віддаємо static через finders
-if IS_VERCEL:
-    WHITENOISE_USE_FINDERS = True
-    WHITENOISE_AUTOREFRESH = True
-
 MEDIA_URL = "media/"
-MEDIA_ROOT = Path("/tmp/sonyashnyk_media") if IS_VERCEL else (BASE_DIR / "media")
+MEDIA_ROOT = BASE_DIR / "media"
 
-# S3 / R2 / інше S3-сумісне сховище (обовʼязково на Vercel для фото товарів)
+# S3-сумісне сховище для media, якщо задані ключі. Інакше файли лежать у MEDIA_ROOT.
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", default="").strip()
 AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", default="").strip()
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME", default="").strip()

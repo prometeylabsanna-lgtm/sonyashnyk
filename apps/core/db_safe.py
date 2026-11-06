@@ -3,7 +3,7 @@
 from django.db import connection
 from django.db.utils import InterfaceError, OperationalError, ProgrammingError
 
-# False після першого фейлу в процесі (Vercel cold start)
+# False після першого фейлу в процесі, щоб не опитувати БД на кожен запит.
 _db_reachable = None
 
 # Таблиці, без яких головна / каталог не можуть працювати з БД
